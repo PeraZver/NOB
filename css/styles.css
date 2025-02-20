@@ -1,0 +1,80 @@
+/* New CSS for a more accurate five-pointed star */
+.custom-star-icon {
+    position: relative;
+    display: inline-block;
+    color: red;
+    width: 0;
+    height: 0;
+    border-right: 10px solid transparent;
+    border-bottom: 7px solid red;
+    border-left: 10px solid transparent;
+    transform: rotate(35deg);
+}
+
+.custom-star-icon:before,
+.custom-star-icon:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -10px;
+    width: 0;
+    height: 0;
+    border-right: 10px solid transparent;
+    border-bottom: 7px solid red;
+    border-left: 10px solid transparent;
+}
+
+.custom-star-icon:before {
+    transform: rotate(-70deg);
+}
+
+.custom-star-icon:after {
+    transform: rotate(70deg);
+}
+
+body {
+	font-family: Arial, sans-serif;
+	text-align: center;
+}
+
+#map {
+	height: 500px;
+	width: 50%;
+	margin: 20px auto;
+	border: 2px solid black;
+}
+
+#map {
+    height: 600px;
+}
+
+.content {
+    text-align: center;
+}
+
+.content ul {
+    display: inline-block;
+    text-align: left;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+}
+
+.menu li {
+    margin: 0 15px;
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.menu li:hover {
+    background-color: #e0e0e0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
