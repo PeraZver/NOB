@@ -35,30 +35,33 @@ function showBrigades() {
                     pointToLayer: function (feature, latlng) {
                         var marker = L.marker(latlng);
                         marker.on('click', function () {
-                            if (feature.properties.wikipedia && feature.properties.wikipedia.startsWith('http')) {
-                                // Custom Wikipedia URL
-                                var popupContent = `
-                                    <b>${feature.properties.naziv}</b><br>
-                                    Formed on: ${feature.properties.datum_formiranja}<br>
-                                    Location: ${feature.properties.mesto_formiranja}<br>
-                                    <a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>
-                                `;
-                                marker.bindPopup(popupContent).openPopup();
-                            } else if (feature.properties.wikipedia) {
-                                // Fetch data from Wikipedia API
-                                fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
-                                    .then(response => response.json())
-                                    .then(wikiData => {
-                                        var popupContent = `
-                                            <b>${feature.properties.naziv}</b><br>
-                                            Formed on: ${feature.properties.datum_formiranja}<br>
-                                            Location: ${feature.properties.mesto_formiranja}<br>
-                                            <p>${wikiData.extract}</p>
-                                            <a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
-                                        `;
-                                        marker.bindPopup(popupContent).openPopup();
-                                    })
-                                    .catch(error => console.error('Error fetching Wikipedia data:', error));
+                            if (feature.properties.wikipedia) {
+                                if (feature.properties.wikipedia.startsWith('http')) {
+                                    // Custom Wikipedia URL
+                                    var popupContent = `
+                                        <b>${feature.properties.naziv}</b><br>
+                                        Formed on: ${feature.properties.datum_formiranja}<br>
+                                        Location: ${feature.properties.mesto_formiranja}<br>
+                                        <a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>
+                                    `;
+                                    marker.bindPopup(popupContent).openPopup();
+                                } else {
+                                    // Fetch data from Wikipedia API
+                                    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
+                                        .then(response => response.json())
+                                        .then(wikiData => {
+                                            var popupContent = `
+                                                <b>${feature.properties.naziv}</b><br>
+                                                Formed on: ${feature.properties.datum_formiranja}<br>
+                                                Location: ${feature.properties.mesto_formiranja}<br>
+                                                <p>${wikiData.extract}</p>
+                                                ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
+                                                <a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
+                                            `;
+                                            marker.bindPopup(popupContent).openPopup();
+                                        })
+                                        .catch(error => console.error('Error fetching Wikipedia data:', error));
+                                }
                             } else {
                                 // Default popup content for markers without Wikipedia property
                                 var popupContent = `
