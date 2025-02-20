@@ -1,0 +1,89 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Šibenski partizanski odred",
+                "datum_formiranja": "12 August 1941",
+                "mesto_formiranja": "Pisak kod Šibenika",
+                "popup": "Šibenski partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/%C5%A0ibenski_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [15.895, 43.735]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Mosećko-svilajski partizanski odred",
+                "datum_formiranja": "October 1943",
+                "mesto_formiranja": "između Moseća i Svilaje",
+                "popup": "Mosećko-svilajski partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Mosećko-svilajski_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [16.5, 43.7]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Mosorski partizanski odred",
+                "datum_formiranja": "11 October 1943",
+                "mesto_formiranja": "na Mosoru",
+                "popup": "Mosorski partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Mosorski_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [16.6, 43.5]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Pelješački partizanski odred",
+                "datum_formiranja": "December 1941",
+                "mesto_formiranja": "Pelješac",
+                "popup": "Pelješački partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Pelješački_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [17.1, 42.9]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Solinski partizanski odred",
+                "datum_formiranja": "11 August 1941",
+                "mesto_formiranja": "Bili Kuk iznad Solina",
+                "popup": "Solinski partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Solinski_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [16.5, 43.55]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Splitski partizanski odred",
+                "datum_formiranja": "11 August 1941",
+                "mesto_formiranja": "Split",
+                "popup": "Splitski partizanski odred<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Splitski_partizanski_odred"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [16.4402, 43.5081]
+            }
+        }
+    ]
+}

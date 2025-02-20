@@ -5,10 +5,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Prva dalmatinska proleterska udarna brigada",
-		  "datum_formiranja": "6. septembar 1942.",
+		  "datum_formiranja": "6 September 1942",
 		  "mesto_formiranja": "Dobro, kod Livna",
 		  "odlikovanja": "ONH, ONO, OPZ i OBJ",
-		  "popup": "Prva dalmatinska proleterska udarna brigada<br>Formed on: 6. septembar 1942.",
+		  "popup": "Prva dalmatinska proleterska udarna brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%9F%D1%80%D0%B2%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D0%BF%D1%80%D0%BE%D0%BB%D0%B5%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B0_%D1%83%D0%B4%D0%B0%D1%80%D0%BD%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -20,10 +20,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Druga dalmatinska proleterska udarna brigada",
-		  "datum_formiranja": "2. oktobar 1942.",
+		  "datum_formiranja": "2 October 1942",
 		  "mesto_formiranja": "Uništa, kod B. Grahova",
 		  "odlikovanja": "ONH, ONO, OPZ i OBJ",
-		  "popup": "Druga dalmatinska proleterska udarna brigada<br>Formed on: 2. oktobar 1942.",
+		  "popup": "Druga dalmatinska proleterska udarna brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%94%D1%80%D1%83%D0%B3%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D0%BF%D1%80%D0%BE%D0%BB%D0%B5%D1%82%D0%B5%D1%80%D1%81%D0%BA%D0%B0_%D1%83%D0%B4%D0%B0%D1%80%D0%BD%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -35,10 +35,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Treća dalmatinska udarna brigada",
-		  "datum_formiranja": "12. novembar 1942.",
+		  "datum_formiranja": "12 November 1942",
 		  "mesto_formiranja": "Vrba, kod Muća",
 		  "odlikovanja": "ONH, ONO i OBJ",
-		  "popup": "Treća dalmatinska udarna brigada<br>Formed on: 12. novembar 1942.",
+		  "popup": "Treća dalmatinska udarna brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%A2%D1%80%D0%B5%D1%9B%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D1%83%D0%B4%D0%B0%D1%80%D0%BD%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -50,10 +50,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Četvrta dalmatinska brigada",
-		  "datum_formiranja": "6. januar 1943.",
+		  "datum_formiranja": "6 January 1943",
 		  "mesto_formiranja": "Šošići, na Bikovu",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Četvrta dalmatinska brigada<br>Formed on: 6. januar 1943.",
+		  "popup": "Četvrta dalmatinska brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%A7%D0%B5%D1%82%D0%B2%D1%80%D1%82%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -65,10 +65,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Peta dalmatinska brigada",
-		  "datum_formiranja": "3. februar 1943.",
+		  "datum_formiranja": "3 February 1943",
 		  "mesto_formiranja": "okolina Bosanskog Grahova",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Peta dalmatinska brigada<br>Formed on: 3. februar 1943.",
+		  "popup": "Peta dalmatinska brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%9F%D0%B5%D1%82%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -80,10 +80,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Šesta dalmatinska (bukovička) brigada",
-		  "datum_formiranja": "31. avgust 1943.",
+		  "datum_formiranja": "31 August 1943",
 		  "mesto_formiranja": "Dalmatinska Bukovica",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Šesta dalmatinska (bukovička) brigada<br>Formed on: 31. avgust 1943.",
+		  "popup": "Šesta dalmatinska (bukovička) brigada<br>Formed on: {datum_formiranja}",
 		  "wikipedia": "https://sr.m.wikipedia.org/sr-el/%D0%A8%D0%B5%D1%81%D1%82%D0%B0_%D0%B4%D0%B0%D0%BB%D0%BC%D0%B0%D1%82%D0%B8%D0%BD%D1%81%D0%BA%D0%B0_%D0%B1%D1%80%D0%B8%D0%B3%D0%B0%D0%B4%D0%B0"
 		},
 		"geometry": {
@@ -95,10 +95,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Sedma dalmatinska udarna brigada",
-		  "datum_formiranja": "12. septembar 1943.",
+		  "datum_formiranja": "12 September 1943",
 		  "mesto_formiranja": "Karin",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Sedma dalmatinska udarna brigada<br>Formed on: 12. septembar 1943."
+		  "popup": "Sedma dalmatinska udarna brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -109,10 +109,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Osma dalmatinska (šibenska) brigada",
-		  "datum_formiranja": "10. septembar 1943.",
+		  "datum_formiranja": "10 September 1943",
 		  "mesto_formiranja": "Bogdanovići, kod Šibenika",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Osma dalmatinska (šibenska) brigada<br>Formed on: 10. septembar 1943."
+		  "popup": "Osma dalmatinska (šibenska) brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -123,10 +123,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Deveta dalmatinska (trogirska) brigada",
-		  "datum_formiranja": "12. septembar 1943.",
+		  "datum_formiranja": "12 September 1943",
 		  "mesto_formiranja": "Seget Donji, kod Trogira",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Deveta dalmatinska (trogirska) brigada<br>Formed on: 12. septembar 1943."
+		  "popup": "Deveta dalmatinska (trogirska) brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -137,10 +137,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Deseta dalmatinska (cetinska) brigada",
-		  "datum_formiranja": "14. septembar 1943.",
+		  "datum_formiranja": "14 September 1943",
 		  "mesto_formiranja": "Dugopolje, kod Sinja",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Deseta dalmatinska (cetinska) brigada<br>Formed on: 14. septembar 1943."
+		  "popup": "Deseta dalmatinska (cetinska) brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -151,10 +151,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Jedanaesta dalmatinska udarna brigada",
-		  "datum_formiranja": "2. oktobar 1943.",
+		  "datum_formiranja": "2 October 1943",
 		  "mesto_formiranja": "Kozica, na Biokovu",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Jedanaesta dalmatinska udarna brigada<br>Formed on: 2. oktobar 1943."
+		  "popup": "Jedanaesta dalmatinska udarna brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -165,10 +165,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Dvanaesta dalmatinska brigada",
-		  "datum_formiranja": "21. septembar 1943.",
+		  "datum_formiranja": "21 September 1943",
 		  "mesto_formiranja": "Nerežišća, na Braču",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Dvanaesta dalmatinska brigada<br>Formed on: 21. septembar 1943."
+		  "popup": "Dvanaesta dalmatinska brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -179,10 +179,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Trinaesta dalmatinska (južnodalmatinska) brigada",
-		  "datum_formiranja": "21. septembar 1943.",
+		  "datum_formiranja": "21 September 1943",
 		  "mesto_formiranja": "Pelješac",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Trinaesta dalmatinska (južnodalmatinska) brigada<br>Formed on: 21. septembar 1943."
+		  "popup": "Trinaesta dalmatinska (južnodalmatinska) brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
@@ -193,10 +193,10 @@
 		"type": "Feature",
 		"properties": {
 		  "naziv": "Četrnaesta dalmatinska (bukovička) brigada",
-		  "datum_formiranja": "28. jun 1944.",
+		  "datum_formiranja": "28 June 1944",
 		  "mesto_formiranja": "Biovičino selo, kod Bukovice",
 		  "odlikovanja": "OZN i OBJ",
-		  "popup": "Četrnaesta dalmatinska (bukovička) brigada<br>Formed on: 28. jun 1944."
+		  "popup": "Četrnaesta dalmatinska (bukovička) brigada<br>Formed on: {datum_formiranja}"
 		},
 		"geometry": {
 		  "type": "Point",
