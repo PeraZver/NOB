@@ -21,6 +21,8 @@ var brigadeLayer;
 var isBrigadeLayerVisible = false;
 var occupiedTerritoryLayer;
 var isOccupiedTerritoryLayerVisible = false;
+var detachmentLayer;
+var isDetachmentLayerVisible = false;
 
 // Function to show/hide brigades on the map
 function showBrigades() {
@@ -106,11 +108,66 @@ function showOccupiedTerritory() {
     }
 }
 
-// Placeholder functions for other menu options
+// Function to show/hide detachments on the map
 function showDetachments() {
-    alert('Detachments data not available yet.');
+    if (isDetachmentLayerVisible) {
+        map.removeLayer(detachmentLayer);
+        isDetachmentLayerVisible = false;
+    } else {
+        fetch('assets/dalmatia-odredi.json')
+            .then(response => response.json())
+            .then(data => {
+                detachmentLayer = L.geoJSON(data, {
+                    pointToLayer: function (feature, latlng) {
+                        var marker = L.marker(latlng);
+                        marker.on('click', function () {
+                            if (feature.properties.wikipedia) {
+                                if (feature.properties.wikipedia.startsWith('http')) {
+                                    // Custom Wikipedia URL
+                                    var popupContent = `
+                                        <b>${feature.properties.naziv}</b><br>
+                                        Formed on: ${feature.properties.datum_formiranja}<br>
+                                        Location: ${feature.properties.mesto_formiranja}<br>
+                                        <a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>
+                                    `;
+                                    marker.bindPopup(popupContent).openPopup();
+                                } else {
+                                    // Fetch data from Wikipedia API
+                                    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
+                                        .then(response => response.json())
+                                        .then(wikiData => {
+                                            var popupContent = `
+                                                <b>${feature.properties.naziv}</b><br>
+                                                Formed on: ${feature.properties.datum_formiranja}<br>
+                                                Location: ${feature.properties.mesto_formiranja}<br>
+                                                <p>${wikiData.extract}</p>
+                                                ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
+                                                <a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
+                                            `;
+                                            marker.bindPopup(popupContent).openPopup();
+                                        })
+                                        .catch(error => console.error('Error fetching Wikipedia data:', error));
+                                }
+                            } else {
+                                // Default popup content for markers without Wikipedia property
+                                var popupContent = `
+                                    <b>${feature.properties.naziv}</b><br>
+                                    Formed on: ${feature.properties.datum_formiranja}<br>
+                                    Location: ${feature.properties.mesto_formiranja}
+                                `;
+                                marker.bindPopup(popupContent).openPopup();
+                            }
+                        });
+                        return marker;
+                    }
+                }).addTo(map);
+                isDetachmentLayerVisible = true;
+            })
+            .catch(error => console.error('Error loading detachments data:', error));
+    }
 }
 
+// Placeholder functions for other menu options
 function showDivisions() {
     alert('Divisions data not available yet.');
 }
