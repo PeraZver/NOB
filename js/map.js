@@ -24,104 +24,20 @@ var isOccupiedTerritoryLayerVisible = false;
 var detachmentLayer;
 var isDetachmentLayerVisible = false;
 
-// Function to show/hide brigades on the map
-function showBrigades() {
-    if (isBrigadeLayerVisible) {
-        map.removeLayer(brigadeLayer);
-        isBrigadeLayerVisible = false;
+function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
+    if (isVisibleFlag) {
+        map.removeLayer(layer);
+        setVisibleFlag(false);
     } else {
-        fetch('assets/dalmatia-brigades.json')
-            .then(response => response.json())
-            .then(data => {
-                brigadeLayer = L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        var marker = L.marker(latlng);
-                        marker.on('click', function () {
-                            if (feature.properties.wikipedia) {
-                                if (feature.properties.wikipedia.startsWith('http')) {
-                                    // Custom Wikipedia URL
-                                    var popupContent = `
-                                        <b>${feature.properties.naziv}</b><br>
-                                        Formed on: ${feature.properties.datum_formiranja}<br>
-                                        Location: ${feature.properties.mesto_formiranja}<br>
-                                        <a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>
-                                    `;
-                                    marker.bindPopup(popupContent).openPopup();
-                                } else {
-                                    // Fetch data from Wikipedia API
-                                    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
-                                        .then(response => response.json())
-                                        .then(wikiData => {
-                                            var popupContent = `
-                                                <b>${feature.properties.naziv}</b><br>
-                                                Formed on: ${feature.properties.datum_formiranja}<br>
-                                                Location: ${feature.properties.mesto_formiranja}<br>
-                                                <p>${wikiData.extract}</p>
-                                                ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
-                                                <a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
-                                            `;
-                                            marker.bindPopup(popupContent).openPopup();
-                                        })
-                                        .catch(error => console.error('Error fetching Wikipedia data:', error));
-                                }
-                            } else {
-                                // Default popup content for markers without Wikipedia property
-                                var popupContent = `
-                                    <b>${feature.properties.naziv}</b><br>
-                                    Formed on: ${feature.properties.datum_formiranja}<br>
-                                    Location: ${feature.properties.mesto_formiranja}
-                                `;
-                                marker.bindPopup(popupContent).openPopup();
-                            }
-                        });
-                        return marker;
-                    }
-                }).addTo(map);
-                isBrigadeLayerVisible = true;
-            })
-            .catch(error => console.error('Error loading brigades data:', error));
-    }
-}
-
-// Function to show/hide occupied territories on the map
-function showOccupiedTerritory() {
-    if (isOccupiedTerritoryLayerVisible) {
-        map.removeLayer(occupiedTerritoryLayer);
-        isOccupiedTerritoryLayerVisible = false;
-    } else {
-        fetch('assets/occupied-territory.json')
-            .then(response => response.json())
-            .then(data => {
-                occupiedTerritoryLayer = L.geoJSON(data, {
-                    style: function (feature) {
-                        return { color: feature.properties.color };
-                    },
-                    onEachFeature: function (feature, layer) {
-                        if (feature.properties && feature.properties.popup) {
-                            layer.bindTooltip(feature.properties.popup, { permanent: false, direction: "auto" });
-                        }
-                    }
-                }).addTo(map);
-                isOccupiedTerritoryLayerVisible = true;
-            })
-            .catch(error => console.error('Error loading map data:', error));
-    }
-}
-
-// Function to show/hide detachments on the map
-function showDetachments() {
-    if (isDetachmentLayerVisible) {
-        map.removeLayer(detachmentLayer);
-        isDetachmentLayerVisible = false;
-    } else {
-        fetch('assets/dalmatia-odredi.json')
+        fetch(url)
             .then(response => response.json())
             .then(data => {
                 // Sort features by datum_formiranja
                 data.features.sort((a, b) => new Date(a.properties.datum_formiranja) - new Date(b.properties.datum_formiranja));
 
                 // Create a layer group to hold the markers
-                detachmentLayer = L.layerGroup().addTo(map);
+                layer = L.layerGroup().addTo(map);
+                setLayer(layer);
 
                 // Add markers with a delay
                 data.features.forEach((feature, index) => {
@@ -153,13 +69,48 @@ function showDetachments() {
                                 marker.bindPopup(popupContent).openPopup();
                             }
                         });
-                        detachmentLayer.addLayer(marker);
-                    }, index * 200); // 100ms delay between each marker
+                        layer.addLayer(marker);
+                    }, index * delay); // Delay between each marker
                 });
 
-                isDetachmentLayerVisible = true;
+                setVisibleFlag(true);
             })
-            .catch(error => console.error('Error loading detachments data:', error));
+            .catch(error => console.error('Error loading data:', error));
+    }
+}
+
+// Function to show/hide brigades on the map
+function showBrigades() {
+    isBrigadeLayerVisible = showLayer('assets/dalmatia-brigades.json', brigadeLayer, isBrigadeLayerVisible, 100, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag);
+}
+
+// Function to show/hide detachments on the map
+function showDetachments() {
+    isDetachmentLayerVisible = showLayer('assets/dalmatia-odredi.json', detachmentLayer, isDetachmentLayerVisible, 100, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag);
+}
+
+// Function to show/hide occupied territories on the map
+function showOccupiedTerritory() {
+    if (isOccupiedTerritoryLayerVisible) {
+        map.removeLayer(occupiedTerritoryLayer);
+        isOccupiedTerritoryLayerVisible = false;
+    } else {
+        fetch('assets/occupied-territory.json')
+            .then(response => response.json())
+            .then(data => {
+                occupiedTerritoryLayer = L.geoJSON(data, {
+                    style: function (feature) {
+                        return { color: feature.properties.color };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        if (feature.properties && feature.properties.popup) {
+                            layer.bindTooltip(feature.properties.popup, { permanent: false, direction: "auto" });
+                        }
+                    }
+                }).addTo(map);
+                isOccupiedTerritoryLayerVisible = true;
+            })
+            .catch(error => console.error('Error loading map data:', error));
     }
 }
 
