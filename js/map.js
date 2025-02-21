@@ -79,6 +79,74 @@ function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
     }
 }
 
+function toggleSidebar(layerName) {
+    var sidebar = document.getElementById('sidebar');
+    var content = document.getElementById('content');
+    var mapElement = document.getElementById('map');
+
+    if (sidebar.classList.contains('visible')) {
+        sidebar.classList.remove('visible');
+        mapElement.style.marginLeft = '0';
+        content.classList.remove('visible');
+    } else {
+        sidebar.classList.add('visible');
+        mapElement.style.marginLeft = '320px';
+        content.classList.add('visible');
+    }
+
+    switch (layerName) {
+        case 'Occupied Territory':
+            content.innerHTML = `
+                <h1>Yugoslavia Occupied Territories - April 1941</h1>
+                <p>In April 1941, Yugoslavia was invaded and divided by Axis powers: </p>
+                <ul>
+                    <li><strong>Germany</strong> took northern and central Yugoslavia, including Serbia.</li>
+                    <li><strong>Italy</strong> controlled parts of Slovenia, Dalmatian coast, and Montenegro.</li>
+                    <li><strong>Hungary</strong> annexed northern territories.</li>
+                    <li><strong>Bulgaria</strong> occupied Macedonia.</li>
+                    <li><strong>Independent State of Croatia (NDH)</strong> was established under German and Italian control.</li>
+                </ul>
+            `;
+            showOccupiedTerritory();
+            break;
+        case 'Detachments':
+            content.innerHTML = `
+                <h1>Detachments</h1>
+                <p>Information about detachments will be displayed here.</p>
+            `;
+            showDetachments();
+            break;
+        case 'Brigades':
+            content.innerHTML = `
+                <h1>Brigades</h1>
+                <p>Information about brigades will be displayed here.</p>
+            `;
+            showBrigades();
+            break;
+        case 'Divisions':
+            content.innerHTML = `
+                <h1>Divisions</h1>
+                <p>Information about divisions will be displayed here.</p>
+            `;
+            showDivisions();
+            break;
+        case 'Corpuses':
+            content.innerHTML = `
+                <h1>Corpuses</h1>
+                <p>Information about corpuses will be displayed here.</p>
+            `;
+            showCorpuses();
+            break;
+        case 'Battles':
+            content.innerHTML = `
+                <h1>Battles</h1>
+                <p>Information about battles will be displayed here.</p>
+            `;
+            showBattles();
+            break;
+    }
+}
+
 // Function to show/hide brigades on the map
 function showBrigades() {
     isBrigadeLayerVisible = showLayer('assets/dalmatia-brigades.json', brigadeLayer, isBrigadeLayerVisible, 100, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag);

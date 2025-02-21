@@ -8,27 +8,50 @@
 	<link rel="stylesheet" href="assets/styles.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 	<link rel="stylesheet" href="css/styles.css">
+	<style>
+		#map {
+			height: 600px;
+			transition: margin-left 0.5s;
+		}
+
+		.sidebar {
+			position: absolute;
+			top: 10px;
+			left: -300px;
+			width: 300px;
+			background: white;
+			padding: 10px;
+			border-radius: 5px;
+			transition: left 0.5s;
+		}
+
+		.sidebar.visible {
+			left: 10px;
+		}
+
+		.content {
+			display: none;
+		}
+
+		.content.visible {
+			display: block;
+		}
+	</style>
 </head>
 
 <body>
-	<div class="content">
-		<h1>Yugoslavia Occupied Territories - April 1941</h1>
-		<p>In April 1941, Yugoslavia was invaded and divided by Axis powers: </p>
-		<ul>
-			<li><strong>Germany</strong> took northern and central Yugoslavia, including Serbia.</li>
-			<li><strong>Italy</strong> controlled parts of Slovenia, Dalmatian coast, and Montenegro.</li>
-			<li><strong>Hungary</strong> annexed northern territories.</li>
-			<li><strong>Bulgaria</strong> occupied Macedonia.</li>
-			<li><strong>Independent State of Croatia (NDH)</strong> was established under German and Italian control.</li>
-		</ul>
+	<div class="sidebar" id="sidebar">
+		<div class="content" id="content">
+			<!-- Content will be dynamically updated -->
+		</div>
 	</div>
 	<ul class="menu">
-		<li onclick="showOccupiedTerritory()">Occupied Territory</li>
-		<li onclick="showDetachments()">Detachments</li>
-		<li onclick="showBrigades()">Brigades</li>
-		<li onclick="showDivisions()">Divisions</li>
-		<li onclick="showCorpuses()">Corpuses</li>
-		<li onclick="showBattles()">Battles</li>
+		<li onclick="toggleSidebar('Occupied Territory')">Occupied Territory</li>
+		<li onclick="toggleSidebar('Detachments')">Detachments</li>
+		<li onclick="toggleSidebar('Brigades')">Brigades</li>
+		<li onclick="toggleSidebar('Divisions')">Divisions</li>
+		<li onclick="toggleSidebar('Corpuses')">Corpuses</li>
+		<li onclick="toggleSidebar('Battles')">Battles</li>
 	</ul>
 	<div id="map"></div>
 
