@@ -117,32 +117,32 @@ function showDetachments() {
         fetch('assets/dalmatia-odredi.json')
             .then(response => response.json())
             .then(data => {
-                detachmentLayer = L.geoJSON(data, {
-                    pointToLayer: function (feature, latlng) {
-                        var marker = L.marker(latlng);
+                // Sort features by datum_formiranja
+                data.features.sort((a, b) => new Date(a.properties.datum_formiranja) - new Date(b.properties.datum_formiranja));
+
+                // Create a layer group to hold the markers
+                detachmentLayer = L.layerGroup().addTo(map);
+
+                // Add markers with a delay
+                data.features.forEach((feature, index) => {
+                    setTimeout(() => {
+                        var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
                         marker.on('click', function () {
+                            var popupContent = feature.properties.popup.replace('{datum_formiranja}', feature.properties.datum_formiranja);
                             if (feature.properties.wikipedia) {
                                 if (feature.properties.wikipedia.startsWith('http')) {
                                     // Custom Wikipedia URL
-                                    var popupContent = `
-                                        <b>${feature.properties.naziv}</b><br>
-                                        Formed on: ${feature.properties.datum_formiranja}<br>
-                                        Location: ${feature.properties.mesto_formiranja}<br>
-                                        <a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>
-                                    `;
+                                    popupContent += `<br><a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>`;
                                     marker.bindPopup(popupContent).openPopup();
                                 } else {
                                     // Fetch data from Wikipedia API
                                     fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
                                         .then(response => response.json())
                                         .then(wikiData => {
-                                            var popupContent = `
-                                                <b>${feature.properties.naziv}</b><br>
-                                                Formed on: ${feature.properties.datum_formiranja}<br>
-                                                Location: ${feature.properties.mesto_formiranja}<br>
+                                            popupContent += `
                                                 <p>${wikiData.extract}</p>
                                                 ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
-                                                <a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
+                                                <br><a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
                                             `;
                                             marker.bindPopup(popupContent).openPopup();
                                         })
@@ -150,17 +150,13 @@ function showDetachments() {
                                 }
                             } else {
                                 // Default popup content for markers without Wikipedia property
-                                var popupContent = `
-                                    <b>${feature.properties.naziv}</b><br>
-                                    Formed on: ${feature.properties.datum_formiranja}<br>
-                                    Location: ${feature.properties.mesto_formiranja}
-                                `;
                                 marker.bindPopup(popupContent).openPopup();
                             }
                         });
-                        return marker;
-                    }
-                }).addTo(map);
+                        detachmentLayer.addLayer(marker);
+                    }, index * 200); // 100ms delay between each marker
+                });
+
                 isDetachmentLayerVisible = true;
             })
             .catch(error => console.error('Error loading detachments data:', error));
