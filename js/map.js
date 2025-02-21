@@ -86,11 +86,11 @@ function toggleSidebar(layerName) {
 
     if (sidebar.classList.contains('visible')) {
         sidebar.classList.remove('visible');
-        mapElement.style.marginLeft = '0';
+        mapElement.style.transform = 'translateX(0)';
         content.classList.remove('visible');
     } else {
         sidebar.classList.add('visible');
-        mapElement.style.marginLeft = '320px';
+        mapElement.style.transform = 'translateX(150px)';
         content.classList.add('visible');
     }
 

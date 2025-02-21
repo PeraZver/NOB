@@ -11,14 +11,15 @@
 	<style>
 		#map {
 			height: 600px;
-			transition: margin-left 0.5s;
+			transition: transform 0.5s;
+			margin-top: 20px; /* Adjust this value to align the map and sidebar */
 		}
 
 		.sidebar {
 			position: absolute;
-			top: 10px;
-			left: -300px;
-			width: 300px;
+			top: 60px; /* Adjust this value to align the map and sidebar */
+			left: -320px;
+			width: 600px;
 			background: white;
 			padding: 10px;
 			border-radius: 5px;
@@ -31,6 +32,9 @@
 
 		.content {
 			display: none;
+			width: 100%;
+			box-sizing: border-box;
+			text-align: left;
 		}
 
 		.content.visible {
