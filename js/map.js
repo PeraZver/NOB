@@ -23,6 +23,7 @@ var occupiedTerritoryLayer;
 var isOccupiedTerritoryLayerVisible = false;
 var detachmentLayer;
 var isDetachmentLayerVisible = false;
+var currentLayerName = '';
 
 function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
     if (isVisibleFlag) {
@@ -84,16 +85,32 @@ function toggleSidebar(layerName) {
     var content = document.getElementById('content');
     var mapElement = document.getElementById('map');
 
-    if (sidebar.classList.contains('visible')) {
-        sidebar.classList.remove('visible');
-        mapElement.style.transform = 'translateX(0)';
-        content.classList.remove('visible');
+    if (currentLayerName === layerName) {
+        // If the same button is clicked, toggle the sidebar visibility and remove the layer
+        if (sidebar.classList.contains('visible')) {
+            sidebar.classList.remove('visible');
+            mapElement.style.transform = 'translateX(0)';
+            content.classList.remove('visible');
+            removeLayer(layerName);
+        } else {
+            sidebar.classList.add('visible');
+            mapElement.style.transform = 'translateX(150px)';
+            content.classList.add('visible');
+            showLayerByName(layerName);
+        }
     } else {
+        // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
         mapElement.style.transform = 'translateX(150px)';
         content.classList.add('visible');
+        showLayerByName(layerName);
     }
 
+    // Update the current layer name
+    currentLayerName = layerName;
+}
+
+function showLayerByName(layerName) {
     switch (layerName) {
         case 'Occupied Territory':
             content.innerHTML = `
@@ -143,6 +160,38 @@ function toggleSidebar(layerName) {
                 <p>Information about battles will be displayed here.</p>
             `;
             showBattles();
+            break;
+    }
+}
+
+function removeLayer(layerName) {
+    switch (layerName) {
+        case 'Occupied Territory':
+            if (isOccupiedTerritoryLayerVisible) {
+                map.removeLayer(occupiedTerritoryLayer);
+                isOccupiedTerritoryLayerVisible = false;
+            }
+            break;
+        case 'Detachments':
+            if (isDetachmentLayerVisible) {
+                map.removeLayer(detachmentLayer);
+                isDetachmentLayerVisible = false;
+            }
+            break;
+        case 'Brigades':
+            if (isBrigadeLayerVisible) {
+                map.removeLayer(brigadeLayer);
+                isBrigadeLayerVisible = false;
+            }
+            break;
+        case 'Divisions':
+            // Placeholder for divisions layer removal
+            break;
+        case 'Corpuses':
+            // Placeholder for corpuses layer removal
+            break;
+        case 'Battles':
+            // Placeholder for battles layer removal
             break;
     }
 }
