@@ -5,59 +5,28 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>WWII Occupation Map - April 1941</title>
-	<link rel="stylesheet" href="assets/styles.css">
 	<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 	<link rel="stylesheet" href="css/styles.css">
-	<style>
-		#map {
-			height: 600px;
-			transition: transform 0.5s;
-			margin-top: 20px; /* Adjust this value to align the map and sidebar */
-		}
-
-		.sidebar {
-			position: absolute;
-			top: 60px; /* Adjust this value to align the map and sidebar */
-			left: -320px;
-			width: 600px;
-			background: white;
-			padding: 10px;
-			border-radius: 5px;
-			transition: left 0.5s;
-		}
-
-		.sidebar.visible {
-			left: 10px;
-		}
-
-		.content {
-			display: none;
-			width: 100%;
-			box-sizing: border-box;
-			text-align: left;
-		}
-
-		.content.visible {
-			display: block;
-		}
-	</style>
 </head>
 
 <body>
-	<div class="sidebar" id="sidebar">
-		<div class="content" id="content">
-			<!-- Content will be dynamically updated -->
+	<div class="title">People's Liberation Struggle</div>
+	<div class="container">
+		<div class="sidebar" id="sidebar">
+			<div class="content" id="content">
+				<!-- Content will be dynamically updated -->
+			</div>
 		</div>
+		<ul class="menu">
+			<li onclick="toggleSidebar('Occupied Territory')">Occupied Territory</li>
+			<li onclick="toggleSidebar('Detachments')">Detachments</li>
+			<li onclick="toggleSidebar('Brigades')">Brigades</li>
+			<li onclick="toggleSidebar('Divisions')">Divisions</li>
+			<li onclick="toggleSidebar('Corpuses')">Corpuses</li>
+			<li onclick="toggleSidebar('Battles')">Battles</li>
+		</ul>
+		<div id="map"></div>
 	</div>
-	<ul class="menu">
-		<li onclick="toggleSidebar('Occupied Territory')">Occupied Territory</li>
-		<li onclick="toggleSidebar('Detachments')">Detachments</li>
-		<li onclick="toggleSidebar('Brigades')">Brigades</li>
-		<li onclick="toggleSidebar('Divisions')">Divisions</li>
-		<li onclick="toggleSidebar('Corpuses')">Corpuses</li>
-		<li onclick="toggleSidebar('Battles')">Battles</li>
-	</ul>
-	<div id="map"></div>
 
 	<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 	<script src="js/map.js"></script>
