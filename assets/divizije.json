@@ -4,12 +4,12 @@
 		{
 			"type": "Feature",
 			"properties": {
-				"naziv": "Prva proleterska udarna divizija",
+				"naziv": "1. proleterska udarna divizija",
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Bosanski Petrovac",
-				"sastav": "I.proleterska, III. proleterska sandžačka i III. krajiška brigada",
-				"popup": "Prva proleterska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/wiki/Prva_proleterska_udarna_divizija"
+				"sastav": "1. proleterska, 3. proleterska sandžačka i 3. krajiška brigada",
+				"popup": "1. proleterska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Prva_proleterska_udarna_divizija"
 			},
 			"geometry": {
 				"type": "Point",
@@ -19,12 +19,12 @@
 		{
 			"type": "Feature",
 			"properties": {
-				"naziv": "Druga proleterska udarna divizija",
+				"naziv": "2. proleterska udarna divizija",
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Tičevo, kod Bos. Grahova",
-				"sastav": "II. proleterska, IV. proleterska crnogorska i II. dalmatinska brigada",
-				"popup": "Druga proleterska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/wiki/Druga_proleterska_udarna_divizija"
+				"sastav": "2. proleterska, 4. proleterska crnogorska i 2. dalmatinska brigada",
+				"popup": "2. proleterska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Druga_proleterska_udarna_divizija"
 			},
 			"geometry": {
 				"type": "Point",
@@ -34,12 +34,12 @@
 		{
 			"type": "Feature",
 			"properties": {
-				"naziv": "Treća udarna divizija",
+				"naziv": "3. udarna divizija",
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Perduhovo Selo kod Glamoča",
-				"sastav": "V.proleterska crnogorska, X. hercegovacka, i I. dalmatinska brigada",
-				"popup": "Treća udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/wiki/Treća_udarna_divizija"
+				"sastav": "5. proleterska crnogorska, 10. hercegovacka, i 1. dalmatinska brigada",
+				"popup": "3. udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Treća_udarna_divizija"
 			},
 			"geometry": {
 				"type": "Point",
@@ -49,16 +49,61 @@
 		{
 			"type": "Feature",
 			"properties": {
-				"naziv": "Deveta dalmatinska udarna divizija",
+				"naziv": "9. dalmatinska udarna divizija",
 				"datum_formiranja": "13. February 1943",
 				"mesto_formiranja": "Imotski",
-				"sastav": "III., IV. i V. dalmatinska brigada",
-				"popup": "Deveta dalmatinska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/wiki/Deveta_dalmatinska_udarna_divizija"
+				"sastav": "3., 4. i 5. dalmatinska brigada",
+				"popup": "9. dalmatinska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Deveta_dalmatinska_udarna_divizija"
 			},
 			"geometry": {
 				"type": "Point",
 				"coordinates": [17.216, 43.446]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "19. dalmatinska divizija",
+				"datum_formiranja": "October 1943",
+				"mesto_formiranja": "Biovičino Selo u Bukovici",
+				"sastav": "5., 6., i 7. dalmatinska brigada",
+				"popup": "19. dalmatinska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/19._dalmatinska_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [15.8, 44.0]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "20. dalmatinska divizija",
+				"datum_formiranja": "10. October 1943",
+				"mesto_formiranja": "Vrdovo na Dinari",
+				"sastav": "8., 9., i 10. dalmatinska brigada",
+				"popup": "20. dalmatinska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/20._dalmatinska_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [16.5, 44.1]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "26. dalmatinska divizija",
+				"datum_formiranja": "8. October 1943",
+				"mesto_formiranja": "Biokovo",
+				"sastav": "11., 12. i 13. dalmatinska brigada",
+				"popup": "26. dalmatinska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/26._dalmatinska_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [17.1, 43.3]
 			}
 		}
 	]
