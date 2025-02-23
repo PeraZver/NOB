@@ -23,6 +23,8 @@ var occupiedTerritoryLayer;
 var isOccupiedTerritoryLayerVisible = false;
 var detachmentLayer;
 var isDetachmentLayerVisible = false;
+var divisionLayer;
+var isDivisionLayerVisible = false;
 var currentLayerName = '';
 
 function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
@@ -185,7 +187,10 @@ function removeLayer(layerName) {
             }
             break;
         case 'Divisions':
-            // Placeholder for divisions layer removal
+            if (isDivisionLayerVisible) {
+                map.removeLayer(divisionLayer);
+                isDivisionLayerVisible = false;
+            }
             break;
         case 'Corpuses':
             // Placeholder for corpuses layer removal
@@ -204,6 +209,11 @@ function showBrigades() {
 // Function to show/hide detachments on the map
 function showDetachments() {
     isDetachmentLayerVisible = showLayer('assets/dalmatia-odredi.json', detachmentLayer, isDetachmentLayerVisible, 100, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag);
+}
+
+// Function to show/hide divisions on the map
+function showDivisions() {
+    isDivisionLayerVisible = showLayer('assets/divizije.json', divisionLayer, isDivisionLayerVisible, 100, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag);
 }
 
 // Function to show/hide occupied territories on the map
@@ -232,10 +242,6 @@ function showOccupiedTerritory() {
 }
 
 // Placeholder functions for other menu options
-function showDivisions() {
-    alert('Divisions data not available yet.');
-}
-
 function showCorpuses() {
     alert('Corpuses data not available yet.');
 }

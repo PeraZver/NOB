@@ -1,0 +1,65 @@
+{
+	"type": "FeatureCollection",
+	"features": [
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "Prva proleterska udarna divizija",
+				"datum_formiranja": "1. November 1942",
+				"mesto_formiranja": "Bosanski Petrovac",
+				"sastav": "I.proleterska, III. proleterska sandžačka i III. krajiška brigada",
+				"popup": "Prva proleterska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/wiki/Prva_proleterska_udarna_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [16.376, 44.556]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "Druga proleterska udarna divizija",
+				"datum_formiranja": "1. November 1942",
+				"mesto_formiranja": "Tičevo, kod Bos. Grahova",
+				"sastav": "II. proleterska, IV. proleterska crnogorska i II. dalmatinska brigada",
+				"popup": "Druga proleterska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/wiki/Druga_proleterska_udarna_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [16.363, 44.179]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "Treća udarna divizija",
+				"datum_formiranja": "1. November 1942",
+				"mesto_formiranja": "Perduhovo Selo kod Glamoča",
+				"sastav": "V.proleterska crnogorska, X. hercegovacka, i I. dalmatinska brigada",
+				"popup": "Treća udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/wiki/Treća_udarna_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [17.0, 44.05]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "Deveta dalmatinska udarna divizija",
+				"datum_formiranja": "13. February 1943",
+				"mesto_formiranja": "Imotski",
+				"sastav": "III., IV. i V. dalmatinska brigada",
+				"popup": "Deveta dalmatinska udarna divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/wiki/Deveta_dalmatinska_udarna_divizija"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [17.216, 43.446]
+			}
+		}
+	]
+}
