@@ -25,6 +25,8 @@ var detachmentLayer;
 var isDetachmentLayerVisible = false;
 var divisionLayer;
 var isDivisionLayerVisible = false;
+var corpusesLayer;
+var isCorpusesLayerVisible = false;
 var currentLayerName = '';
 
 function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
@@ -193,7 +195,10 @@ function removeLayer(layerName) {
             }
             break;
         case 'Corpuses':
-            // Placeholder for corpuses layer removal
+            if (isCorpusesLayerVisible) {
+                map.removeLayer(corpusesLayer);
+                isCorpusesLayerVisible = false;
+            }
             break;
         case 'Battles':
             // Placeholder for battles layer removal
@@ -214,6 +219,11 @@ function showDetachments() {
 // Function to show/hide divisions on the map
 function showDivisions() {
     isDivisionLayerVisible = showLayer('assets/divizije.json', divisionLayer, isDivisionLayerVisible, 100, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag);
+}
+
+// Function to show/hide corpuses on the map
+function showCorpuses() {
+    isCorpusesLayerVisible = showLayer('assets/korpusi.json', corpusesLayer, isCorpusesLayerVisible, 100, (layer) => corpusesLayer = layer, (flag) => isCorpusesLayerVisible = flag);
 }
 
 // Function to show/hide occupied territories on the map
@@ -242,10 +252,6 @@ function showOccupiedTerritory() {
 }
 
 // Placeholder functions for other menu options
-function showCorpuses() {
-    alert('Corpuses data not available yet.');
-}
-
 function showBattles() {
     alert('Battles data not available yet.');
 }

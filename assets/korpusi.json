@@ -1,0 +1,65 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Prvi proleterski korpus",
+                "datum_formiranja": "5. October 1943",
+                "mesto_formiranja": "1. proleterska divizija i 6. lička divizija",
+                "sastav": "1. proleterska divizija i 6. lička divizija",
+                "popup": "Prvi proleterski korpus<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Prvi_proleterski_korpus"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [19.833, 45.267]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Osmi dalmatinski korpus",
+                "datum_formiranja": "7. October 1943",
+                "mesto_formiranja": "9., 19., 20. i 26. dalmatinska divizija",
+                "sastav": "9., 19., 20. i 26. dalmatinska divizija",
+                "popup": "Osmi dalmatinski korpus<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Osmi_dalmatinski_korpus"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [16.5, 43.5]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Deseti zagrebački korpus",
+                "datum_formiranja": "19. January 1944",
+                "mesto_formiranja": "32. zagorska i 33. hrvatska divizija i Zapadna grupa NOP odreda",
+                "sastav": "32. zagorska i 33. hrvatska divizija i Zapadna grupa NOP odreda",
+                "popup": "Deseti zagrebački korpus<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Deseti_zagrebački_korpus"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [15.983, 45.817]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "naziv": "Jedanaesti hrvatski korpus",
+                "datum_formiranja": "January 1944",
+                "mesto_formiranja": "13. primorsko-goranska divizija i 35. lička divizija",
+                "sastav": "13. primorsko-goranska divizija i 35. lička divizija",
+                "popup": "Jedanaesti hrvatski korpus<br>Formed on: {datum_formiranja}",
+                "wikipedia": "https://sr.wikipedia.org/wiki/Jedanaesti_hrvatski_korpus"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [15.5, 45.5]
+            }
+        }
+    ]
+}
