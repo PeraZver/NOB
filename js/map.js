@@ -115,19 +115,10 @@ function toggleSidebar(layerName) {
 }
 
 function showLayerByName(layerName) {
+    var markdownFile = '';
     switch (layerName) {
         case 'Occupied Territory':
-            content.innerHTML = `
-                <h1>Yugoslavia Occupied Territories - April 1941</h1>
-                <p>In April 1941, Yugoslavia was invaded and divided by Axis powers: </p>
-                <ul>
-                    <li><strong>Germany</strong> took northern and central Yugoslavia, including Serbia.</li>
-                    <li><strong>Italy</strong> controlled parts of Slovenia, Dalmatian coast, and Montenegro.</li>
-                    <li><strong>Hungary</strong> annexed northern territories.</li>
-                    <li><strong>Bulgaria</strong> occupied Macedonia.</li>
-                    <li><strong>Independent State of Croatia (NDH)</strong> was established under German and Italian control.</li>
-                </ul>
-            `;
+            markdownFile = 'assets/occupied-territory.md';
             showOccupiedTerritory();
             break;
         case 'Detachments':
@@ -165,6 +156,15 @@ function showLayerByName(layerName) {
             `;
             showBattles();
             break;
+    }
+
+    if (markdownFile) {
+        fetch(markdownFile)
+            .then(response => response.text())
+            .then(markdown => {
+                content.innerHTML = marked.parse(markdown);
+            })
+            .catch(error => console.error('Error loading content:', error));
     }
 }
 
