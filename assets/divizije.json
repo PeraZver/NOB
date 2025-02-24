@@ -8,8 +8,9 @@
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Bosanski Petrovac",
 				"sastav": "1. proleterska, 3. proleterska sandžačka i 3. krajiška brigada",
+				"broj_boraca": 3200,
 				"popup": "1. proleterska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/Prva_proleterska_udarna_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Prva_proleterska_udarna_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
@@ -23,8 +24,9 @@
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Tičevo, kod Bos. Grahova",
 				"sastav": "2. proleterska, 4. proleterska crnogorska i 2. dalmatinska brigada",
+				"broj_boraca": 3280,
 				"popup": "2. proleterska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/Druga_proleterska_udarna_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Druga_proleterska_udarna_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
@@ -38,8 +40,9 @@
 				"datum_formiranja": "1. November 1942",
 				"mesto_formiranja": "Perduhovo Selo kod Glamoča",
 				"sastav": "5. proleterska crnogorska, 10. hercegovacka, i 1. dalmatinska brigada",
+				"broj_boraca": 3200,
 				"popup": "3. udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/Treća_udarna_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Treća_udarna_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
@@ -53,8 +56,9 @@
 				"datum_formiranja": "13. February 1943",
 				"mesto_formiranja": "Imotski",
 				"sastav": "3., 4. i 5. dalmatinska brigada",
+				"broj_boraca": 2100,
 				"popup": "9. dalmatinska udarna divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/Deveta_dalmatinska_udarna_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/Deveta_dalmatinska_udarna_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
@@ -68,8 +72,9 @@
 				"datum_formiranja": "October 1943",
 				"mesto_formiranja": "Biovičino Selo u Bukovici",
 				"sastav": "5., 6., i 7. dalmatinska brigada",
+				"broj_boraca": 3600,
 				"popup": "19. dalmatinska divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/19._dalmatinska_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/19._dalmatinska_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
@@ -83,12 +88,13 @@
 				"datum_formiranja": "10. October 1943",
 				"mesto_formiranja": "Vrdovo na Dinari",
 				"sastav": "8., 9., i 10. dalmatinska brigada",
+				"broj_boraca": 3100,
 				"popup": "20. dalmatinska divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/20._dalmatinska_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/20._dalmatinska_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
-				"coordinates": [16.5, 44.1]
+				"coordinates": [16.638379228154605, 43.858317976804294]
 			}
 		},
 		{
@@ -98,12 +104,141 @@
 				"datum_formiranja": "8. October 1943",
 				"mesto_formiranja": "Biokovo",
 				"sastav": "11., 12. i 13. dalmatinska brigada",
+				"broj_boraca": 3800,
 				"popup": "26. dalmatinska divizija<br>Formed on: {datum_formiranja}",
-				"wikipedia": "https://sr.wikipedia.org/sr-el/26._dalmatinska_divizija"
+				"wikipedia": "https://sr.wikipedia.org/sr-el/26._dalmatinska_divizija_NOVJ"
 			},
 			"geometry": {
 				"type": "Point",
 				"coordinates": [17.1, 43.3]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "12. slavonska divizija",
+				"datum_formiranja": "30. December 1942",
+				"mesto_formiranja": "Slavonija",
+				"sastav": "12., 16. i 17. slavonska brigada",
+				"broj_boraca": 2700,
+				"popup": "12. slavonska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/12._slavonska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [18.0, 45.3]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "28. slavonska divizija",
+				"datum_formiranja": "May 1943",
+				"mesto_formiranja": "Slavonija",
+				"sastav": "17. i 21. slavonska i 25. brodska brigada",
+				"broj_boraca": 1670,
+				"popup": "28. slavonska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/28._slavonska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [18.1, 45.3]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "29. hercegovačka divizija",
+				"datum_formiranja": "16. November 1943",
+				"mesto_formiranja": "Gacko",
+				"sastav": "10. (kasnije 11., 12., 13. i 14.) hercegovačka brigada",
+				"broj_boraca": 1670,
+				"popup": "29. hercegovačka divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/29._hercegovačka_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [18.5, 43.2]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "30. slovenska divizija",
+				"datum_formiranja": "6. October 1943",
+				"mesto_formiranja": "zapadna Slovenija",
+				"sastav": "17., 18., i 19. slovenska brigada",
+				"broj_boraca": 0, 
+				"popup": "30. slovenska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/30._slovenska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [14.5, 46.0]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "32. zagorska divizija",
+				"datum_formiranja": "12. December 1943",
+				"mesto_formiranja": "Kalničko Gorje",
+				"sastav": "brigade 'Braća Radić' i 'Matija Gubec'",
+				"broj_boraca": 1764,
+				"popup": "32. zagorska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/32._zagorska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [16.3, 46.1]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "33. hrvatska divizija",
+				"datum_formiranja": "19. January 1944",
+				"mesto_formiranja": "Koprivnica",
+				"sastav": "1. i 2. moslavačka brigada",
+				"broj_boraca": 1665,
+				"popup": "33. hrvatska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/33._hrvatska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [16.8, 46.2]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "34. hrvatska divizija",
+				"datum_formiranja": "30. January 1944",
+				"mesto_formiranja": "Žumberak",
+				"sastav": "16. omladinska brigada, brigada 'Franjo Ogulinac Seljo'",
+				"broj_boraca": 3363,
+				"popup": "34. hrvatska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/34._hrvatska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [15.6, 45.8]
+			}
+		},
+		{
+			"type": "Feature",
+			"properties": {
+				"naziv": "40. slavonska divizija",
+				"datum_formiranja": "15. July 1944",
+				"mesto_formiranja": "Daruvar",
+				"sastav": "16. omladinska brigada, 18. slavonska brigada, Virovitička brigada",
+				"broj_boraca": 4700,
+				"popup": "40. slavonska divizija<br>Formed on: {datum_formiranja}",
+				"wikipedia": "https://sr.wikipedia.org/sr-el/40._slavonska_divizija_NOVJ"
+			},
+			"geometry": {
+				"type": "Point",
+				"coordinates": [17.2, 45.6]
 			}
 		}
 	]
