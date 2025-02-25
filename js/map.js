@@ -98,14 +98,14 @@ function toggleSidebar(layerName) {
             removeLayer(layerName);
         } else {
             sidebar.classList.add('visible');
-            mapElement.style.transform = 'translateX(150px)';
+            mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
             content.classList.add('visible');
             showLayerByName(layerName);
         }
     } else {
         // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
-        mapElement.style.transform = 'translateX(150px)';
+        mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
         content.classList.add('visible');
         showLayerByName(layerName);
     }
@@ -126,10 +126,7 @@ function showLayerByName(layerName) {
             showDetachments();
             break;
         case 'Brigades':
-            content.innerHTML = `
-                <h1>Brigades</h1>
-                <p>Information about brigades will be displayed here.</p>
-            `;
+            markdownFile = 'assets/brigades.md';
             showBrigades();
             break;
         case 'Divisions':

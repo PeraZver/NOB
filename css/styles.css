@@ -44,18 +44,18 @@ body {
 
 #map {
 	height: 600px;
-	width: 50%;
+	width: 45%;
 	margin: 20px auto;
 	border: 2px solid black;
-    transition: transform 0.5s, margin-left 0.5s;
+    transition: transform 0.5s;
     margin-top: 20px; /* Adjust this value to align the map and sidebar */
 }
 
 .sidebar {
     position: absolute;
     top: 60px; /* Adjust this value to align the map and sidebar */
-    left: -320px;
-    width: 600px;
+    left: -50%; /* Adjust this value to hide the sidebar initially */
+    width: 50%; /* Sidebar width set to half the page */
     background: white;
     padding: 10px;
     border-radius: 5px;
@@ -63,12 +63,12 @@ body {
 }
 
 .sidebar.visible {
-    left: 10px;
+    left: 0;
 }
 
 .content {
     display: none;
-    width: 100%;
+    width: 90%;
     box-sizing: border-box;
     text-align: left;
 }
@@ -82,7 +82,7 @@ body {
     text-align: left;
 }
 
-/* Add more space between the sidebar and the map */
+/* Adjust the map's transform property to slide it to half the screen */
 .sidebar.visible + #map {
-    margin-left: 170px; /* Adjust this value to increase the space */
+    transform: translateX(50%); /* Adjust this value to ensure the border is at half the screen */
 }
