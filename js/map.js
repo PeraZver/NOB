@@ -122,10 +122,7 @@ function showLayerByName(layerName) {
             showOccupiedTerritory();
             break;
         case 'Detachments':
-            content.innerHTML = `
-                <h1>Detachments</h1>
-                <p>Information about detachments will be displayed here.</p>
-            `;
+            markdownFile = 'assets/detachments.md';
             showDetachments();
             break;
         case 'Brigades':

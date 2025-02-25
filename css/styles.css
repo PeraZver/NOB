@@ -47,7 +47,7 @@ body {
 	width: 50%;
 	margin: 20px auto;
 	border: 2px solid black;
-    transition: transform 0.5s;
+    transition: transform 0.5s, margin-left 0.5s;
     margin-top: 20px; /* Adjust this value to align the map and sidebar */
 }
 
@@ -80,4 +80,9 @@ body {
 .content ul {
     display: inline-block;
     text-align: left;
+}
+
+/* Add more space between the sidebar and the map */
+.sidebar.visible + #map {
+    margin-left: 170px; /* Adjust this value to increase the space */
 }
