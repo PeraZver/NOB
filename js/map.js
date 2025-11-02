@@ -17,6 +17,22 @@ function style(feature) {
     };
 }
 
+// Function to update the sidebar content
+function updateSidebar(content) {
+    var sidebarContent = document.getElementById('content');
+    sidebarContent.innerHTML = content;
+}
+
+// Function to load default text from a Markdown file
+function loadDefaultText(markdownFile) {
+    fetch(markdownFile)
+        .then(response => response.text())
+        .then(markdown => {
+            updateSidebar(marked.parse(markdown));
+        })
+        .catch(error => console.error('Error loading default text:', error));
+}
+
 var brigadeLayer;
 var isBrigadeLayerVisible = false;
 var occupiedTerritoryLayer;
@@ -54,7 +70,8 @@ function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
                                 if (feature.properties.wikipedia.startsWith('http')) {
                                     // Custom Wikipedia URL
                                     popupContent += `<br><a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>`;
-                                    marker.bindPopup(popupContent).openPopup();
+                                    marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
+                                    updateSidebar(popupContent); // Update the sidebar with the popup content
                                 } else {
                                     // Fetch data from Wikipedia API
                                     fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
@@ -65,13 +82,15 @@ function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
                                                 ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
                                                 <br><a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
                                             `;
-                                            marker.bindPopup(popupContent).openPopup();
+                                            marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
+                                            updateSidebar(popupContent); // Update the sidebar with Wikipedia data
                                         })
                                         .catch(error => console.error('Error fetching Wikipedia data:', error));
                                 }
                             } else {
                                 // Default popup content for markers without Wikipedia property
-                                marker.bindPopup(popupContent).openPopup();
+                                marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
+                                updateSidebar(popupContent); // Update the sidebar with the popup content
                             }
                         });
                         layer.addLayer(marker);
@@ -83,6 +102,34 @@ function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
             .catch(error => console.error('Error loading data:', error));
     }
 }
+
+// Add a map click event to reset the sidebar to default text
+map.on('click', function () {
+    var markdownFile = '';
+    switch (currentLayerName) {
+        case 'Occupied Territory':
+            markdownFile = 'assets/occupied-territory.md';
+            break;
+        case 'Detachments':
+            markdownFile = 'assets/detachments.md';
+            break;
+        case 'Brigades':
+            markdownFile = 'assets/brigades.md';
+            break;
+        case 'Divisions':
+            markdownFile = 'assets/divizije.md';
+            break;
+        case 'Corpuses':
+            markdownFile = 'assets/korpusi.md';
+            break;
+        case 'Battles':
+            markdownFile = 'assets/battles.md';
+            break;
+    }
+    if (markdownFile) {
+        loadDefaultText(markdownFile); // Load the default text for the current layer
+    }
+});
 
 function toggleSidebar(layerName) {
     var sidebar = document.getElementById('sidebar');

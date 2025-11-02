@@ -1,7 +1,5 @@
 # Formation and Early Operations of Partisan Detachments in Occupied Yugoslavia (1941)
 
-Following the Axis invasion and subsequent occupation of Yugoslavia in April 1941, the country was divided among Germany, Italy, Hungary, and Bulgaria, with the establishment of the puppet state known as the Independent State of Croatia (NDH). Resistance to the occupiers began almost immediately, with the Yugoslav Partisans, led by the Communist Party of Yugoslavia (KPJ) under Josip Broz Tito, emerging as a prominent guerrilla force aiming to liberate the country.
-
 ## Early Partisan Detachments and Their Operations
 
 In the summer of 1941, several Partisan detachments were formed across Yugoslavia. These units, though initially small and lightly armed, engaged in significant operations against Axis forces:
@@ -14,11 +12,14 @@ In the summer of 1941, several Partisan detachments were formed across Yugoslavi
 
 - **Lovćen Partisan Detachment (Montenegro):** Formed on July 13, 1941, in Montenegro, this detachment, commanded by Sava Kovačević, grew to several thousand fighters by the end of 1941. They played a pivotal role in the July Uprising, engaging in widespread resistance against Italian occupiers, including attacks on military outposts and the sabotage of communication lines.
 
+- **Split Partisan Detachment (Croatia)** Formend on August 11, 1941, this detachment commanded by Mirko Kovacevic Lala, consisted of 40-sh volnuteers from the city of Split, members and sympathizers of Communist party. On the same night, they set off to join the partisan groups in Dinara area. Due to the lack of preparation, unknown roads and members's inexperience, the detachment fell in the ambush of Italian and Ustasha joint forces, near village of Kosute, near the city of Sinj. Almost entire detachment was sentenced to death and killed by firing squad. 
+
+
 ## Notable Sabotage Actions
 
 The Partisans employed guerrilla tactics, focusing on sabotage to weaken Axis forces. Some notable actions include:
 
-- **Sabotage at the General Post Office in Zagreb:** On September 14, 1941, the Partisans orchestrated an explosion at the General Post Office in Zagreb, causing significant damage to the telephone and telegraph systems. This act disrupted communications and showcased the Partisans' ability to strike in urban centers.
+- **Sabotage at the General Post Office in Zagreb:** On September 14, 1941, the members of Communist Party of Croatia orchestrated an explosion at the General Post Office in Zagreb, causing significant damage to the telephone and telegraph systems. This act disrupted communications and showcased the Partisans' ability to strike in urban centers.
 
 - **Attack on Šabac:** Between September 21 and 26, 1941, joint forces of Partisans launched an assault on the German-held town of Šabac. Despite initial successes in besieging the town and capturing surrounding areas, the rebels faced strong German defenses. The attack resulted in significant casualties and led to severe reprisals against civilians, with over 1,000 executed and many more imprisoned.
 

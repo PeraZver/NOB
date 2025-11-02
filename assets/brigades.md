@@ -4,7 +4,7 @@ Following the initial successes of the Yugoslav Partisans in 1941, it became inc
 
 ## The Need for Brigade Formations
 
-By late 1941, the Partisans faced mounting pressure from Axis counteroffensives. While small detachments excelled in sabotage and hit-and-run tactics, they lacked the strength to hold territory or effectively combat larger enemy forces. Several key factors necessitated the creation of **larger and better-organized formations**:
+By late 1941, the Partisans faced mounting pressure from Axis counteroffensives. While small detachments excelled in sabotage and hit-and-run tactics, they lacked the strength to hold territory or effectively combat larger enemy forces. Several key factors necessitated the creation of larger and better-organized formations:
 
 - **Increasing number of recruits**: The Axis reprisals, mass executions, and destruction of villages pushed more people into the resistance, necessitating a more structured military organization.
 - **Tactical needs**: Larger formations were required to confront **Wehrmacht, Ustaše, and Italian forces** in direct engagements.
@@ -19,7 +19,6 @@ The formation of Partisan brigades began in late 1941 and early 1942, as detachm
   - Established in **Rudo, eastern Bosnia**.
   - Initially composed of **1,180 fighters** from various Partisan detachments across Bosnia, Serbia, and Montenegro.
   - The brigade was directly commanded by **Koča Popović** and quickly became one of the elite units of the Partisan army.
-  - **Notable actions**: Participated in the **Igman March (January 1942)**, enduring extreme winter conditions to evade German encirclement.
 
 - **The 2nd Proletarian Brigade (March 1, 1942)**:
   - Formed in **Čajniče, eastern Bosnia**, from experienced fighters of earlier detachments.
@@ -48,8 +47,3 @@ By mid-1942, Partisan brigades became the backbone of the resistance, allowing f
 - **Igman March (January 1942)**: The 1st Proletarian Brigade undertook a daring retreat through the snow-covered **Igman mountain** near Sarajevo to escape a German offensive. Despite harsh weather, they reached safety with minimal losses, cementing their reputation as an elite unit.
 - **Battle of Livno (August 1942)**: Several brigades attacked and liberated the town of Livno from Axis forces, marking one of the first major victories in western Bosnia.
 - **Liberation of Foča (April 1942)**: Brigades successfully expelled Axis forces from **Foča**, establishing a liberated zone that served as a key base for future operations.
-
-## Conclusion
-
-The establishment of Partisan brigades represented a major turning point in the Yugoslav resistance movement. These formations transformed the Partisans from a fragmented guerrilla force into a structured army capable of engaging Axis troops in direct combat. The brigades' ability to sustain operations, hold liberated territory, and conduct large-scale battles laid the foundation for the eventual formation of **the Yugoslav People's Army**, which played a decisive role in the liberation of Yugoslavia by 1945.
-
