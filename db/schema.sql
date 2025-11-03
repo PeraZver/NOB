@@ -7,5 +7,5 @@ CREATE TABLE brigades (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(255)
+    wikipedia_url VARCHAR(500) -- Increased length to 500
 );
