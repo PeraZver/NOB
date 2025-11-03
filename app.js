@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -14,21 +15,18 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    connectTimeout: 10000, // 10 seconds timeout
-    debug: false           // Set to true for detailed logs
+    connectTimeout: 10000
 });
 
 // Middleware to parse JSON
 app.use(express.json());
 
-// Basic route
-app.get('/', (req, res) => {
-    res.send('Hello, Node.js with MySQL!');
-});
+// Serve static files (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route to fetch all brigades
-app.get('/brigades', (req, res) => {
-    const query = 'SELECT * FROM brigades';
+// API endpoint to fetch brigades
+app.get('/api/brigades', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM brigades';
     pool.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching brigades:', err);
@@ -39,9 +37,9 @@ app.get('/brigades', (req, res) => {
     });
 });
 
-// Route to fetch a brigade by ID
-app.get('/brigades/:id', (req, res) => {
-    const query = 'SELECT * FROM brigades WHERE id = ?';
+// API endpoint to fetch a single brigade by ID
+app.get('/api/brigades/:id', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM brigades WHERE id = ?';
     const brigadeId = req.params.id;
     pool.query(query, [brigadeId], (err, results) => {
         if (err) {

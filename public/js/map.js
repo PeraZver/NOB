@@ -249,7 +249,33 @@ function removeLayer(layerName) {
 
 // Function to show/hide brigades on the map
 function showBrigades() {
-    isBrigadeLayerVisible = showLayer('assets/dalmatia-brigades.json', brigadeLayer, isBrigadeLayerVisible, 100, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag);
+    if (isBrigadeLayerVisible) {
+        map.removeLayer(brigadeLayer);
+        isBrigadeLayerVisible = false;
+    } else {
+        fetch('/api/brigades')
+            .then(response => response.json())
+            .then(data => {
+                brigadeLayer = L.layerGroup().addTo(map);
+                data.forEach(brigade => {
+                    const [lng, lat] = brigade.location.replace('POINT(', '').replace(')', '').split(' ');
+                    const marker = L.marker([lat, lng]);
+                    marker.on('click', function () {
+                        const popupContent = `
+                            <h3>${brigade.name}</h3>
+                            <p>${brigade.description}</p>
+                            <p>Formation Date: ${brigade.formation_date}</p>
+                            <a href="${brigade.wikipedia_url}" target="_blank">Wikipedia</a>
+                        `;
+                        marker.bindPopup(popupContent).openPopup();
+                        updateSidebar(popupContent);
+                    });
+                    brigadeLayer.addLayer(marker);
+                });
+                isBrigadeLayerVisible = true;
+            })
+            .catch(error => console.error('Error fetching brigades:', error));
+    }
 }
 
 // Function to show/hide detachments on the map
