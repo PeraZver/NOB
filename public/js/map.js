@@ -247,6 +247,25 @@ function removeLayer(layerName) {
     }
 }
 
+// Helper function to format dates as "Month DD, YYYY"
+function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    const options = { year: 'numeric', month: 'long', day: '2-digit' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+// Helper function to generate compact pop-up content
+function generatePopupContent(properties) {
+    const formattedDate = properties.datum_formiranja ? formatDate(properties.datum_formiranja) : 'Unknown';
+    return `
+        <strong>${properties.naziv || properties.name || 'Unknown Name'}</strong><br>
+        <small>Formed: ${formattedDate}</small><br>
+        ${properties.opis || properties.description ? `<small>${properties.opis || properties.description}</small><br>` : ''}
+        ${properties.wikipedia || properties.wikipedia_url ? `<a href="${properties.wikipedia || properties.wikipedia_url}" target="_blank">Wikipedia</a>` : ''}
+    `;
+}
+
 // Function to show/hide brigades on the map
 function showBrigades() {
     if (isBrigadeLayerVisible) {
@@ -261,12 +280,12 @@ function showBrigades() {
                     const [lng, lat] = brigade.location.replace('POINT(', '').replace(')', '').split(' ');
                     const marker = L.marker([lat, lng]);
                     marker.on('click', function () {
-                        const popupContent = `
-                            <h3>${brigade.name}</h3>
-                            <p>${brigade.description}</p>
-                            <p>Formation Date: ${brigade.formation_date}</p>
-                            <a href="${brigade.wikipedia_url}" target="_blank">Wikipedia</a>
-                        `;
+                        const popupContent = generatePopupContent({
+                            name: brigade.name,
+                            datum_formiranja: brigade.formation_date,
+                            description: brigade.description,
+                            wikipedia_url: brigade.wikipedia_url
+                        });
                         marker.bindPopup(popupContent).openPopup();
                         updateSidebar(popupContent);
                     });
@@ -276,21 +295,6 @@ function showBrigades() {
             })
             .catch(error => console.error('Error fetching brigades:', error));
     }
-}
-
-// Function to show/hide detachments on the map
-function showDetachments() {
-    isDetachmentLayerVisible = showLayer('assets/dalmatia-odredi.json', detachmentLayer, isDetachmentLayerVisible, 100, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag);
-}
-
-// Function to show/hide divisions on the map
-function showDivisions() {
-    isDivisionLayerVisible = showLayer('assets/divizije.json', divisionLayer, isDivisionLayerVisible, 100, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag);
-}
-
-// Function to show/hide corpuses on the map
-function showCorpuses() {
-    isCorpusesLayerVisible = showLayer('assets/korpusi.json', corpusesLayer, isCorpusesLayerVisible, 100, (layer) => corpusesLayer = layer, (flag) => isCorpusesLayerVisible = flag);
 }
 
 // Function to show/hide occupied territories on the map
@@ -307,8 +311,9 @@ function showOccupiedTerritory() {
                         return { color: feature.properties.color };
                     },
                     onEachFeature: function (feature, layer) {
-                        if (feature.properties && feature.properties.popup) {
-                            layer.bindTooltip(feature.properties.popup, { permanent: false, direction: "auto" });
+                        if (feature.properties) {
+                            const popupContent = generatePopupContent(feature.properties);
+                            layer.bindPopup(popupContent);
                         }
                     }
                 }).addTo(map);
@@ -318,7 +323,100 @@ function showOccupiedTerritory() {
     }
 }
 
-// Placeholder functions for other menu options
+// Function to show/hide detachments on the map
+function showDetachments() {
+    if (isDetachmentLayerVisible) {
+        map.removeLayer(detachmentLayer);
+        isDetachmentLayerVisible = false;
+    } else {
+        fetch('/api/detachments')
+            .then(response => response.json())
+            .then(data => {
+                detachmentLayer = L.layerGroup().addTo(map);
+                data.forEach(detachment => {
+                    const [lng, lat] = detachment.location.replace('POINT(', '').replace(')', '').split(' ');
+                    const marker = L.marker([lat, lng]);
+                    marker.on('click', function () {
+                        const popupContent = generatePopupContent({
+                            name: detachment.name,
+                            datum_formiranja: detachment.formation_date,
+                            description: detachment.description,
+                            wikipedia_url: detachment.wikipedia_url
+                        });
+                        marker.bindPopup(popupContent).openPopup();
+                        updateSidebar(popupContent);
+                    });
+                    detachmentLayer.addLayer(marker);
+                });
+                isDetachmentLayerVisible = true;
+            })
+            .catch(error => console.error('Error fetching detachments:', error));
+    }
+}
+
+// Function to show/hide divisions on the map
+function showDivisions() {
+    if (isDivisionLayerVisible) {
+        map.removeLayer(divisionLayer);
+        isDivisionLayerVisible = false;
+    } else {
+        fetch('/api/divisions')
+            .then(response => response.json())
+            .then(data => {
+                divisionLayer = L.layerGroup().addTo(map);
+                data.forEach(division => {
+                    const [lng, lat] = division.location.replace('POINT(', '').replace(')', '').split(' ');
+                    const marker = L.marker([lat, lng]);
+                    marker.on('click', function () {
+                        const popupContent = generatePopupContent({
+                            name: division.name,
+                            datum_formiranja: division.formation_date,
+                            description: division.description,
+                            wikipedia_url: division.wikipedia_url
+                        });
+                        marker.bindPopup(popupContent).openPopup();
+                        updateSidebar(popupContent);
+                    });
+                    divisionLayer.addLayer(marker);
+                });
+                isDivisionLayerVisible = true;
+            })
+            .catch(error => console.error('Error fetching divisions:', error));
+    }
+}
+
+// Function to show/hide corpuses on the map
+function showCorpuses() {
+    if (isCorpusesLayerVisible) {
+        map.removeLayer(corpusesLayer);
+        isCorpusesLayerVisible = false;
+    } else {
+        fetch('/api/corpuses')
+            .then(response => response.json())
+            .then(data => {
+                corpusesLayer = L.layerGroup().addTo(map);
+                data.forEach(corpus => {
+                    const [lng, lat] = corpus.location.replace('POINT(', '').replace(')', '').split(' ');
+                    const marker = L.marker([lat, lng]);
+                    marker.on('click', function () {
+                        const popupContent = generatePopupContent({
+                            name: corpus.name,
+                            datum_formiranja: corpus.formation_date,
+                            description: corpus.description,
+                            wikipedia_url: corpus.wikipedia_url
+                        });
+                        marker.bindPopup(popupContent).openPopup();
+                        updateSidebar(popupContent);
+                    });
+                    corpusesLayer.addLayer(marker);
+                });
+                isCorpusesLayerVisible = true;
+            })
+            .catch(error => console.error('Error fetching corpuses:', error));
+    }
+}
+
+// Function to show/hide battles on the map
 function showBattles() {
     alert('Battles data not available yet.');
 }

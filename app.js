@@ -55,6 +55,45 @@ app.get('/api/brigades/:id', (req, res) => {
     });
 });
 
+// API endpoint to fetch detachments
+app.get('/api/detachments', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM detachments';
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching detachments:', err);
+            res.status(500).send('Error fetching detachments');
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// API endpoint to fetch divisions
+app.get('/api/divisions', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM divisions';
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching divisions:', err);
+            res.status(500).send('Error fetching divisions');
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// API endpoint to fetch corpuses
+app.get('/api/corpuses', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM corpuses';
+    pool.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching corpuses:', err);
+            res.status(500).send('Error fetching corpuses');
+            return;
+        }
+        res.json(results);
+    });
+});
+
 // Start server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
