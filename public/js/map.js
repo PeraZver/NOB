@@ -45,64 +45,6 @@ var corpusesLayer;
 var isCorpusesLayerVisible = false;
 var currentLayerName = '';
 
-function showLayer(url, layer, isVisibleFlag, delay, setLayer, setVisibleFlag) {
-    if (isVisibleFlag) {
-        map.removeLayer(layer);
-        setVisibleFlag(false);
-    } else {
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                // Sort features by datum_formiranja
-                data.features.sort((a, b) => new Date(a.properties.datum_formiranja) - new Date(b.properties.datum_formiranja));
-
-                // Create a layer group to hold the markers
-                layer = L.layerGroup().addTo(map);
-                setLayer(layer);
-
-                // Add markers with a delay
-                data.features.forEach((feature, index) => {
-                    setTimeout(() => {
-                        var marker = L.marker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]]);
-                        marker.on('click', function () {
-                            var popupContent = feature.properties.popup.replace('{datum_formiranja}', feature.properties.datum_formiranja);
-                            if (feature.properties.wikipedia) {
-                                if (feature.properties.wikipedia.startsWith('http')) {
-                                    // Custom Wikipedia URL
-                                    popupContent += `<br><a href="${feature.properties.wikipedia}" target="_blank">Read more on Wikipedia</a>`;
-                                    marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
-                                    updateSidebar(popupContent); // Update the sidebar with the popup content
-                                } else {
-                                    // Fetch data from Wikipedia API
-                                    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${feature.properties.wikipedia}`)
-                                        .then(response => response.json())
-                                        .then(wikiData => {
-                                            popupContent += `
-                                                <p>${wikiData.extract}</p>
-                                                ${wikiData.thumbnail ? `<img src="${wikiData.thumbnail.source}" alt="${feature.properties.naziv}">` : ''}
-                                                <br><a href="${wikiData.content_urls.desktop.page}" target="_blank">Read more on Wikipedia</a>
-                                            `;
-                                            marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
-                                            updateSidebar(popupContent); // Update the sidebar with Wikipedia data
-                                        })
-                                        .catch(error => console.error('Error fetching Wikipedia data:', error));
-                                }
-                            } else {
-                                // Default popup content for markers without Wikipedia property
-                                marker.bindPopup(popupContent).openPopup(); // Bind and open the popup
-                                updateSidebar(popupContent); // Update the sidebar with the popup content
-                            }
-                        });
-                        layer.addLayer(marker);
-                    }, index * delay); // Delay between each marker
-                });
-
-                setVisibleFlag(true);
-            })
-            .catch(error => console.error('Error loading data:', error));
-    }
-}
-
 // Add a map click event to reset the sidebar to default text
 map.on('click', function () {
     var markdownFile = '';
@@ -266,35 +208,61 @@ function generatePopupContent(properties) {
     `;
 }
 
-// Function to show/hide brigades on the map
-function showBrigades() {
-    if (isBrigadeLayerVisible) {
-        map.removeLayer(brigadeLayer);
-        isBrigadeLayerVisible = false;
+// Generic function to fetch and display data for a layer
+function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibleFlag, markdownFile = null) {
+    if (isVisibleFlag) {
+        map.removeLayer(layer);
+        setVisibleFlag(false);
     } else {
-        fetch('/api/brigades')
+        fetch(apiEndpoint)
             .then(response => response.json())
             .then(data => {
-                brigadeLayer = L.layerGroup().addTo(map);
-                data.forEach(brigade => {
-                    const [lng, lat] = brigade.location.replace('POINT(', '').replace(')', '').split(' ');
+                layer = L.layerGroup().addTo(map);
+                setLayer(layer);
+                data.forEach(item => {
+                    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
                     const marker = L.marker([lat, lng]);
                     marker.on('click', function () {
                         const popupContent = generatePopupContent({
-                            name: brigade.name,
-                            datum_formiranja: brigade.formation_date,
-                            description: brigade.description,
-                            wikipedia_url: brigade.wikipedia_url
+                            name: item.name,
+                            datum_formiranja: item.formation_date,
+                            description: item.description,
+                            wikipedia_url: item.wikipedia_url
                         });
                         marker.bindPopup(popupContent).openPopup();
                         updateSidebar(popupContent);
                     });
-                    brigadeLayer.addLayer(marker);
+                    layer.addLayer(marker);
                 });
-                isBrigadeLayerVisible = true;
+                setVisibleFlag(true);
+
+                // Update the sidebar with default text if a markdown file is provided
+                if (markdownFile) {
+                    loadDefaultText(markdownFile);
+                }
             })
-            .catch(error => console.error('Error fetching brigades:', error));
+            .catch(error => console.error(`Error fetching data from ${apiEndpoint}:`, error));
     }
+}
+
+// Function to show/hide brigades on the map
+function showBrigades() {
+    showLayerFromAPI('/api/brigades', brigadeLayer, isBrigadeLayerVisible, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag, 'assets/brigades.md');
+}
+
+// Function to show/hide detachments on the map
+function showDetachments() {
+    showLayerFromAPI('/api/detachments', detachmentLayer, isDetachmentLayerVisible, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag, 'assets/detachments.md');
+}
+
+// Function to show/hide divisions on the map
+function showDivisions() {
+    showLayerFromAPI('/api/divisions', divisionLayer, isDivisionLayerVisible, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag, 'assets/divizije.md');
+}
+
+// Function to show/hide corpuses on the map
+function showCorpuses() {
+    showLayerFromAPI('/api/corpuses', corpusesLayer, isCorpusesLayerVisible, (layer) => corpusesLayer = layer, (flag) => isCorpusesLayerVisible = flag, 'assets/korpusi.md');
 }
 
 // Function to show/hide occupied territories on the map
@@ -318,101 +286,11 @@ function showOccupiedTerritory() {
                     }
                 }).addTo(map);
                 isOccupiedTerritoryLayerVisible = true;
+
+                // Update the sidebar with default text for occupied territories
+                loadDefaultText('assets/occupied-territory.md');
             })
             .catch(error => console.error('Error loading map data:', error));
-    }
-}
-
-// Function to show/hide detachments on the map
-function showDetachments() {
-    if (isDetachmentLayerVisible) {
-        map.removeLayer(detachmentLayer);
-        isDetachmentLayerVisible = false;
-    } else {
-        fetch('/api/detachments')
-            .then(response => response.json())
-            .then(data => {
-                detachmentLayer = L.layerGroup().addTo(map);
-                data.forEach(detachment => {
-                    const [lng, lat] = detachment.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng]);
-                    marker.on('click', function () {
-                        const popupContent = generatePopupContent({
-                            name: detachment.name,
-                            datum_formiranja: detachment.formation_date,
-                            description: detachment.description,
-                            wikipedia_url: detachment.wikipedia_url
-                        });
-                        marker.bindPopup(popupContent).openPopup();
-                        updateSidebar(popupContent);
-                    });
-                    detachmentLayer.addLayer(marker);
-                });
-                isDetachmentLayerVisible = true;
-            })
-            .catch(error => console.error('Error fetching detachments:', error));
-    }
-}
-
-// Function to show/hide divisions on the map
-function showDivisions() {
-    if (isDivisionLayerVisible) {
-        map.removeLayer(divisionLayer);
-        isDivisionLayerVisible = false;
-    } else {
-        fetch('/api/divisions')
-            .then(response => response.json())
-            .then(data => {
-                divisionLayer = L.layerGroup().addTo(map);
-                data.forEach(division => {
-                    const [lng, lat] = division.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng]);
-                    marker.on('click', function () {
-                        const popupContent = generatePopupContent({
-                            name: division.name,
-                            datum_formiranja: division.formation_date,
-                            description: division.description,
-                            wikipedia_url: division.wikipedia_url
-                        });
-                        marker.bindPopup(popupContent).openPopup();
-                        updateSidebar(popupContent);
-                    });
-                    divisionLayer.addLayer(marker);
-                });
-                isDivisionLayerVisible = true;
-            })
-            .catch(error => console.error('Error fetching divisions:', error));
-    }
-}
-
-// Function to show/hide corpuses on the map
-function showCorpuses() {
-    if (isCorpusesLayerVisible) {
-        map.removeLayer(corpusesLayer);
-        isCorpusesLayerVisible = false;
-    } else {
-        fetch('/api/corpuses')
-            .then(response => response.json())
-            .then(data => {
-                corpusesLayer = L.layerGroup().addTo(map);
-                data.forEach(corpus => {
-                    const [lng, lat] = corpus.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng]);
-                    marker.on('click', function () {
-                        const popupContent = generatePopupContent({
-                            name: corpus.name,
-                            datum_formiranja: corpus.formation_date,
-                            description: corpus.description,
-                            wikipedia_url: corpus.wikipedia_url
-                        });
-                        marker.bindPopup(popupContent).openPopup();
-                        updateSidebar(popupContent);
-                    });
-                    corpusesLayer.addLayer(marker);
-                });
-                isCorpusesLayerVisible = true;
-            })
-            .catch(error => console.error('Error fetching corpuses:', error));
     }
 }
 

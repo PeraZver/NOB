@@ -86,3 +86,8 @@ body {
 .sidebar.visible + #map {
     transform: translateX(50%); /* Adjust this value to ensure the border is at half the screen */
 }
+
+.leaflet-popup-content {
+    font-size: 1.5em; /* Increase font size */
+    line-height: 1.5; /* Adjust line height for better readability */
+}
