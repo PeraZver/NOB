@@ -41,8 +41,8 @@ var detachmentLayer;
 var isDetachmentLayerVisible = false;
 var divisionLayer;
 var isDivisionLayerVisible = false;
-var corpusesLayer;
-var isCorpusesLayerVisible = false;
+var corpsLayer;
+var isCorpsLayerVisible = false;
 var currentLayerName = '';
 
 // Add a map click event to reset the sidebar to default text
@@ -61,7 +61,7 @@ map.on('click', function () {
         case 'Divisions':
             markdownFile = 'assets/divizije.md';
             break;
-        case 'Corpuses':
+        case 'Corps':
             markdownFile = 'assets/korpusi.md';
             break;
         case 'Battles':
@@ -125,12 +125,12 @@ function showLayerByName(layerName) {
             `;
             showDivisions();
             break;
-        case 'Corpuses':
+        case 'Corps':
             content.innerHTML = `
-                <h1>Corpuses</h1>
-                <p>Information about corpuses will be displayed here.</p>
+                <h1>Corps</h1>
+                <p>Information about corps will be displayed here.</p>
             `;
-            showCorpuses();
+            showCorps();
             break;
         case 'Battles':
             content.innerHTML = `
@@ -177,10 +177,10 @@ function removeLayer(layerName) {
                 isDivisionLayerVisible = false;
             }
             break;
-        case 'Corpuses':
-            if (isCorpusesLayerVisible) {
-                map.removeLayer(corpusesLayer);
-                isCorpusesLayerVisible = false;
+        case 'Corps':
+            if (isCorpsLayerVisible) {
+                map.removeLayer(corpsLayer);
+                isCorpsLayerVisible = false;
             }
             break;
         case 'Battles':
@@ -260,9 +260,9 @@ function showDivisions() {
     showLayerFromAPI('/api/divisions', divisionLayer, isDivisionLayerVisible, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag, 'assets/divizije.md');
 }
 
-// Function to show/hide corpuses on the map
-function showCorpuses() {
-    showLayerFromAPI('/api/corpuses', corpusesLayer, isCorpusesLayerVisible, (layer) => corpusesLayer = layer, (flag) => isCorpusesLayerVisible = flag, 'assets/korpusi.md');
+// Function to show/hide corps on the map
+function showCorps() {
+    showLayerFromAPI('/api/corps', corpsLayer, isCorpsLayerVisible, (layer) => corpsLayer = layer, (flag) => isCorpsLayerVisible = flag, 'assets/korpusi.md');
 }
 
 // Function to show/hide occupied territories on the map

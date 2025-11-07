@@ -7,7 +7,7 @@ CREATE TABLE brigades (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(500) -- Increased length to 500
+    wikipedia_url VARCHAR(500)
 );
 
 CREATE TABLE detachments (
@@ -28,7 +28,7 @@ CREATE TABLE divisions (
     wikipedia_url VARCHAR(500)
 );
 
-CREATE TABLE corpuses (
+CREATE TABLE corps ( 
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     formation_date DATE,

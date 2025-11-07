@@ -81,13 +81,13 @@ app.get('/api/divisions', (req, res) => {
     });
 });
 
-// API endpoint to fetch corpuses
-app.get('/api/corpuses', (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM corpuses';
+// API endpoint to fetch corps
+app.get('/api/corps', (req, res) => {
+    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM corps';
     pool.query(query, (err, results) => {
         if (err) {
-            console.error('Error fetching corpuses:', err);
-            res.status(500).send('Error fetching corpuses');
+            console.error('Error fetching corps:', err);
+            res.status(500).send('Error fetching corps');
             return;
         }
         res.json(results);
