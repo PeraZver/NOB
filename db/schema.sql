@@ -7,7 +7,8 @@ CREATE TABLE brigades (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(500)
+    wikipedia_url VARCHAR(500),
+    description_file VARCHAR(255)
 );
 
 CREATE TABLE detachments (
@@ -16,7 +17,8 @@ CREATE TABLE detachments (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(500)
+    wikipedia_url VARCHAR(500),
+    description_file VARCHAR(255)
 );
 
 CREATE TABLE divisions (
@@ -25,7 +27,8 @@ CREATE TABLE divisions (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(500)
+    wikipedia_url VARCHAR(500),
+    description_file VARCHAR(255)
 );
 
 CREATE TABLE corps ( 
@@ -34,5 +37,6 @@ CREATE TABLE corps (
     formation_date DATE,
     description TEXT,
     location POINT,
-    wikipedia_url VARCHAR(500)
+    wikipedia_url VARCHAR(500),
+    description_file VARCHAR(255)
 );

@@ -226,11 +226,17 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
                         const popupContent = generatePopupContent({
                             name: item.name,
                             datum_formiranja: item.formation_date,
-                            description: item.description,
+                            description: null, // Exclude description from the pop-up
                             wikipedia_url: item.wikipedia_url
                         });
                         marker.bindPopup(popupContent).openPopup();
-                        updateSidebar(popupContent);
+
+                        // Update the sidebar with the description
+                        if (item.description) {
+                            updateSidebar(marked.parse(item.description)); // Render Markdown in the sidebar
+                        } else {
+                            updateSidebar('<p>No additional details available.</p>'); // Fallback for empty descriptions
+                        }
                     });
                     layer.addLayer(marker);
                 });
@@ -273,7 +279,7 @@ function showOccupiedTerritory() {
     } else {
         fetch('assets/occupied-territory.json')
             .then(response => response.json())
-            .then(data => {
+            .then (data => {
                 occupiedTerritoryLayer = L.geoJSON(data, {
                     style: function (feature) {
                         return { color: feature.properties.color };

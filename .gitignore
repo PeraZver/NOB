@@ -1,4 +1,4 @@
-.\public\assets\*.txt
-.\public\assets\*.md
-.\node_modules\*
+public\assets\*.txt
+public\assets\*.md
+node_modules\*
 .\env
