@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Updated .env path
 
 // MySQL connection pool
 const pool = mysql.createPool({
@@ -25,7 +25,7 @@ function formatDate(dateString) {
 // Function to import data into a table
 async function importData(jsonFile, tableName) {
     try {
-        const filePath = path.join(__dirname, 'public', 'assets', jsonFile);
+        const filePath = path.join(__dirname, '../public', 'assets', jsonFile); // Updated assets folder path
         const data = JSON.parse(fs.readFileSync(filePath, 'utf8')).features;
 
         const query = `
@@ -53,7 +53,7 @@ async function importData(jsonFile, tableName) {
 // Run imports
 (async () => {
     await importData('dalmatia-odredi.json', 'detachments');
-	await importData('dalmatia-brigades.json', 'brigades');
+    await importData('dalmatia-brigades.json', 'brigades');
     await importData('divizije.json', 'divisions');
     await importData('korpusi.json', 'corpuses');
     await pool.end();

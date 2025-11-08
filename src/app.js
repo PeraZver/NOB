@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const path = require('path');
 const fs = require('fs').promises;
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Updated .env path
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -23,7 +23,7 @@ const pool = mysql.createPool({
 app.use(express.json());
 
 // Serve static files (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public'))); // Updated public folder path
 
 // Helper function to fetch Markdown content
 async function getMarkdownContent(filePath) {
@@ -50,7 +50,7 @@ app.get('/api/brigades', async (req, res) => {
         const brigades = await Promise.all(
             results.map(async (brigade) => {
                 if (brigade.description && brigade.description.endsWith('.md')) {
-                    const filePath = path.join(__dirname, 'public', 'assets', 'brigades', brigade.description);
+                    const filePath = path.join(__dirname, '../public', 'assets', 'brigades', brigade.description);
                     brigade.description = await getMarkdownContent(filePath);
                 }
                 return brigade;
@@ -93,7 +93,7 @@ app.get('/api/detachments', async (req, res) => {
         const detachments = await Promise.all(
             results.map(async (detachment) => {
                 if (detachment.description && detachment.description.endsWith('.md')) {
-                    const filePath = path.join(__dirname, 'public', 'assets', 'detachments', detachment.description);
+                    const filePath = path.join(__dirname, '../public', 'assets', 'detachments', detachment.description);
                     detachment.description = await getMarkdownContent(filePath);
                 }
                 return detachment;
@@ -118,7 +118,7 @@ app.get('/api/divisions', async (req, res) => {
         const divisions = await Promise.all(
             results.map(async (division) => {
                 if (division.description && division.description.endsWith('.md')) {
-                    const filePath = path.join(__dirname, 'public', 'assets', 'divisions', division.description);
+                    const filePath = path.join(__dirname, '../public', 'assets', 'divisions', division.description);
                     division.description = await getMarkdownContent(filePath);
                 }
                 return division;
@@ -143,7 +143,7 @@ app.get('/api/corps', async (req, res) => {
         const corps = await Promise.all(
             results.map(async (corpus) => {
                 if (corpus.description && corpus.description.endsWith('.md')) {
-                    const filePath = path.join(__dirname, 'public', 'assets', 'corps', corpus.description);
+                    const filePath = path.join(__dirname, '../public', 'assets', 'corps', corpus.description);
                     corpus.description = await getMarkdownContent(filePath);
                 }
                 return corpus;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Updated .env path
 
 // MySQL connection pool
 const pool = mysql.createPool({
@@ -15,7 +15,7 @@ const pool = mysql.createPool({
 });
 
 // Base directory for Markdown files
-const baseDir = path.join(__dirname, 'public', 'assets');
+const baseDir = path.join(__dirname, '../public', 'assets'); // Updated assets folder path
 
 // Map of directories to database tables
 const tableMap = {
