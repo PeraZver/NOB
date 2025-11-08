@@ -208,8 +208,36 @@ function generatePopupContent(properties) {
     `;
 }
 
+// Define custom icons for each group
+const icons = {
+    brigades: L.icon({
+        iconUrl: 'assets/icons/brigades-icon.png', // Replace with the actual filename
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    detachments: L.icon({
+        iconUrl: 'assets/icons/detachments-icon.png', // Replace with the actual filename
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    divisions: L.icon({
+        iconUrl: 'assets/icons/divisions-icon.png', // Replace with the actual filename
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    corps: L.icon({
+        iconUrl: 'assets/icons/corps-icon.png', // Replace with the actual filename
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    })
+};
+
 // Generic function to fetch and display data for a layer
-function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibleFlag, markdownFile = null) {
+function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibleFlag, markdownFile = null, group = null) {
     if (isVisibleFlag) {
         map.removeLayer(layer);
         setVisibleFlag(false);
@@ -221,7 +249,7 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
                 setLayer(layer);
                 data.forEach(item => {
                     const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng]);
+                    const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default }); // Use group-specific icon
                     marker.on('click', function () {
                         const popupContent = generatePopupContent({
                             name: item.name,
@@ -253,22 +281,22 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
 
 // Function to show/hide brigades on the map
 function showBrigades() {
-    showLayerFromAPI('/api/brigades', brigadeLayer, isBrigadeLayerVisible, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag, 'assets/brigades.md');
+    showLayerFromAPI('/api/brigades', brigadeLayer, isBrigadeLayerVisible, (layer) => brigadeLayer = layer, (flag) => isBrigadeLayerVisible = flag, 'assets/brigades.md', 'brigades');
 }
 
 // Function to show/hide detachments on the map
 function showDetachments() {
-    showLayerFromAPI('/api/detachments', detachmentLayer, isDetachmentLayerVisible, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag, 'assets/detachments.md');
+    showLayerFromAPI('/api/detachments', detachmentLayer, isDetachmentLayerVisible, (layer) => detachmentLayer = layer, (flag) => isDetachmentLayerVisible = flag, 'assets/detachments.md', 'detachments');
 }
 
 // Function to show/hide divisions on the map
 function showDivisions() {
-    showLayerFromAPI('/api/divisions', divisionLayer, isDivisionLayerVisible, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag, 'assets/divizije.md');
+    showLayerFromAPI('/api/divisions', divisionLayer, isDivisionLayerVisible, (layer) => divisionLayer = layer, (flag) => isDivisionLayerVisible = flag, 'assets/divizije.md', 'divisions');
 }
 
 // Function to show/hide corps on the map
 function showCorps() {
-    showLayerFromAPI('/api/corps', corpsLayer, isCorpsLayerVisible, (layer) => corpsLayer = layer, (flag) => isCorpsLayerVisible = flag, 'assets/korpusi.md');
+    showLayerFromAPI('/api/corps', corpsLayer, isCorpsLayerVisible, (layer) => corpsLayer = layer, (flag) => isCorpsLayerVisible = flag, 'assets/korpusi.md', 'corps');
 }
 
 // Function to show/hide occupied territories on the map
