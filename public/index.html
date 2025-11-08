@@ -13,6 +13,12 @@
 <body>
 	<div class="title">People's Liberation Struggle</div>
 	<div class="container">
+		<!-- Search Box -->
+		<div class="search-container">
+			<input type="text" id="search-box" placeholder="Search military units..." autocomplete="off">
+			<div id="suggestions" class="suggestions"></div>
+		</div>
+		<!-- Sidebar and Map -->
 		<div class="sidebar" id="sidebar">
 			<div class="content" id="content">
 				<!-- Content will be dynamically updated -->
@@ -29,6 +35,7 @@
 		<div id="map" style="height: 100vh;"></div>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 		<script src="js/map.js"></script>
+		<script src="js/search.js"></script>
 	</div>
 </body>
 

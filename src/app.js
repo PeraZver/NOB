@@ -154,6 +154,12 @@ app.get('/api/corps', async (req, res) => {
     });
 });
 
+// Search routes
+const searchRoutes = require('./routes/searchRoutes');
+
+// Register routes
+app.use('/api/search', searchRoutes);
+
 // Start server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

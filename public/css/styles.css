@@ -91,3 +91,43 @@ body {
     font-size: 1.5em; /* Increase font size */
     line-height: 1.5; /* Adjust line height for better readability */
 }
+
+/* Search Box */
+.search-container {
+	position: absolute;
+	top: 1px; /* Align with the title */
+	right: 50px; /* Align to the right but not all the way to the edge */
+	width: 225px; /* Reduced width by 25% (300px -> 225px) */
+	z-index: 1000;
+}
+
+#search-box {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.suggestions {
+	position: absolute;
+	top: 40px;
+	left: 0;
+	width: 100%;
+	background: white;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	max-height: 200px;
+	overflow-y: auto;
+	display: none;
+}
+
+.suggestions div {
+	padding: 8px;
+	cursor: pointer;
+}
+
+.suggestions div:hover {
+	background-color: #f0f0f0;
+}
