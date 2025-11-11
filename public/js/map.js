@@ -250,6 +250,7 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
                 data.forEach(item => {
                     const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
                     const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default }); // Use group-specific icon
+
                     marker.on('click', function () {
                         const popupContent = generatePopupContent({
                             name: item.name,
@@ -257,6 +258,9 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
                             description: null, // Exclude description from the pop-up
                             wikipedia_url: item.wikipedia_url
                         });
+
+                        // Unbind any existing popup and bind the new one
+                        marker.unbindPopup();
                         marker.bindPopup(popupContent).openPopup();
 
                         // Update the sidebar with the description
@@ -266,6 +270,7 @@ function showLayerFromAPI(apiEndpoint, layer, isVisibleFlag, setLayer, setVisibl
                             updateSidebar('<p>No additional details available.</p>'); // Fallback for empty descriptions
                         }
                     });
+
                     layer.addLayer(marker);
                 });
                 setVisibleFlag(true);

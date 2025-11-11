@@ -39,12 +39,15 @@ function handleSearchSelection(item) {
                 map.setView([lat, lng], 13); // Center the map and set zoom level
 
                 // Add a marker to the map for the selected item
-                const marker = L.marker([lat, lng]).addTo(map);
+                const marker = L.marker([lat, lng], { icon: icons[data.type] || L.Icon.Default }); // Use group-specific icon
                 marker.bindPopup(`<strong>${data.name}</strong>`).openPopup();
 
-                // Update the sidebar with the Markdown content
+                // Reuse toggleSidebar to show the sidebar
+                toggleSidebar(item.type.charAt(0).toUpperCase() + item.type.slice(1)); // Capitalize the type
+
+                // Update the sidebar with the selected item's description
                 if (data.description) {
-                    updateSidebar(marked.parse(data.description));
+                    updateSidebar(marked.parse(data.description)); // Render Markdown content
                 } else {
                     updateSidebar('<p>No additional details available.</p>');
                 }
@@ -63,7 +66,7 @@ function displaySuggestions(suggestions) {
 
     suggestions.forEach((item) => {
         const suggestionDiv = document.createElement('div');
-        suggestionDiv.textContent = `${item.name} (${item.type})`; // Include the type in the suggestion
+        suggestionDiv.textContent = item.name; // Display only the name of the item
         suggestionDiv.onclick = () => handleSearchSelection(item); // Handle selection
         suggestionsBox.appendChild(suggestionDiv);
     });
