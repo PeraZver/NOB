@@ -1,10 +1,10 @@
-// Initialize map centered on Yugoslavia
-var map = L.map('map').setView([44, 20], 6);
+// Declare the map variable globally
+window.map = L.map('map').setView([44, 20], 6);
 
 // Load a basic tile layer (like Google Maps)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+}).addTo(window.map);
 
 // Function to color each occupied area
 function style(feature) {
