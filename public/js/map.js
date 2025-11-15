@@ -50,7 +50,7 @@ map.on('click', function () {
     }
 });
 
-function toggleSidebar(layerName) {
+export function toggleSidebar(layerName) {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
     const mapElement = document.getElementById('map');

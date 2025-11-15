@@ -1,5 +1,6 @@
 import { icons } from './constants.js'; // Import the icons object
 import { updateSidebar } from './sidebar.js'; // Import sidebar functions
+import { map, toggleSidebar } from './map.js'; // Import the map object
 
 // DOM Elements
 const searchBox = document.getElementById('search-box');
