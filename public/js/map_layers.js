@@ -5,12 +5,13 @@ import layerState from './layerState.js';
 
 // Generic function to fetch and display data for a layer
 export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
-    const layer = layerState[`${layerName}Layer`];
-    const isVisibleFlag = layerState[`is${layerName}LayerVisible`];
+    const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1); // Capitalize the first letter
+    const layer = layerState[`${layerName}`];
+    const isVisibleFlag = layerState[`is${capitalizedLayerName}Visible`];
     
     if (isVisibleFlag) {
         map.removeLayer(layer);
-        layerState[`is${layerName}LayerVisible`] = false;
+        layerState[`is${capitalizedLayerName}Visible`] = false;
     } else {
         fetch(apiEndpoint)
             .then(response => response.json())
@@ -43,8 +44,8 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                     newLayer.addLayer(marker);
                 });
 
-                layerState[`${layerName}Layer`] = newLayer;
-                layerState[`is${layerName}LayerVisible`] = true;
+                layerState[`${layerName}`] = newLayer;
+                layerState[`is${capitalizedLayerName}Visible`] = true;
 
                 // Update the sidebar with default text if a markdown file is provided
                 if (markdownFile) {
@@ -57,14 +58,14 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
 
 // Function to show/hide occupied territories on the map
 export function showOccupiedTerritory() {
-    if (isOccupiedTerritoryLayerVisible) {
-        map.removeLayer(occupiedTerritoryLayer);
-        isOccupiedTerritoryLayerVisible = false;
+    if (layerState.isOccupiedTerritoryVisible) {
+        map.removeLayer(layerState.occupiedTerritoryLayer);
+        layerState.isOccupiedTerritoryLayerVisible = false;
     } else {
         fetch('assets/occupied-territory.json')
             .then(response => response.json())
             .then(data => {
-                occupiedTerritoryLayer = L.geoJSON(data, {
+                layerState.occupiedTerritoryLayer = L.geoJSON(data, {
                     style: (feature) => ({ color: feature.properties.color }),
                     onEachFeature: (feature, layer) => {
                         if (feature.properties) {
@@ -76,7 +77,7 @@ export function showOccupiedTerritory() {
                         }
                     }
                 }).addTo(map);
-                isOccupiedTerritoryLayerVisible = true;
+                layerState.isOccupiedTerritoryLayerVisible = true;
 
                 loadDefaultText('assets/occupied-territory.md');
             })
@@ -96,36 +97,42 @@ export function removeLayer(layerName) {
             if (layerState.isBrigadeLayerVisible) {
                 map.removeLayer(layerState.brigadeLayer);
                 layerState.isBrigadeLayerVisible = false;
+                layerState.brigadeLayer = null;
             }
             break;
         case 'Detachments':
             if (layerState.isDetachmentLayerVisible) {
                 map.removeLayer(layerState.detachmentLayer);
                 layerState.isDetachmentLayerVisible = false;
+                layerState.detachmentLayer = null;
             }
             break;
         case 'Divisions':
             if (layerState.isDivisionLayerVisible) {
                 map.removeLayer(layerState.divisionLayer);
                 layerState.isDivisionLayerVisible = false;
+                layerState.divisionLayer = null;
             }
             break;
         case 'Corps':
             if (layerState.isCorpsLayerVisible) {
                 map.removeLayer(layerState.corpsLayer);
                 layerState.isCorpsLayerVisible = false;
+                layerState.corpsLayer = null;
             }
             break;
         case 'Occupied Territory':
             if (layerState.isOccupiedTerritoryLayerVisible) {
                 map.removeLayer(layerState.occupiedTerritoryLayer);
                 layerState.isOccupiedTerritoryLayerVisible = false;
+                layerState.occupiedTerritoryLayer = null;
             }
             break;
         case 'Battles':
             if (layerState.isBattlesLayerVisible) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
+                layerState.battlesLayer = null;
             }
             break;
         default:

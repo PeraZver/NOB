@@ -1,5 +1,6 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer } from './map_layers.js'; // Import layer functions
+import { updateSidebar, loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
 export const map = L.map('map').setView([44, 20], 6);
@@ -60,7 +61,9 @@ function toggleSidebar(layerName) {
             sidebar.classList.remove('visible');
             mapElement.style.transform = 'translateX(0)';
             content.classList.remove('visible');
+            console.log('Layer state before removing:', layerState);
             removeLayer(layerName);
+            console.log('Layer state after removing:', layerState);
         } else {
             sidebar.classList.add('visible');
             mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
