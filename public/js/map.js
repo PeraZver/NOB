@@ -47,11 +47,11 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     if (layerState.currentLayerName === layerName) { // Use the singleton object
         // If the same button is clicked, toggle the sidebar visibility and remove the layer
         if (sidebar.classList.contains('visible')) {
-            sidebar.classList.remove('visible');
-            mapElement.style.transform = 'translateX(0)';
-            content.classList.remove('visible');
             if (shouldRemoveLayer) {
-                removeLayer(layerName); // Remove the layer only if removeLayer is true
+                sidebar.classList.remove('visible');
+                mapElement.style.transform = 'translateX(0)';
+                content.classList.remove('visible');
+                removeLayer(layerName);
             }
         } else {
             sidebar.classList.add('visible');
