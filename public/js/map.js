@@ -39,7 +39,7 @@ map.on('click', function () {
     }
 });
 
-export function toggleSidebar(layerName) {
+export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
     const mapElement = document.getElementById('map');
@@ -50,7 +50,9 @@ export function toggleSidebar(layerName) {
             sidebar.classList.remove('visible');
             mapElement.style.transform = 'translateX(0)';
             content.classList.remove('visible');
-            removeLayer(layerName);
+            if (shouldRemoveLayer) {
+                removeLayer(layerName); // Remove the layer only if removeLayer is true
+            }
         } else {
             sidebar.classList.add('visible');
             mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
@@ -62,6 +64,9 @@ export function toggleSidebar(layerName) {
         sidebar.classList.add('visible');
         mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
         content.classList.add('visible');
+        if (shouldRemoveLayer) {
+                removeLayer(layerName); // Remove the layer only if removeLayer is true
+            }
         showLayerByName(layerName);
     }
 

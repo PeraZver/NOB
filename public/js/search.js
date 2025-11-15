@@ -47,7 +47,7 @@ function handleSearchSelection(item) {
                 marker.bindPopup(`<strong>${data.name}</strong>`).openPopup();
 
                 // Reuse toggleSidebar to show the sidebar
-                toggleSidebar(item.type.charAt(0).toUpperCase() + item.type.slice(1)); // Capitalize the type
+                toggleSidebar(item.type.charAt(0).toUpperCase() + item.type.slice(1), false); // Capitalize the type
 
                 // Update the sidebar with the selected item's description
                 if (data.description) {
