@@ -1,3 +1,6 @@
+import { icons } from './constants.js'; // Import the icons object
+import { updateSidebar } from './sidebar.js'; // Import sidebar functions
+
 // DOM Elements
 const searchBox = document.getElementById('search-box');
 const suggestionsBox = document.getElementById('suggestions');

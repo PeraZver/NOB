@@ -1,3 +1,3 @@
-public\assets\*.md
 node_modules
-.\env
+src/db/backup_test/
+.env

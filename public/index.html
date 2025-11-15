@@ -25,17 +25,17 @@
 			</div>
 		</div>
 		<ul class="menu">
-			<li onclick="toggleSidebar('Occupied Territory')">Occupied Territory</li>
-			<li onclick="toggleSidebar('Detachments')">Detachments</li>
-			<li onclick="toggleSidebar('Brigades')">Brigades</li>
-			<li onclick="toggleSidebar('Divisions')">Divisions</li>
-			<li onclick="toggleSidebar('Corps')">Corps</li>
-			<li onclick="toggleSidebar('Battles')">Battles</li>
+			<li id="toggleOccupiedTerritory">Occupied Territory</li>
+			<li id="toggleDetachments">Detachments</li>
+			<li id="toggleBrigades">Brigades</li>
+			<li id="toggleDivisions">Divisions</li>
+			<li id="toggleCorps">Corps</li>
+			<li id="toggleBattles">Battles</li>
 		</ul>
 		<div id="map" style="height: 100vh;"></div>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-		<script src="js/map.js"></script>
-		<script src="js/search.js"></script>
+		<script type="module" src="js/map.js"></script>
+		<script type="module" src="js/search.js"></script>
 	</div>
 </body>
 
