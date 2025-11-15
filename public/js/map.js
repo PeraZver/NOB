@@ -1,6 +1,6 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer } from './map_layers.js'; // Import layer functions
-import { updateSidebar, loadDefaultText } from './sidebar.js'; // Import sidebar functions
+import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
 export const map = L.map('map').setView([44, 20], 6);
@@ -10,17 +10,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-
-// Function to color each occupied area
-function style(feature) {
-    return {
-        fillColor: feature.properties.color,
-        weight: 2,
-        opacity: 1,
-        color: 'black',
-        fillOpacity: 0.5
-    };
-}
 
 // Add a map click event to reset the sidebar to default text
 map.on('click', function () {
@@ -61,9 +50,7 @@ export function toggleSidebar(layerName) {
             sidebar.classList.remove('visible');
             mapElement.style.transform = 'translateX(0)';
             content.classList.remove('visible');
-            console.log('Layer state before removing:', layerState);
             removeLayer(layerName);
-            console.log('Layer state after removing:', layerState);
         } else {
             sidebar.classList.add('visible');
             mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
@@ -91,25 +78,25 @@ function showLayerByName(layerName) {
             break;
         case 'Detachments':
             markdownFile = 'assets/detachments.md';
-            showDetachments();
+            showLayerFromAPI('/api/detachments', 'detachmentLayer', 'assets/detachments.md', 'detachments');
             break;
         case 'Brigades':
             markdownFile = 'assets/brigades.md';
-            showBrigades();
+            showLayerFromAPI('/api/brigades', 'brigadeLayer', 'assets/brigades.md', 'brigades');
             break;
         case 'Divisions':
             content.innerHTML = `
                 <h1>Divisions</h1>
                 <p>Information about divisions will be displayed here.</p>
             `;
-            showDivisions();
+            showLayerFromAPI('/api/divisions', 'divisionLayer', 'assets/divizije.md', 'divisions');
             break;
         case 'Corps':
             content.innerHTML = `
                 <h1>Corps</h1>
                 <p>Information about corps will be displayed here.</p>
             `;
-            showCorps();
+            showLayerFromAPI('/api/corps', 'corpsLayer', 'assets/korpusi.md', 'corps');
             break;
         case 'Battles':
             content.innerHTML = `
@@ -130,26 +117,6 @@ function showLayerByName(layerName) {
     }
 }
 
-
-// Function to show/hide brigades on the map
-function showBrigades() {
-    showLayerFromAPI('/api/brigades', 'brigadeLayer', 'assets/brigades.md', 'brigades');
-}
-
-// Function to show/hide detachments on the map
-function showDetachments() {
-    showLayerFromAPI('/api/detachments', 'detachmentLayer', 'assets/detachments.md', 'detachments');
-}
-
-// Function to show/hide divisions on the map
-function showDivisions() {
-    showLayerFromAPI('/api/divisions', 'divisionLayer', 'assets/divizije.md', 'divisions');
-}
-
-// Function to show/hide corps on the map
-function showCorps() {
-    showLayerFromAPI('/api/corps', 'corpsLayer', 'assets/korpusi.md', 'corps');
-}
 
 document.getElementById('toggleOccupiedTerritory').addEventListener('click', () => {
     toggleSidebar('Occupied Territory');
