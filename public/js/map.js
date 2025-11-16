@@ -87,7 +87,7 @@ function showLayerByName(layerName) {
             break;
         case 'Brigades':
             markdownFile = 'assets/brigades.md';
-            showLayerFromAPI('/api/brigades', 'brigadeLayer', 'assets/brigades.md', 'brigades');
+            showLayerFromAPI('/api/brigades', 'brigadesLayer', 'assets/brigades.md', 'brigades');
             break;
         case 'Divisions':
             content.innerHTML = `

@@ -1,6 +1,6 @@
-import { icons } from './constants.js'; // Import the icons object
-import { updateSidebar } from './sidebar.js'; // Import sidebar functions
 import { map, toggleSidebar } from './map.js'; // Import the map object
+import { handleMarkerClick } from './map_layers.js';
+import layerState from './layerState.js';
 
 // DOM Elements
 const searchBox = document.getElementById('search-box');
@@ -38,22 +38,36 @@ function handleSearchSelection(item) {
         .then(response => response.json())
         .then(data => {
             if (data) {
+                // Open the respective layer if not already open
+                toggleSidebar(item.type.charAt(0).toUpperCase() + item.type.slice(1), false);
+
                 // Center the map on the item's location
                 const [lng, lat] = data.location.replace('POINT(', '').replace(')', '').split(' ');
                 map.setView([lat, lng], 13); // Center the map and set zoom level
+ 
+                // Debugging: Log layerState and item.type
+                console.log('Layer state:', layerState);
+                console.log('Item type:', item.type);
+                // Find the marker in the layer group
+                
+                const layerGroup = layerState[`${item.type}Layer`]; // Get the layer group for the item type
+                if (!layerGroup) {
+                    console.error(`Layer group for ${item.type} is not initialized.`);
+                    return;
+                }
+                let targetMarker = null;
 
-                // Add a marker to the map for the selected item
-                const marker = L.marker([lat, lng], { icon: icons[data.type] || L.Icon.Default }); // Use group-specific icon
-                marker.bindPopup(`<strong>${data.name}</strong>`).openPopup();
+                layerGroup.eachLayer((layer) => {
+                    if (layer.getLatLng().lat === parseFloat(lat) && layer.getLatLng().lng === parseFloat(lng)) {
+                        targetMarker = layer; // Find the marker with matching coordinates
+                    }
+                });
 
-                // Reuse toggleSidebar to show the sidebar
-                toggleSidebar(item.type.charAt(0).toUpperCase() + item.type.slice(1), false); // Capitalize the type
-
-                // Update the sidebar with the selected item's description
-                if (data.description) {
-                    updateSidebar(marked.parse(data.description)); // Render Markdown content
+                if (targetMarker) {
+                    // Call handleMarkerClick to bind the popup and update the sidebar
+                    handleMarkerClick(targetMarker, data);
                 } else {
-                    updateSidebar('<p>No additional details available.</p>');
+                    console.error('Marker not found in layer group');
                 }
             }
         })

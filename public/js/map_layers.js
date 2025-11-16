@@ -20,26 +20,7 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 data.forEach(item => {
                     const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
                     const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
-
-                    marker.on('click', function () {
-                        const popupContent = generatePopupContent({
-                            name: item.name,
-                            datum_formiranja: item.formation_date,
-                            description: null, // Exclude description from the pop-up
-                            wikipedia_url: item.wikipedia_url
-                        });
-
-                        // Unbind any existing popup and bind the new one
-                        marker.unbindPopup();
-                        marker.bindPopup(popupContent).openPopup();
-
-                        // Update the sidebar with the description
-                        if (item.description) {
-                            updateSidebar(marked.parse(item.description)); // Render Markdown in the sidebar
-                        } else {
-                            updateSidebar('<p>No additional details available.</p>'); // Fallback for empty descriptions
-                        }
-                    });
+                    marker.on('click', () => handleMarkerClick(marker, item));
 
                     newLayer.addLayer(marker);
                 });
@@ -159,3 +140,24 @@ function generatePopupContent(properties) {
     `;
 }
 
+// Function to handle marker clicks
+export function handleMarkerClick(marker, item) {
+    console.log('Marker in handleMarkerClick:', marker);
+    const popupContent = generatePopupContent({
+                    name: item.name,
+                    datum_formiranja: item.formation_date,
+                    description: null, // Exclude description from the pop-up
+                    wikipedia_url: item.wikipedia_url
+                    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the item's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description)); // Render Markdown content
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
+}

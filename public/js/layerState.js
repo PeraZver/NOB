@@ -1,6 +1,6 @@
 const layerState = {
-    brigadeLayer: null,
-    isBrigadeLayerVisible: false,
+    brigadesLayer: null,
+    isBrigadesLayerVisible: false,
     detachmentLayer: null,
     isDetachmentLayerVisible: false,
     divisionLayer: null,
