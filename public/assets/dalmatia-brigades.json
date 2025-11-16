@@ -4,7 +4,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Prva dalmatinska proleterska udarna brigada",
+		  "naziv": "1. dalmatinska proleterska udarna brigada",
 		  "datum_formiranja": "6 September 1942",
 		  "mesto_formiranja": "Dobro, kod Livna",
 		  "odlikovanja": "ONH, ONO, OPZ i OBJ",
@@ -19,7 +19,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Druga dalmatinska proleterska udarna brigada",
+		  "naziv": "2. dalmatinska proleterska udarna brigada",
 		  "datum_formiranja": "2 October 1942",
 		  "mesto_formiranja": "Uništa, kod B. Grahova",
 		  "odlikovanja": "ONH, ONO, OPZ i OBJ",
@@ -34,7 +34,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Treća dalmatinska udarna brigada",
+		  "naziv": "3. dalmatinska udarna brigada",
 		  "datum_formiranja": "12 November 1942",
 		  "mesto_formiranja": "Vrba, kod Muća",
 		  "odlikovanja": "ONH, ONO i OBJ",
@@ -49,7 +49,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Četvrta dalmatinska brigada",
+		  "naziv": "4. dalmatinska brigada",
 		  "datum_formiranja": "6 January 1943",
 		  "mesto_formiranja": "Šošići, na Bikovu",
 		  "odlikovanja": "OZN i OBJ",
@@ -64,7 +64,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Peta dalmatinska brigada",
+		  "naziv": "5. dalmatinska brigada",
 		  "datum_formiranja": "3 February 1943",
 		  "mesto_formiranja": "okolina Bosanskog Grahova",
 		  "odlikovanja": "OZN i OBJ",
@@ -79,7 +79,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Šesta dalmatinska (bukovička) brigada",
+		  "naziv": "6. dalmatinska (bukovička) brigada",
 		  "datum_formiranja": "31 August 1943",
 		  "mesto_formiranja": "Dalmatinska Bukovica",
 		  "odlikovanja": "OZN i OBJ",
@@ -94,7 +94,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Sedma dalmatinska udarna brigada",
+		  "naziv": "7. dalmatinska udarna brigada",
 		  "datum_formiranja": "12 September 1943",
 		  "mesto_formiranja": "Karin",
 		  "odlikovanja": "OZN i OBJ",
@@ -108,7 +108,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Osma dalmatinska (šibenska) brigada",
+		  "naziv": "8. dalmatinska (šibenska) brigada",
 		  "datum_formiranja": "10 September 1943",
 		  "mesto_formiranja": "Bogdanovići, kod Šibenika",
 		  "odlikovanja": "OZN i OBJ",
@@ -122,7 +122,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Deveta dalmatinska (trogirska) brigada",
+		  "naziv": "9. dalmatinska (trogirska) brigada",
 		  "datum_formiranja": "12 September 1943",
 		  "mesto_formiranja": "Seget Donji, kod Trogira",
 		  "odlikovanja": "OZN i OBJ",
@@ -136,7 +136,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Deseta dalmatinska (cetinska) brigada",
+		  "naziv": "10. dalmatinska (cetinska) brigada",
 		  "datum_formiranja": "14 September 1943",
 		  "mesto_formiranja": "Dugopolje, kod Sinja",
 		  "odlikovanja": "OZN i OBJ",
@@ -150,7 +150,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Jedanaesta dalmatinska udarna brigada",
+		  "naziv": "11. dalmatinska udarna brigada",
 		  "datum_formiranja": "2 October 1943",
 		  "mesto_formiranja": "Kozica, na Biokovu",
 		  "odlikovanja": "OZN i OBJ",
@@ -164,7 +164,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Dvanaesta dalmatinska brigada",
+		  "naziv": "12. dalmatinska brigada",
 		  "datum_formiranja": "21 September 1943",
 		  "mesto_formiranja": "Nerežišća, na Braču",
 		  "odlikovanja": "OZN i OBJ",
@@ -178,7 +178,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Trinaesta dalmatinska (južnodalmatinska) brigada",
+		  "naziv": "13. dalmatinska (južnodalmatinska) brigada",
 		  "datum_formiranja": "21 September 1943",
 		  "mesto_formiranja": "Pelješac",
 		  "odlikovanja": "OZN i OBJ",
@@ -192,7 +192,7 @@
 	  {
 		"type": "Feature",
 		"properties": {
-		  "naziv": "Četrnaesta dalmatinska (bukovička) brigada",
+		  "naziv": "14. dalmatinska (bukovička) brigada",
 		  "datum_formiranja": "28 June 1944",
 		  "mesto_formiranja": "Biovičino selo, kod Bukovice",
 		  "odlikovanja": "OZN i OBJ",
