@@ -132,9 +132,11 @@ function formatDate(dateString) {
 // Helper function to generate compact pop-up content
 function generatePopupContent(properties) {
     const formattedDate = properties.datum_formiranja ? formatDate(properties.datum_formiranja) : 'Unknown';
+    const formationSite = properties.formation_site || 'Unknown location'; // Default to "Unknown location" if not provided
+
     return `
         <strong>${properties.naziv || properties.name || 'Unknown Name'}</strong><br>
-        <small>Formed: ${formattedDate}</small><br>
+        <small>Formed on ${formattedDate} <br> at ${formationSite}</small><br>
         ${properties.opis || properties.description ? `<small>${properties.opis || properties.description}</small><br>` : ''}
         ${properties.wikipedia || properties.wikipedia_url ? `<a href="${properties.wikipedia || properties.wikipedia_url}" target="_blank">Wikipedia</a>` : ''}
     `;
@@ -146,6 +148,7 @@ export function handleMarkerClick(marker, item) {
     const popupContent = generatePopupContent({
                     name: item.name,
                     datum_formiranja: item.formation_date,
+                    formation_site: item.formation_site,
                     description: null, // Exclude description from the pop-up
                     wikipedia_url: item.wikipedia_url
                     });

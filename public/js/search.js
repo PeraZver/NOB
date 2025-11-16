@@ -44,12 +44,11 @@ function handleSearchSelection(item) {
                 // Center the map on the item's location
                 const [lng, lat] = data.location.replace('POINT(', '').replace(')', '').split(' ');
                 map.setView([lat, lng], 13); // Center the map and set zoom level
- 
+
                 // Debugging: Log layerState and item.type
                 console.log('Layer state:', layerState);
                 console.log('Item type:', item.type);
-                // Find the marker in the layer group
-                
+
                 const layerGroup = layerState[`${item.type}Layer`]; // Get the layer group for the item type
                 if (!layerGroup) {
                     console.error(`Layer group for ${item.type} is not initialized.`);
@@ -65,7 +64,10 @@ function handleSearchSelection(item) {
 
                 if (targetMarker) {
                     // Call handleMarkerClick to bind the popup and update the sidebar
-                    handleMarkerClick(targetMarker, data);
+                    handleMarkerClick(targetMarker, {
+                        ...data,
+                        formation_site: data.formation_site // Pass formation_site to handleMarkerClick
+                    });
                 } else {
                     console.error('Marker not found in layer group');
                 }

@@ -38,7 +38,7 @@ async function getMarkdownContent(filePath) {
 
 // API endpoint to fetch brigades
 app.get('/api/brigades', async (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM brigades';
+    const query = 'SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM brigades';
     pool.query(query, async (err, results) => {
         if (err) {
             console.error('Error fetching brigades:', err);
@@ -63,7 +63,7 @@ app.get('/api/brigades', async (req, res) => {
 
 // API endpoint to fetch a single brigade by ID
 app.get('/api/brigades/:id', (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM brigades WHERE id = ?';
+    const query = 'SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM brigades WHERE id = ?';
     const brigadeId = req.params.id;
     pool.query(query, [brigadeId], (err, results) => {
         if (err) {
@@ -81,7 +81,7 @@ app.get('/api/brigades/:id', (req, res) => {
 
 // API endpoint to fetch detachments
 app.get('/api/detachments', async (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM detachments';
+    const query = 'SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM detachments';
     pool.query(query, async (err, results) => {
         if (err) {
             console.error('Error fetching detachments:', err);
@@ -106,7 +106,7 @@ app.get('/api/detachments', async (req, res) => {
 
 // API endpoint to fetch divisions
 app.get('/api/divisions', async (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM divisions';
+    const query = 'SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM divisions';
     pool.query(query, async (err, results) => {
         if (err) {
             console.error('Error fetching divisions:', err);
@@ -131,7 +131,7 @@ app.get('/api/divisions', async (req, res) => {
 
 // API endpoint to fetch corps
 app.get('/api/corps', async (req, res) => {
-    const query = 'SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM corps';
+    const query = 'SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM corps';
     pool.query(query, async (err, results) => {
         if (err) {
             console.error('Error fetching corps:', err);
