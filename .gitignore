@@ -1,4 +1,7 @@
 node_modules
 src/db/backups/
 src/db/backup_test/
+public/img
 .env
+.github
+Python
