@@ -1,0 +1,52 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Historical Border Example",
+        "source": "historical_map",
+        "color": "#8B4513",
+        "year": "1941-1945",
+        "description": "Example historical border from WWII era map"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [19.0, 45.5],
+            [20.5, 45.5],
+            [21.0, 44.8],
+            [20.8, 43.5],
+            [19.5, 43.0],
+            [18.5, 43.5],
+            [18.8, 44.5],
+            [19.0, 45.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Historical Region Boundary",
+        "source": "historical_map",
+        "color": "#654321",
+        "year": "1941-1945",
+        "description": "Another example historical boundary"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [16.5, 44.0],
+            [18.0, 44.0],
+            [18.0, 42.5],
+            [16.5, 42.5],
+            [16.5, 44.0]
+          ]
+        ]
+      }
+    }
+  ]
+}

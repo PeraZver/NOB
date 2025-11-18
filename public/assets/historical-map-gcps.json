@@ -1,0 +1,22 @@
+[
+  {
+    "pixel": [0, 600],
+    "coords": [13.5, 40.5],
+    "description": "Bottom-left corner (Southwest)"
+  },
+  {
+    "pixel": [800, 600],
+    "coords": [23.0, 40.5],
+    "description": "Bottom-right corner (Southeast)"
+  },
+  {
+    "pixel": [800, 0],
+    "coords": [23.0, 47.0],
+    "description": "Top-right corner (Northeast)"
+  },
+  {
+    "pixel": [0, 0],
+    "coords": [13.5, 47.0],
+    "description": "Top-left corner (Northwest)"
+  }
+]

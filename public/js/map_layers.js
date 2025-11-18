@@ -71,6 +71,43 @@ export function showBattles() {
     alert('Battles data not available yet.');
 }
 
+// Function to show/hide historical map borders on the map
+export function showHistoricalMaps() {
+    if (layerState.isHistoricalMapsLayerVisible) {
+        map.removeLayer(layerState.historicalMapsLayer);
+        layerState.isHistoricalMapsLayerVisible = false;
+    } else {
+        fetch('assets/historical-borders.json')
+            .then(response => response.json())
+            .then(data => {
+                layerState.historicalMapsLayer = L.geoJSON(data, {
+                    style: (feature) => ({
+                        color: feature.properties.color || '#8B4513',
+                        weight: 3,
+                        opacity: 0.8,
+                        fillOpacity: 0.1,
+                        dashArray: '10, 5' // Dashed line to distinguish from modern borders
+                    }),
+                    onEachFeature: (feature, layer) => {
+                        if (feature.properties) {
+                            const popupContent = `
+                                <strong>${feature.properties.name || 'Historical Border'}</strong><br>
+                                ${feature.properties.year ? `<small>Period: ${feature.properties.year}</small><br>` : ''}
+                                ${feature.properties.description ? `<small>${feature.properties.description}</small><br>` : ''}
+                                <small><em>Source: ${feature.properties.source || 'historical map'}</em></small>
+                            `;
+                            layer.bindPopup(popupContent);
+                        }
+                    }
+                }).addTo(map);
+                layerState.isHistoricalMapsLayerVisible = true;
+
+                loadDefaultText('assets/historical-maps.md');
+            })
+            .catch(error => console.error('Error loading historical map data:', error));
+    }
+}
+
 // Function to remove a layer from the map
 export function removeLayer(layerName) {
     switch (layerName) {
@@ -114,6 +151,13 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
+            }
+            break;
+        case 'Historical Maps':
+            if (layerState.isHistoricalMapsLayerVisible) {
+                map.removeLayer(layerState.historicalMapsLayer);
+                layerState.isHistoricalMapsLayerVisible = false;
+                layerState.historicalMapsLayer = null;
             }
             break;
         default:
