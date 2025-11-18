@@ -42,7 +42,14 @@ export function showOccupiedTerritory() {
     if (layerState.isOccupiedTerritoryVisible) {
         map.removeLayer(layerState.occupiedTerritoryLayer);
         layerState.isOccupiedTerritoryLayerVisible = false;
+        
+        // Also remove historical borders if they exist
+        if (layerState.historicalMapsLayer) {
+            map.removeLayer(layerState.historicalMapsLayer);
+            layerState.isHistoricalMapsLayerVisible = false;
+        }
     } else {
+        // Load occupied territory data
         fetch('assets/occupied-territory.json')
             .then(response => response.json())
             .then(data => {
@@ -63,20 +70,8 @@ export function showOccupiedTerritory() {
                 loadDefaultText('assets/occupied-territory.md');
             })
             .catch(error => console.error('Error loading map data:', error));
-    }
-}
-
-// Function to show/hide battles on the map
-export function showBattles() {
-    alert('Battles data not available yet.');
-}
-
-// Function to show/hide historical map borders on the map
-export function showHistoricalMaps() {
-    if (layerState.isHistoricalMapsLayerVisible) {
-        map.removeLayer(layerState.historicalMapsLayer);
-        layerState.isHistoricalMapsLayerVisible = false;
-    } else {
+        
+        // Load historical borders data
         fetch('assets/historical-borders.json')
             .then(response => response.json())
             .then(data => {
@@ -101,11 +96,14 @@ export function showHistoricalMaps() {
                     }
                 }).addTo(map);
                 layerState.isHistoricalMapsLayerVisible = true;
-
-                loadDefaultText('assets/historical-maps.md');
             })
             .catch(error => console.error('Error loading historical map data:', error));
     }
+}
+
+// Function to show/hide battles on the map
+export function showBattles() {
+    alert('Battles data not available yet.');
 }
 
 // Function to remove a layer from the map
@@ -145,19 +143,18 @@ export function removeLayer(layerName) {
                 layerState.isOccupiedTerritoryLayerVisible = false;
                 layerState.occupiedTerritoryLayer = null;
             }
+            // Also remove historical maps when removing occupied territory
+            if (layerState.isHistoricalMapsLayerVisible) {
+                map.removeLayer(layerState.historicalMapsLayer);
+                layerState.isHistoricalMapsLayerVisible = false;
+                layerState.historicalMapsLayer = null;
+            }
             break;
         case 'Battles':
             if (layerState.isBattlesLayerVisible) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
-            }
-            break;
-        case 'Historical Maps':
-            if (layerState.isHistoricalMapsLayerVisible) {
-                map.removeLayer(layerState.historicalMapsLayer);
-                layerState.isHistoricalMapsLayerVisible = false;
-                layerState.historicalMapsLayer = null;
             }
             break;
         default:

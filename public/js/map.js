@@ -1,5 +1,5 @@
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, showHistoricalMaps, removeLayer } from './map_layers.js'; // Import layer functions
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer } from './map_layers.js'; // Import layer functions
 import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
@@ -32,9 +32,6 @@ map.on('click', function () {
             break;
         case 'Battles':
             markdownFile = 'assets/battles.md';
-            break;
-        case 'Historical Maps':
-            markdownFile = 'assets/historical-maps.md';
             break;
     }
     if (markdownFile) {
@@ -113,10 +110,6 @@ function showLayerByName(layerName) {
             `;
             showBattles();
             break;
-        case 'Historical Maps':
-            markdownFile = 'assets/historical-maps.md';
-            showHistoricalMaps();
-            break;
     }
 
     if (markdownFile) {
@@ -152,8 +145,4 @@ document.getElementById('toggleCorps').addEventListener('click', () => {
 
 document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
-});
-
-document.getElementById('toggleHistoricalMaps').addEventListener('click', () => {
-    toggleSidebar('Historical Maps');
 });
