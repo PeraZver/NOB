@@ -11,6 +11,8 @@ const layerState = {
     isOccupiedTerritoryLayerVisible: false,
     battlesLayer: null,
     isBattlesLayerVisible: false,
+    historicalMapsLayer: null,
+    isHistoricalMapsLayerVisible: false,
     currentLayerName: null,
 };
 
