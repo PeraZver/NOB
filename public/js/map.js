@@ -3,7 +3,7 @@ import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer } fro
 import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
-export const map = L.map('map').setView([44, 20], 6);
+export const map = L.map('map').setView([44.5, 17.5], 7); // Adjusted coordinates and zoom level
 
 // Load a basic tile layer (like Google Maps)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -45,7 +45,8 @@ body {
 
 .menu {
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Spread items across the menu */
+    align-items: center; /* Align items vertically */
     list-style-type: none;
     padding: 0;
 }
@@ -117,11 +118,12 @@ body {
 
 /* Search Box */
 .search-container {
-	position: absolute;
-	top: 1px; /* Align with the title */
-	right: 50px; /* Align to the right but not all the way to the edge */
-	width: 225px; /* Reduced width by 25% (300px -> 225px) */
-	z-index: 1000;
+	position: relative; /* Relative to the menu container */
+    margin-left: 535px; /* Push it to the far right */
+    margin-top: -30px;
+    width: 225px; /* Keep the width consistent */
+    text-align: left; /* Align content to the right */
+    z-index: 1000; /* Ensure it stays on top */
 }
 
 #search-box {
