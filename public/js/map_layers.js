@@ -8,12 +8,6 @@ const imageUrl = '../img/NDHOccupationZonesLocatorMap.png'; // Path to the image
 const imageBounds = [[42.14, 14.15], 
                     [46.75, 20.682]]; // Replace with the actual bounds of your image
 
-const occupiedZonesOverlay = L.imageOverlay(imageUrl, imageBounds, {
-    opacity: 0.7, // Fully opaque
-    interactive: true, // Set to true if you want the image to capture events
-    zIndex: 10 // Ensure it appears above other layers
-});
-
 // Generic function to fetch and display data for a layer
 export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1); // Capitalize the first letter
@@ -56,26 +50,13 @@ export function showOccupiedTerritory() {
         
     } 
     else {
-        
-        occupiedZonesOverlay.addTo(map);    
-        
+        layerState.occupiedTerritoryLayer  =L.imageOverlay(imageUrl, imageBounds, {
+            opacity: 0.7, // Fully opaque
+            interactive: true, // Set to true if you want the image to capture events
+            zIndex: 10 // Ensure it appears above other layers
+        }).addTo(map);
+        layerState.isOccupiedTerritoryLayerVisible = true;
         loadDefaultText('assets/territory/occupied-territory.md');
-
-        // Load and display the NDH borders GeoJSON file
-        fetch('public/assets/territory/image_borders.geojson')
-            .then(response => response.json())
-            .then(data => {
-                layerState.occupiedTerritoryLayer  = L.geoJSON(data, {
-                    style: {
-                        color: 'blue', // Set the border color
-                        weight: 2,     // Set the border thickness
-                        opacity: 1     // Ensure full opacity
-                    }
-                }).addTo(map);
-                layerState.isOccupiedTerritoryLayerVisible = true;
-                
-            })
-            .catch(error => console.error('Error loading GeoJSON:', error));
     }
 }
 
