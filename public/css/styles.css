@@ -11,6 +11,29 @@ body {
     margin-bottom: 30px;
     font-size: 42px;
     font-weight: bold;
+    font-family: 'Russo One', sans-serif; /* Bold, geometric font */
+}
+
+.main-title {
+    font-size: 72px; /* Large, monumental font size */
+    font-family: 'Russo One', sans-serif; /* Bold, geometric font */
+    font-weight: bold;
+    color: black;
+    letter-spacing: 5px; /* Add spacing between letters */
+    display: block; /* Ensure block-level alignment */
+    width: 100%; /* Full width for alignment */
+}
+
+.subtitle {
+    font-size: 18px; /* Smaller font size for subtitle */
+    font-weight: normal;
+    color: black;
+    font-family: 'Red October', sans-serif;
+    margin-top: 10px;
+    letter-spacing: 1px; /* Slight spacing for readability */
+    display: block; /* Ensure block-level alignment */
+    width: 100%; /* Full width for alignment */
+    text-align: center; /* Center the text within the block */
 }
 
 .container {
