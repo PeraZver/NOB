@@ -10,20 +10,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Add an image overlay for the occupied zones during WW2
-const imageUrl = '../img/NDHOccupationZonesLocatorMap.png'; // Path to the image in public/img
-const imageBounds = [[42.14, 14.15], 
-                     [46.75, 20.682]]; // Replace with the actual bounds of your image
-
-const occupiedZonesOverlay = L.imageOverlay(imageUrl, imageBounds, {
-    opacity: 0.7, // Fully opaque
-    interactive: true, // Set to true if you want the image to capture events
-    zIndex: 10 // Ensure it appears above other layers
-});
-
-// Add the overlay to the map
-occupiedZonesOverlay.addTo(map);
-
 map.on('click', function (e) {
     console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
 });
@@ -95,7 +81,7 @@ function showLayerByName(layerName) {
     var markdownFile = '';
     switch (layerName) {
         case 'Occupied Territory':
-            markdownFile = 'assets/occupied-territory.md';
+            markdownFile = 'assets/territory/occupied-territory.md';
             showOccupiedTerritory();
             break;
         case 'Detachments':
@@ -139,20 +125,7 @@ function showLayerByName(layerName) {
     }
 }
 
-// Load and display the NDH borders GeoJSON file
-fetch('../assets/territory/image_borders.geojson')
-    .then(response => response.json())
-    .then(data => {
-        const ndhBordersLayer = L.geoJSON(data, {
-            style: {
-                color: 'blue', // Set the border color
-                weight: 2,     // Set the border thickness
-                opacity: 1     // Ensure full opacity
-            }
-        });
-        ndhBordersLayer.addTo(map); // Add the layer to the map
-    })
-    .catch(error => console.error('Error loading GeoJSON:', error));
+// Removed the image overlay and GeoJSON code from here as it has been moved to the `showOccupiedTerritory` function.
 
 
 document.getElementById('toggleOccupiedTerritory').addEventListener('click', () => {

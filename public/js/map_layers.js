@@ -3,6 +3,17 @@ import { icons } from './constants.js'; // Import the icons object
 import { updateSidebar, loadDefaultText } from './sidebar.js'; // Import sidebar functions
 import layerState from './layerState.js';
 
+// Add an image overlay for the occupied zones during WW2
+const imageUrl = '../img/NDHOccupationZonesLocatorMap.png'; // Path to the image in public/img
+const imageBounds = [[42.14, 14.15], 
+                    [46.75, 20.682]]; // Replace with the actual bounds of your image
+
+const occupiedZonesOverlay = L.imageOverlay(imageUrl, imageBounds, {
+    opacity: 0.7, // Fully opaque
+    interactive: true, // Set to true if you want the image to capture events
+    zIndex: 10 // Ensure it appears above other layers
+});
+
 // Generic function to fetch and display data for a layer
 export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1); // Capitalize the first letter
@@ -43,61 +54,28 @@ export function showOccupiedTerritory() {
         map.removeLayer(layerState.occupiedTerritoryLayer);
         layerState.isOccupiedTerritoryLayerVisible = false;
         
-        // Also remove historical borders if they exist
-        if (layerState.historicalMapsLayer) {
-            map.removeLayer(layerState.historicalMapsLayer);
-            layerState.isHistoricalMapsLayerVisible = false;
-        }
-    } else {
-        // Load occupied territory data
-        fetch('assets/occupied-territory.json')
+    } 
+    else {
+        
+        occupiedZonesOverlay.addTo(map);    
+        
+        loadDefaultText('assets/territory/occupied-territory.md');
+
+        // Load and display the NDH borders GeoJSON file
+        fetch('public/assets/territory/image_borders.geojson')
             .then(response => response.json())
             .then(data => {
-                layerState.occupiedTerritoryLayer = L.geoJSON(data, {
-                    style: (feature) => ({ color: feature.properties.color }),
-                    onEachFeature: (feature, layer) => {
-                        if (feature.properties) {
-                            const popupContent = `
-                                <strong>${feature.properties.name || 'Unknown Name'}</strong><br>
-                                ${feature.properties.description || ''}
-                            `;
-                            layer.bindPopup(popupContent);
-                        }
+                layerState.occupiedTerritoryLayer  = L.geoJSON(data, {
+                    style: {
+                        color: 'blue', // Set the border color
+                        weight: 2,     // Set the border thickness
+                        opacity: 1     // Ensure full opacity
                     }
                 }).addTo(map);
                 layerState.isOccupiedTerritoryLayerVisible = true;
-
-                loadDefaultText('assets/occupied-territory.md');
+                
             })
-            .catch(error => console.error('Error loading map data:', error));
-        
-        // Load historical borders data
-        fetch('assets/historical-borders.json')
-            .then(response => response.json())
-            .then(data => {
-                layerState.historicalMapsLayer = L.geoJSON(data, {
-                    style: (feature) => ({
-                        color: feature.properties.color || '#8B4513',
-                        weight: 3,
-                        opacity: 0.8,
-                        fillOpacity: 0.1,
-                        dashArray: '10, 5' // Dashed line to distinguish from modern borders
-                    }),
-                    onEachFeature: (feature, layer) => {
-                        if (feature.properties) {
-                            const popupContent = `
-                                <strong>${feature.properties.name || 'Historical Border'}</strong><br>
-                                ${feature.properties.year ? `<small>Period: ${feature.properties.year}</small><br>` : ''}
-                                ${feature.properties.description ? `<small>${feature.properties.description}</small><br>` : ''}
-                                <small><em>Source: ${feature.properties.source || 'historical map'}</em></small>
-                            `;
-                            layer.bindPopup(popupContent);
-                        }
-                    }
-                }).addTo(map);
-                layerState.isHistoricalMapsLayerVisible = true;
-            })
-            .catch(error => console.error('Error loading historical map data:', error));
+            .catch(error => console.error('Error loading GeoJSON:', error));
     }
 }
 
