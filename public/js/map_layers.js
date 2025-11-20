@@ -14,8 +14,9 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
     const layer = layerState[`${layerName}`];
     const isVisibleFlag = layerState[`is${capitalizedLayerName}Visible`];
     
-    if (isVisibleFlag) {
+    if (isVisibleFlag && layer) {
         map.removeLayer(layer);
+        layerState[`${layerName}`] = null; // Clear the layer reference
         layerState[`is${capitalizedLayerName}Visible`] = false;
     } else {
         fetch(apiEndpoint)
@@ -69,10 +70,10 @@ export function showBattles() {
 export function removeLayer(layerName) {
     switch (layerName) {
         case 'Brigades':
-            if (layerState.isBrigadeLayerVisible) {
-                map.removeLayer(layerState.brigadeLayer);
-                layerState.isBrigadeLayerVisible = false;
-                layerState.brigadeLayer = null;
+            if (layerState.isBrigadesLayerVisible) {
+                map.removeLayer(layerState.brigadesLayer);
+                layerState.isBrigadesLayerVisible = false;
+                layerState.brigadesLayer = null;
             }
             break;
         case 'Detachments':
@@ -101,12 +102,6 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.occupiedTerritoryLayer);
                 layerState.isOccupiedTerritoryLayerVisible = false;
                 layerState.occupiedTerritoryLayer = null;
-            }
-            // Also remove historical maps when removing occupied territory
-            if (layerState.isHistoricalMapsLayerVisible) {
-                map.removeLayer(layerState.historicalMapsLayer);
-                layerState.isHistoricalMapsLayerVisible = false;
-                layerState.historicalMapsLayer = null;
             }
             break;
         case 'Battles':
