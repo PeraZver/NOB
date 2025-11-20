@@ -131,3 +131,20 @@ body {
 .suggestions div:hover {
     background-color: #f0f0f0;
 }
+
+/* Marker label styling */
+.marker-label {
+    font-size: 12px; /* Adjust size as needed */
+    color: black;
+    background: transparent; /* Make the background transparent */
+    border: none; /* Remove the border */
+    font-weight: bold; /* Make the text bold */
+    padding: 0; /* Remove padding */
+    padding-left: 15px; /* Add 5px offset from the left side */
+    translate: 0 -20px; /* Move the text 10 pixels up relative to the marker */
+}
+
+/* Remove the arrow pointing to the marker */
+.marker-label::before {
+    content: none;
+}

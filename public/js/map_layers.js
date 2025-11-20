@@ -26,6 +26,14 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 data.forEach(item => {
                     const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
                     const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
+
+                    // Add label next to the marker
+                    marker.bindTooltip(item.name || 'Unknown', {
+                        permanent: true,
+                        direction: 'right',
+                        className: 'marker-label'
+                    });
+
                     marker.on('click', () => handleMarkerClick(marker, item));
 
                     newLayer.addLayer(marker);
