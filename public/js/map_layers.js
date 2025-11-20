@@ -42,7 +42,14 @@ export function showOccupiedTerritory() {
     if (layerState.isOccupiedTerritoryVisible) {
         map.removeLayer(layerState.occupiedTerritoryLayer);
         layerState.isOccupiedTerritoryLayerVisible = false;
+        
+        // Also remove historical borders if they exist
+        if (layerState.historicalMapsLayer) {
+            map.removeLayer(layerState.historicalMapsLayer);
+            layerState.isHistoricalMapsLayerVisible = false;
+        }
     } else {
+        // Load occupied territory data
         fetch('assets/occupied-territory.json')
             .then(response => response.json())
             .then(data => {
@@ -63,6 +70,34 @@ export function showOccupiedTerritory() {
                 loadDefaultText('assets/occupied-territory.md');
             })
             .catch(error => console.error('Error loading map data:', error));
+        
+        // Load historical borders data
+        fetch('assets/historical-borders.json')
+            .then(response => response.json())
+            .then(data => {
+                layerState.historicalMapsLayer = L.geoJSON(data, {
+                    style: (feature) => ({
+                        color: feature.properties.color || '#8B4513',
+                        weight: 3,
+                        opacity: 0.8,
+                        fillOpacity: 0.1,
+                        dashArray: '10, 5' // Dashed line to distinguish from modern borders
+                    }),
+                    onEachFeature: (feature, layer) => {
+                        if (feature.properties) {
+                            const popupContent = `
+                                <strong>${feature.properties.name || 'Historical Border'}</strong><br>
+                                ${feature.properties.year ? `<small>Period: ${feature.properties.year}</small><br>` : ''}
+                                ${feature.properties.description ? `<small>${feature.properties.description}</small><br>` : ''}
+                                <small><em>Source: ${feature.properties.source || 'historical map'}</em></small>
+                            `;
+                            layer.bindPopup(popupContent);
+                        }
+                    }
+                }).addTo(map);
+                layerState.isHistoricalMapsLayerVisible = true;
+            })
+            .catch(error => console.error('Error loading historical map data:', error));
     }
 }
 
@@ -107,6 +142,12 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.occupiedTerritoryLayer);
                 layerState.isOccupiedTerritoryLayerVisible = false;
                 layerState.occupiedTerritoryLayer = null;
+            }
+            // Also remove historical maps when removing occupied territory
+            if (layerState.isHistoricalMapsLayerVisible) {
+                map.removeLayer(layerState.historicalMapsLayer);
+                layerState.isHistoricalMapsLayerVisible = false;
+                layerState.historicalMapsLayer = null;
             }
             break;
         case 'Battles':
