@@ -8,6 +8,23 @@ const imageUrl = '../img/NDHOccupationZonesLocatorMap.png'; // Path to the image
 const imageBounds = [[42.14, 14.15], 
                     [46.75, 20.682]]; // Replace with the actual bounds of your image
 
+// Helper function to create a marker with label
+function createMarker(item, group) {
+    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
+    const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
+
+    // Add label next to the marker
+    marker.bindTooltip(item.name || 'Unknown', {
+        permanent: true,
+        direction: 'right',
+        className: 'marker-label'
+    });
+
+    marker.on('click', () => handleMarkerClick(marker, item));
+
+    return marker;
+}
+
 // Generic function to fetch and display data for a layer
 export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1); // Capitalize the first letter
@@ -30,18 +47,7 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
-                    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
-
-                    // Add label next to the marker
-                    marker.bindTooltip(item.name || 'Unknown', {
-                        permanent: true,
-                        direction: 'right',
-                        className: 'marker-label'
-                    });
-
-                    marker.on('click', () => handleMarkerClick(marker, item));
-
+                    const marker = createMarker(item, group);
                     newLayer.addLayer(marker);
                 });
 
@@ -68,7 +74,14 @@ function filterDataByYear(data, selectedYear) {
             return false; // Exclude items without formation date
         }
         
-        const formationYear = new Date(item.formation_date).getFullYear();
+        const date = new Date(item.formation_date);
+        // Validate the date is valid
+        if (isNaN(date.getTime())) {
+            console.warn(`Invalid date format for item: ${item.name}`);
+            return false; // Exclude items with invalid dates
+        }
+        
+        const formationYear = date.getFullYear();
         // Show units formed in the selected year or earlier
         return formationYear <= selectedYear;
     });
@@ -113,18 +126,7 @@ export function refreshCurrentLayer() {
     const newLayer = L.layerGroup().addTo(map);
     
     filteredData.forEach(item => {
-        const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
-        const marker = L.marker([lat, lng], { icon: icons[layerInfo.group] || L.Icon.Default });
-
-        // Add label next to the marker
-        marker.bindTooltip(item.name || 'Unknown', {
-            permanent: true,
-            direction: 'right',
-            className: 'marker-label'
-        });
-
-        marker.on('click', () => handleMarkerClick(marker, item));
-
+        const marker = createMarker(item, layerInfo.group);
         newLayer.addLayer(marker);
     });
     
