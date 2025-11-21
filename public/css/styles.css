@@ -137,7 +137,7 @@ body {
 }
 
 /* Adjust the map's transform property to slide it to half the screen */
-.map-sidebar-container .sidebar.visible ~ #map {
+.map-sidebar-container .sidebar.visible + #map {
     transform: translateX(50%);
 }
 
