@@ -26,28 +26,33 @@
 			<input type="text" id="search-box" placeholder="Search military units..." autocomplete="off">
 			<div id="suggestions" class="suggestions"></div>
 		</div>
-		<!-- Sidebar and Map -->
-		<div class="sidebar" id="sidebar">
-			<div class="content" id="content">
-				<!-- Content will be dynamically updated -->
-			</div>
+		<!-- Menu Section -->
+		<div class="menu-section">
+			<ul class="menu">
+				<li id="toggleOccupiedTerritory">Occupied Territory</li>
+				<li id="toggleDetachments">Detachments</li>
+				<li id="toggleBrigades">Brigades</li>
+				<li id="toggleDivisions">Divisions</li>
+				<li id="toggleCorps">Corps</li>
+				<li id="toggleBattles">Battles</li>
+			</ul>
+			<ul class="menu years-menu">
+				<li id="year1941" class="year-button">1941</li>
+				<li id="year1942" class="year-button">1942</li>
+				<li id="year1943" class="year-button">1943</li>
+				<li id="year1944" class="year-button">1944</li>
+				<li id="year1945" class="year-button">1945</li>
+			</ul>
 		</div>
-		<ul class="menu">
-			<li id="toggleOccupiedTerritory">Occupied Territory</li>
-			<li id="toggleDetachments">Detachments</li>
-			<li id="toggleBrigades">Brigades</li>
-			<li id="toggleDivisions">Divisions</li>
-			<li id="toggleCorps">Corps</li>
-			<li id="toggleBattles">Battles</li>
-		</ul>
-		<ul class="menu years-menu">
-			<li id="year1941" class="year-button">1941</li>
-			<li id="year1942" class="year-button">1942</li>
-			<li id="year1943" class="year-button">1943</li>
-			<li id="year1944" class="year-button">1944</li>
-			<li id="year1945" class="year-button">1945</li>
-		</ul>
-		<div id="map" style="height: 100vh;"></div>
+		<!-- Map and Sidebar Container -->
+		<div class="map-sidebar-container">
+			<div class="sidebar" id="sidebar">
+				<div class="content" id="content">
+					<!-- Content will be dynamically updated -->
+				</div>
+			</div>
+			<div id="map" style="height: 100vh;"></div>
+		</div>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 		<script type="module" src="js/map.js"></script>
 		<script type="module" src="js/search.js"></script>

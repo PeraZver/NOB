@@ -43,11 +43,19 @@ body {
     align-items: center;
 }
 
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100;
+}
+
 .menu {
     display: flex;
     justify-content: center;
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .menu li {
@@ -67,6 +75,7 @@ body {
 
 .years-menu {
     margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .year-button {
@@ -80,24 +89,31 @@ body {
     border-color: #45a049;
 }
 
+.map-sidebar-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 #map {
 	height: 600px;
 	width: 45%;
-	margin: 20px auto;
+	margin: 0 auto;
 	border: 2px solid black;
     transition: transform 0.5s;
-    margin-top: 20px; /* Adjust this value to align the map and sidebar */
 }
 
 .sidebar {
     position: absolute;
-    top: 60px; /* Adjust this value to align the map and sidebar */
-    left: -50%; /* Adjust this value to hide the sidebar initially */
-    width: 50%; /* Sidebar width set to half the page */
+    top: 0;
+    left: -50%;
+    width: 50%;
     background: white;
     padding: 10px;
     border-radius: 5px;
     transition: left 0.5s;
+    z-index: 10;
 }
 
 .sidebar.visible {
@@ -121,8 +137,8 @@ body {
 }
 
 /* Adjust the map's transform property to slide it to half the screen */
-.sidebar.visible + #map {
-    transform: translateX(50%); /* Adjust this value to ensure the border is at half the screen */
+.map-sidebar-container .sidebar.visible ~ #map {
+    transform: translateX(50%);
 }
 
 .leaflet-popup-content {
