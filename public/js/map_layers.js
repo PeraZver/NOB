@@ -8,6 +8,23 @@ const imageUrl = '../img/NDHOccupationZonesLocatorMap.png'; // Path to the image
 const imageBounds = [[42.14, 14.15], 
                     [46.75, 20.682]]; // Replace with the actual bounds of your image
 
+// Helper function to create a marker with label
+function createMarker(item, group) {
+    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
+    const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
+
+    // Add label next to the marker
+    marker.bindTooltip(item.name || 'Unknown', {
+        permanent: true,
+        direction: 'right',
+        className: 'marker-label'
+    });
+
+    marker.on('click', () => handleMarkerClick(marker, item));
+
+    return marker;
+}
+
 // Generic function to fetch and display data for a layer
 export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1); // Capitalize the first letter
@@ -22,20 +39,15 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
         fetch(apiEndpoint)
             .then(response => response.json())
             .then(data => {
+                // Store all data for filtering
+                layerState.allLayerData[layerName] = data;
+                
+                // Filter data based on selected year
+                const filteredData = filterDataByYear(data, layerState.selectedYear);
+                
                 const newLayer = L.layerGroup().addTo(map);
-                data.forEach(item => {
-                    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
-                    const marker = L.marker([lat, lng], { icon: icons[group] || L.Icon.Default });
-
-                    // Add label next to the marker
-                    marker.bindTooltip(item.name || 'Unknown', {
-                        permanent: true,
-                        direction: 'right',
-                        className: 'marker-label'
-                    });
-
-                    marker.on('click', () => handleMarkerClick(marker, item));
-
+                filteredData.forEach(item => {
+                    const marker = createMarker(item, group);
                     newLayer.addLayer(marker);
                 });
 
@@ -49,6 +61,77 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
             })
             .catch(error => console.error(`Error fetching data from ${apiEndpoint}:`, error));
     }
+}
+
+// Function to filter data by year
+function filterDataByYear(data, selectedYear) {
+    if (!selectedYear) {
+        return data; // No filter applied
+    }
+    
+    return data.filter(item => {
+        if (!item.formation_date) {
+            return false; // Exclude items without formation date
+        }
+        
+        const date = new Date(item.formation_date);
+        // Validate the date is valid
+        if (isNaN(date.getTime())) {
+            console.warn(`Invalid date format for item: ${item.name}`);
+            return false; // Exclude items with invalid dates
+        }
+        
+        const formationYear = date.getFullYear();
+        // Show units formed in the selected year or earlier
+        return formationYear <= selectedYear;
+    });
+}
+
+// Function to refresh the current layer with year filter
+export function refreshCurrentLayer() {
+    const currentLayer = layerState.currentLayerName;
+    
+    if (!currentLayer) {
+        return; // No layer is currently active
+    }
+    
+    // Map layer names to their API endpoints and layer identifiers
+    const layerMapping = {
+        'Detachments': { api: '/api/detachments', layerName: 'detachmentLayer', markdown: 'assets/detachments.md', group: 'detachments' },
+        'Brigades': { api: '/api/brigades', layerName: 'brigadesLayer', markdown: 'assets/brigades.md', group: 'brigades' },
+        'Divisions': { api: '/api/divisions', layerName: 'divisionLayer', markdown: 'assets/divizije.md', group: 'divisions' },
+        'Corps': { api: '/api/corps', layerName: 'corpsLayer', markdown: 'assets/korpusi.md', group: 'corps' }
+    };
+    
+    const layerInfo = layerMapping[currentLayer];
+    if (!layerInfo) {
+        return; // Current layer doesn't support filtering
+    }
+    
+    // Get stored data
+    const storedData = layerState.allLayerData[layerInfo.layerName];
+    if (!storedData) {
+        return; // No data stored yet
+    }
+    
+    // Remove existing layer
+    const capitalizedLayerName = layerInfo.layerName.charAt(0).toUpperCase() + layerInfo.layerName.slice(1);
+    const layer = layerState[layerInfo.layerName];
+    if (layer) {
+        map.removeLayer(layer);
+    }
+    
+    // Filter and redraw
+    const filteredData = filterDataByYear(storedData, layerState.selectedYear);
+    const newLayer = L.layerGroup().addTo(map);
+    
+    filteredData.forEach(item => {
+        const marker = createMarker(item, layerInfo.group);
+        newLayer.addLayer(marker);
+    });
+    
+    layerState[layerInfo.layerName] = newLayer;
+    layerState[`is${capitalizedLayerName}Visible`] = true;
 }
 
 // Function to show/hide occupied territories on the map

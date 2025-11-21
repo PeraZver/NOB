@@ -1,5 +1,5 @@
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer } from './map_layers.js'; // Import layer functions
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshCurrentLayer } from './map_layers.js'; // Import layer functions
 import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
@@ -55,6 +55,8 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
                 mapElement.style.transform = 'translateX(0)';
                 content.classList.remove('visible');
                 removeLayer(layerName);
+                // Clear year filter when layer is removed
+                clearYearFilter();
             }
         } else {
             sidebar.classList.add('visible');
@@ -70,11 +72,20 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
         if (shouldRemoveLayer) {
                 removeLayer(layerName); // Remove the layer only if removeLayer is true
             }
+        // Clear year filter when switching layers
+        clearYearFilter();
         showLayerByName(layerName);
     }
 
     // Update the current layer name in the singleton object
     layerState.currentLayerName = layerName;
+}
+
+// Function to clear year filter
+function clearYearFilter() {
+    layerState.selectedYear = null;
+    const allYearButtons = document.querySelectorAll('.year-button');
+    allYearButtons.forEach(btn => btn.classList.remove('active'));
 }
 
 function showLayerByName(layerName) {
@@ -151,3 +162,58 @@ document.getElementById('toggleCorps').addEventListener('click', () => {
 document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
 });
+
+// Year filter button handlers
+document.getElementById('year1941').addEventListener('click', () => {
+    handleYearFilter(1941);
+});
+
+document.getElementById('year1942').addEventListener('click', () => {
+    handleYearFilter(1942);
+});
+
+document.getElementById('year1943').addEventListener('click', () => {
+    handleYearFilter(1943);
+});
+
+document.getElementById('year1944').addEventListener('click', () => {
+    handleYearFilter(1944);
+});
+
+document.getElementById('year1945').addEventListener('click', () => {
+    handleYearFilter(1945);
+});
+
+// Function to handle year filter
+function handleYearFilter(year) {
+    // Check if any unit layer is currently active
+    const hasActiveLayer = layerState.currentLayerName && 
+                           layerState.currentLayerName !== 'Occupied Territory' && 
+                           layerState.currentLayerName !== 'Battles';
+    
+    if (!hasActiveLayer) {
+        return; // Do nothing if no unit layer is selected
+    }
+    
+    // Toggle year selection
+    const yearButton = document.getElementById(`year${year}`);
+    const allYearButtons = document.querySelectorAll('.year-button');
+    
+    if (layerState.selectedYear === year) {
+        // Deselect current year
+        layerState.selectedYear = null;
+        yearButton.classList.remove('active');
+    } else {
+        // Select new year
+        layerState.selectedYear = year;
+        
+        // Remove active class from all buttons
+        allYearButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        yearButton.classList.add('active');
+    }
+    
+    // Refresh the current layer with the new filter
+    refreshCurrentLayer();
+}

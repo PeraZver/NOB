@@ -66,6 +66,21 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.years-menu {
+    margin-top: 10px;
+}
+
+.year-button {
+    font-size: 14px;
+    padding: 8px 15px;
+}
+
+.year-button.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #45a049;
+}
+
 #map {
 	height: 600px;
 	width: 45%;

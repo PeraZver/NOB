@@ -12,6 +12,8 @@ const layerState = {
     battlesLayer: null,
     isBattlesLayerVisible: false,
     currentLayerName: null,
+    selectedYear: null, // Track selected year filter
+    allLayerData: {}, // Store all fetched data before filtering
 };
 
 export default layerState;
