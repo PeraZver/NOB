@@ -4,10 +4,10 @@ An interactive web application displaying historical military units, battles, an
 
 ## Features
 
-- **Interactive Map**: Browse military units, divisions, brigades, corps, and detachments on an interactive map
-- **Occupied Territories**: View different occupation zones during WWII
-- **Search Functionality**: Search for specific military units
-- **Detailed Information**: Click on markers to view detailed information about each unit
+- Interactive Map: Browse military units, divisions, brigades, corps, and detachments on an interactive map
+- Occupied Territories: View different occupation zones during WWII
+- Search Functionality: Search for specific military units
+- Detailed Information: Click on markers to view detailed information about each unit
 
 ## Installation
 
@@ -17,18 +17,18 @@ An interactive web application displaying historical military units, battles, an
 
 ### Setup
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone https://github.com/PeraZver/NOB.git
    cd NOB
    ```
 
-2. **Install Node.js dependencies:**
+2. Install Node.js dependencies:
    ```bash
    npm install
    ```
 
-4. **Configure database:**
+4. Configure database:
    Create a `.env` file in the root directory:
    ```env
    DB_HOST=localhost
@@ -38,12 +38,12 @@ An interactive web application displaying historical military units, battles, an
    PORT=3000
    ```
 
-5. **Start the server:**
+5. Start the server:
    ```bash
    npm start
    ```
 
-6. **Open in browser:**
+6. Open in browser:
    Navigate to `http://localhost:3000`
 
 ## Project Structure
@@ -73,12 +73,12 @@ NOB/
 ### Viewing Layers
 
 Click on the menu items to toggle different layers:
-- **Occupied Territory**: View different occupation zones
-- **Detachments**: View partisan detachment formation locations
-- **Brigades**: View partisan brigade formation locations
-- **Divisions**: View division formation locations
-- **Corps**: View corps formation locations
-- **Battles**: View battle locations (coming soon)
+- Occupied Territory: View different occupation zones
+- Detachments: View partisan detachment formation locations
+- Brigades: View partisan brigade formation locations
+- Divisions: View division formation locations
+- Corps: View corps formation locations
+- Battles: View battle locations (coming soon)
 
 
 ## API Endpoints
@@ -93,16 +93,16 @@ Click on the menu items to toggle different layers:
 ## Technologies Used
 
 ### Frontend
-- **Leaflet.js**: Interactive maps
-- **Marked.js**: Markdown rendering
-- **Vanilla JavaScript**: ES6 modules
+- Leaflet.js: Interactive maps
+- Marked.js: Markdown rendering
+- Vanilla JavaScript: ES6 modules
 
 ### Backend
-- **Node.js**: Runtime environment
-- **Express.js**: Web framework
-- **MySQL**: Database
+- Node.js: Runtime environment
+- Express.js: Web framework
+- MySQL: Database
 
 ### Historical Map Processing
-- **Python 3**: Scripting language
-- **OpenCV**: Image processing and edge detection
-- **NumPy**: Numerical computations
+- Python 3: Scripting language
+- OpenCV: Image processing and edge detection
+- NumPy: Numerical computations
