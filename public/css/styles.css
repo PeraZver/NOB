@@ -56,7 +56,6 @@ body {
     align-items: center; /* Align items vertically */
     list-style-type: none;
     padding: 0;
-    height: 50px; /* Explicit height for the main menu */
 }
 
 .menu li {
@@ -80,7 +79,6 @@ body {
     align-items: center; /* Align items vertically */
     list-style-type: none;
     padding: 0;
-    height: 40px; /* Explicit height for the years menu */
 }
 
 .year-button {
@@ -112,14 +110,12 @@ body {
 
 .sidebar {
     position: absolute;
-    top: 90px; /* Combined height of both menus */
     left: -50%; /* Keep it hidden initially */
     width: 50%; /* Sidebar width set to half the page */
     background: white;
     padding: 10px;
     border-radius: 5px;
     transition: left 0.5s;
-    height: calc(100% - 90px); /* Adjust height to exclude the menus */
     box-sizing: border-box; /* Include padding in height calculation */
 }
 
