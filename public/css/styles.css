@@ -49,6 +49,7 @@ body {
     align-items: center; /* Align items vertically */
     list-style-type: none;
     padding: 0;
+    height: 50px; /* Explicit height for the main menu */
 }
 
 .menu li {
@@ -67,7 +68,12 @@ body {
 }
 
 .years-menu {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center; /* Center year buttons */
+    align-items: center; /* Align items vertically */
+    list-style-type: none;
+    padding: 0;
+    height: 40px; /* Explicit height for the years menu */
 }
 
 .year-button {
@@ -82,27 +88,30 @@ body {
 }
 
 #map {
-	height: 600px;
+	height: calc(100% - 90px); /* Adjust map height to exclude the menus */
 	width: 45%;
 	margin: 20px auto;
 	border: 2px solid black;
     transition: transform 0.5s;
     margin-top: 20px; /* Adjust this value to align the map and sidebar */
+	margin-top: 70px; /* Push the map below the menu */
 }
 
 .sidebar {
     position: absolute;
-    top: 60px; /* Adjust this value to align the map and sidebar */
-    left: -50%; /* Adjust this value to hide the sidebar initially */
+    top: 90px; /* Combined height of both menus */
+    left: -50%; /* Keep it hidden initially */
     width: 50%; /* Sidebar width set to half the page */
     background: white;
     padding: 10px;
     border-radius: 5px;
     transition: left 0.5s;
+    height: calc(100% - 90px); /* Adjust height to exclude the menus */
+    box-sizing: border-box; /* Include padding in height calculation */
 }
 
 .sidebar.visible {
-    left: 0;
+    left: 0; /* Slide into view */
 }
 
 .content {
