@@ -43,6 +43,13 @@ body {
     align-items: center;
 }
 
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 100;
+}
+
 .menu {
     display: flex;
     justify-content: space-between; /* Spread items across the menu */
@@ -87,14 +94,20 @@ body {
     border-color: #45a049;
 }
 
+.map-sidebar-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 #map {
 	height: calc(100% - 90px); /* Adjust map height to exclude the menus */
 	width: 45%;
-	margin: 20px auto;
+	margin: 0 auto;
 	border: 2px solid black;
     transition: transform 0.5s;
-    margin-top: 20px; /* Adjust this value to align the map and sidebar */
-	margin-top: 70px; /* Push the map below the menu */
+    margin-top: 70px; /* Push the map below the menu */
 }
 
 .sidebar {
@@ -131,8 +144,8 @@ body {
 }
 
 /* Adjust the map's transform property to slide it to half the screen */
-.sidebar.visible + #map {
-    transform: translateX(50%); /* Adjust this value to ensure the border is at half the screen */
+.map-sidebar-container .sidebar.visible + #map {
+    transform: translateX(50%);
 }
 
 .leaflet-popup-content {
