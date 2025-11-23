@@ -1,5 +1,5 @@
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshCurrentLayer } from './map_layers.js'; // Import layer functions
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js'; // Import layer functions
 import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
 
 // Declare the map variable globally
@@ -186,13 +186,14 @@ document.getElementById('year1945').addEventListener('click', () => {
 
 // Function to handle year filter
 function handleYearFilter(year) {
-    // Check if any unit layer is currently active
-    const hasActiveLayer = layerState.currentLayerName && 
-                           layerState.currentLayerName !== 'Occupied Territory' && 
-                           layerState.currentLayerName !== 'Battles';
+    // Check if any unit layer is currently visible (not just the current one)
+    const hasActiveLayer = layerState.isBrigadesLayerVisible || 
+                           layerState.isDetachmentLayerVisible || 
+                           layerState.isDivisionLayerVisible || 
+                           layerState.isCorpsLayerVisible;
     
     if (!hasActiveLayer) {
-        return; // Do nothing if no unit layer is selected
+        return; // Do nothing if no unit layer is visible
     }
     
     // Toggle year selection
@@ -214,6 +215,6 @@ function handleYearFilter(year) {
         yearButton.classList.add('active');
     }
     
-    // Refresh the current layer with the new filter
-    refreshCurrentLayer();
+    // Refresh all visible layers with the new filter
+    refreshAllVisibleLayers();
 }
