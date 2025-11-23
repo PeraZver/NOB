@@ -87,51 +87,46 @@ function filterDataByYear(data, selectedYear) {
     });
 }
 
-// Function to refresh the current layer with year filter
-export function refreshCurrentLayer() {
-    const currentLayer = layerState.currentLayerName;
-    
-    if (!currentLayer) {
-        return; // No layer is currently active
-    }
-    
-    // Map layer names to their API endpoints and layer identifiers
+// Function to refresh all visible layers with year filter
+export function refreshAllVisibleLayers() {
+    // Map layer names to their configuration
     const layerMapping = {
-        'Detachments': { api: '/api/detachments', layerName: 'detachmentLayer', markdown: 'assets/detachments.md', group: 'detachments' },
-        'Brigades': { api: '/api/brigades', layerName: 'brigadesLayer', markdown: 'assets/brigades.md', group: 'brigades' },
-        'Divisions': { api: '/api/divisions', layerName: 'divisionLayer', markdown: 'assets/divizije.md', group: 'divisions' },
-        'Corps': { api: '/api/corps', layerName: 'corpsLayer', markdown: 'assets/korpusi.md', group: 'corps' }
+        'detachmentLayer': { layerName: 'detachmentLayer', group: 'detachments', visibleFlag: 'isDetachmentLayerVisible' },
+        'brigadesLayer': { layerName: 'brigadesLayer', group: 'brigades', visibleFlag: 'isBrigadesLayerVisible' },
+        'divisionLayer': { layerName: 'divisionLayer', group: 'divisions', visibleFlag: 'isDivisionLayerVisible' },
+        'corpsLayer': { layerName: 'corpsLayer', group: 'corps', visibleFlag: 'isCorpsLayerVisible' }
     };
     
-    const layerInfo = layerMapping[currentLayer];
-    if (!layerInfo) {
-        return; // Current layer doesn't support filtering
-    }
-    
-    // Get stored data
-    const storedData = layerState.allLayerData[layerInfo.layerName];
-    if (!storedData) {
-        return; // No data stored yet
-    }
-    
-    // Remove existing layer
-    const capitalizedLayerName = layerInfo.layerName.charAt(0).toUpperCase() + layerInfo.layerName.slice(1);
-    const layer = layerState[layerInfo.layerName];
-    if (layer) {
-        map.removeLayer(layer);
-    }
-    
-    // Filter and redraw
-    const filteredData = filterDataByYear(storedData, layerState.selectedYear);
-    const newLayer = L.layerGroup().addTo(map);
-    
-    filteredData.forEach(item => {
-        const marker = createMarker(item, layerInfo.group);
-        newLayer.addLayer(marker);
+    // Iterate through all layers and refresh the visible ones
+    Object.keys(layerMapping).forEach(layerKey => {
+        const layerInfo = layerMapping[layerKey];
+        const isVisible = layerState[layerInfo.visibleFlag];
+        
+        if (isVisible) {
+            // Get stored data
+            const storedData = layerState.allLayerData[layerInfo.layerName];
+            if (!storedData) {
+                return; // No data stored yet for this layer
+            }
+            
+            // Remove existing layer
+            const layer = layerState[layerInfo.layerName];
+            if (layer) {
+                map.removeLayer(layer);
+            }
+            
+            // Filter and redraw
+            const filteredData = filterDataByYear(storedData, layerState.selectedYear);
+            const newLayer = L.layerGroup().addTo(map);
+            
+            filteredData.forEach(item => {
+                const marker = createMarker(item, layerInfo.group);
+                newLayer.addLayer(marker);
+            });
+            
+            layerState[layerInfo.layerName] = newLayer;
+        }
     });
-    
-    layerState[layerInfo.layerName] = newLayer;
-    layerState[`is${capitalizedLayerName}Visible`] = true;
 }
 
 // Function to show/hide occupied territories on the map
