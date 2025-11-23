@@ -106,7 +106,8 @@ export function refreshAllVisibleLayers() {
             // Get stored data
             const storedData = layerState.allLayerData[layerInfo.layerName];
             if (!storedData) {
-                return; // No data stored yet for this layer
+                // Skip this layer if no data is stored yet, but continue with other layers
+                return;
             }
             
             // Remove existing layer
