@@ -166,22 +166,27 @@ document.getElementById('toggleBattles').addEventListener('click', () => {
 // Calendar button to toggle years menu
 document.getElementById('toggleYearsMenu').addEventListener('click', () => {
     const yearsMenu = document.getElementById('yearsMenu');
+    const monthsMenu = document.getElementById('monthsMenu');
     const calendarButton = document.getElementById('toggleYearsMenu');
     
     if (yearsMenu.classList.contains('visible')) {
-        // Hide years menu
+        // Hide years and months menus
         yearsMenu.classList.remove('visible');
+        monthsMenu.classList.remove('visible');
         calendarButton.classList.remove('active');
         
-        // Clear year filter
+        // Clear year and month filters
         layerState.selectedYear = null;
+        layerState.selectedMonth = null;
         const allYearButtons = document.querySelectorAll('.year-button');
+        const allMonthButtons = document.querySelectorAll('.month-button');
         allYearButtons.forEach(btn => btn.classList.remove('active'));
+        allMonthButtons.forEach(btn => btn.classList.remove('active'));
         
         // Refresh all visible layers to remove filter
         refreshAllVisibleLayers();
     } else {
-        // Show years menu
+        // Show years menu (months menu stays hidden until year is selected)
         yearsMenu.classList.add('visible');
         calendarButton.classList.add('active');
     }
@@ -223,20 +228,70 @@ function handleYearFilter(year) {
     // Toggle year selection
     const yearButton = document.getElementById(`year${year}`);
     const allYearButtons = document.querySelectorAll('.year-button');
+    const monthsMenu = document.getElementById('monthsMenu');
+    const allMonthButtons = document.querySelectorAll('.month-button');
     
     if (layerState.selectedYear === year) {
         // Deselect current year
         layerState.selectedYear = null;
+        layerState.selectedMonth = null;
         yearButton.classList.remove('active');
+        
+        // Hide months menu and clear month selection
+        monthsMenu.classList.remove('visible');
+        allMonthButtons.forEach(btn => btn.classList.remove('active'));
     } else {
         // Select new year
         layerState.selectedYear = year;
+        layerState.selectedMonth = null; // Clear month when changing year
         
-        // Remove active class from all buttons
+        // Remove active class from all year buttons
         allYearButtons.forEach(btn => btn.classList.remove('active'));
         
         // Add active class to clicked button
         yearButton.classList.add('active');
+        
+        // Show months menu
+        monthsMenu.classList.add('visible');
+        
+        // Clear any previously selected month
+        allMonthButtons.forEach(btn => btn.classList.remove('active'));
+    }
+    
+    // Refresh all visible layers with the new filter
+    refreshAllVisibleLayers();
+}
+
+// Month filter button handlers
+for (let month = 1; month <= 12; month++) {
+    document.getElementById(`month${month}`).addEventListener('click', () => {
+        handleMonthFilter(month);
+    });
+}
+
+// Function to handle month filter
+function handleMonthFilter(month) {
+    // Month filter only works when a year is selected
+    if (!layerState.selectedYear) {
+        return; // Do nothing if no year is selected
+    }
+    
+    const monthButton = document.getElementById(`month${month}`);
+    const allMonthButtons = document.querySelectorAll('.month-button');
+    
+    if (layerState.selectedMonth === month) {
+        // Deselect current month
+        layerState.selectedMonth = null;
+        monthButton.classList.remove('active');
+    } else {
+        // Select new month
+        layerState.selectedMonth = month;
+        
+        // Remove active class from all month buttons
+        allMonthButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to clicked button
+        monthButton.classList.add('active');
     }
     
     // Refresh all visible layers with the new filter

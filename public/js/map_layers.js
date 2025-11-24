@@ -42,8 +42,8 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 // Store all data for filtering
                 layerState.allLayerData[layerName] = data;
                 
-                // Filter data based on selected year
-                const filteredData = filterDataByYear(data, layerState.selectedYear);
+                // Filter data based on selected year and month
+                const filteredData = filterDataByYear(data, layerState.selectedYear, layerState.selectedMonth);
                 
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
@@ -63,8 +63,8 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
     }
 }
 
-// Function to filter data by year
-function filterDataByYear(data, selectedYear) {
+// Function to filter data by year and month
+function filterDataByYear(data, selectedYear, selectedMonth) {
     if (!selectedYear) {
         return data; // No filter applied
     }
@@ -82,7 +82,14 @@ function filterDataByYear(data, selectedYear) {
         }
         
         const formationYear = date.getFullYear();
-        // Show units formed in the selected year or earlier
+        const formationMonth = date.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+        
+        // If both year and month are selected, filter by exact year and month
+        if (selectedMonth) {
+            return formationYear === selectedYear && formationMonth === selectedMonth;
+        }
+        
+        // If only year is selected, show units formed in the selected year or earlier
         return formationYear <= selectedYear;
     });
 }
@@ -117,7 +124,7 @@ export function refreshAllVisibleLayers() {
             }
             
             // Filter and redraw
-            const filteredData = filterDataByYear(storedData, layerState.selectedYear);
+            const filteredData = filterDataByYear(storedData, layerState.selectedYear, layerState.selectedMonth);
             const newLayer = L.layerGroup().addTo(map);
             
             filteredData.forEach(item => {
