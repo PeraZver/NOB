@@ -73,12 +73,43 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.calendar-button {
+    font-size: 20px;
+    padding: 10px 15px;
+    background-color: #e3f2fd;
+    border-color: #2196F3;
+}
+
+.calendar-button:hover {
+    background-color: #bbdefb;
+}
+
+.calendar-button.active {
+    background-color: #2196F3;
+    color: white;
+}
+
 .years-menu {
+<<<<<<< HEAD
     display: flex;
     justify-content: center; /* Center year buttons */
     align-items: center; /* Align items vertically */
     list-style-type: none;
     padding: 0;
+=======
+    margin-top: 10px;
+    margin-bottom: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
+}
+
+.years-menu.visible {
+    max-height: 100px;
+    opacity: 1;
+    margin-bottom: 20px;
+>>>>>>> 91bcf7a92803a6498fe25265e7becc1e320f8d5b
 }
 
 .year-button {
@@ -97,6 +128,7 @@ body {
     width: 100%;
     display: flex;
     justify-content: center;
+    transition: margin-top 0.4s ease-out;
 }
 
 #map {

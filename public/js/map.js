@@ -163,6 +163,30 @@ document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
 });
 
+// Calendar button to toggle years menu
+document.getElementById('toggleYearsMenu').addEventListener('click', () => {
+    const yearsMenu = document.getElementById('yearsMenu');
+    const calendarButton = document.getElementById('toggleYearsMenu');
+    
+    if (yearsMenu.classList.contains('visible')) {
+        // Hide years menu
+        yearsMenu.classList.remove('visible');
+        calendarButton.classList.remove('active');
+        
+        // Clear year filter
+        layerState.selectedYear = null;
+        const allYearButtons = document.querySelectorAll('.year-button');
+        allYearButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Refresh all visible layers to remove filter
+        refreshAllVisibleLayers();
+    } else {
+        // Show years menu
+        yearsMenu.classList.add('visible');
+        calendarButton.classList.add('active');
+    }
+});
+
 // Year filter button handlers
 document.getElementById('year1941').addEventListener('click', () => {
     handleYearFilter(1941);
