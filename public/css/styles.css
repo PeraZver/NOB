@@ -112,6 +112,38 @@ body {
 >>>>>>> 91bcf7a92803a6498fe25265e7becc1e320f8d5b
 }
 
+.months-menu {
+    margin-top: 10px;
+    margin-bottom: 0;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
+}
+
+.months-menu.visible {
+    max-height: 100px;
+    opacity: 1;
+    margin-bottom: 20px;
+}
+
+.month-button {
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+.month-button.active {
+    background-color: #FF9800;
+    color: white;
+    border-color: #F57C00;
+}
+
+.month-button.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .year-button {
     font-size: 14px;
     padding: 8px 15px;

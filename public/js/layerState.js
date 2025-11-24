@@ -13,6 +13,7 @@ const layerState = {
     isBattlesLayerVisible: false,
     currentLayerName: null,
     selectedYear: null, // Track selected year filter
+    selectedMonth: null, // Track selected month filter (1-12)
     allLayerData: {}, // Store all fetched data before filtering
 };
 
