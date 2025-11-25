@@ -23,5 +23,13 @@ module.exports = {
     paths: {
         public: path.join(__dirname, '../../public'),
         assets: path.join(__dirname, '../../public/assets')
+    },
+    
+    // Military unit types configuration
+    unitTypes: {
+        brigades: { tableName: 'brigades', assetFolder: 'brigades' },
+        detachments: { tableName: 'detachments', assetFolder: 'detachments' },
+        divisions: { tableName: 'divisions', assetFolder: 'divisions' },
+        corps: { tableName: 'corps', assetFolder: 'corps' }
     }
 };

@@ -50,23 +50,47 @@ An interactive web application displaying historical military units, battles, an
 
 ```
 NOB/
-├── public/              # Frontend files
-│   ├── assets/          # Data files (JSON, markdown, icons)
-│   ├── css/             # Stylesheets
-│   ├── js/              # JavaScript modules
-│   │   ├── map.js       # Main map initialization
-│   │   ├── map_layers.js # Layer management
-│   │   ├── layerState.js # State management
-│   │   └── ...
-│   └── index.html       # Main HTML file
-├── scripts/             # Utility scripts, mostly to manage the database data
-├── src/                 # Backend source code
-│   ├── app.js           # Express server
-│   ├── routes/          # API routes
-│   └── db/              # DB backups and sql scripts
-├── package.json         # Node.js dependencies
-└── README.md            # This file
+├── public/                  # Frontend files
+│   ├── assets/              # Data files (JSON, markdown, icons)
+│   ├── css/                 # Stylesheets
+│   ├── js/                  # JavaScript modules
+│   │   ├── config.js        # Frontend configuration
+│   │   ├── constants.js     # Icon definitions
+│   │   ├── layerState.js    # Application state management
+│   │   ├── map.js           # Main map initialization and UI
+│   │   ├── map_layers.js    # Layer management logic
+│   │   ├── search.js        # Search functionality
+│   │   ├── sidebar.js       # Sidebar content management
+│   │   ├── handlers/        # Event handlers
+│   │   │   └── filterHandlers.js
+│   │   └── utils/           # Utility functions
+│   │       ├── dateUtils.js
+│   │       ├── filterUtils.js
+│   │       ├── markerUtils.js
+│   │       └── popupUtils.js
+│   └── index.html           # Main HTML file
+├── scripts/                 # Utility scripts for database management
+├── src/                     # Backend source code
+│   ├── app.js               # Express server entry point
+│   ├── config/              # Configuration
+│   │   └── config.js        # Centralized configuration
+│   ├── controllers/         # Business logic
+│   │   └── militaryUnitsController.js
+│   ├── db/                  # Database files
+│   │   ├── pool.js          # Database connection pool
+│   │   └── *.sql            # SQL scripts
+│   ├── routes/              # API routes
+│   │   ├── militaryUnitsRoutes.js
+│   │   └── searchRoutes.js
+│   └── utils/               # Utility functions
+│       └── markdownLoader.js
+├── docs/                    # Documentation
+│   └── CODE_ORGANIZATION.md # Code structure documentation
+├── package.json             # Node.js dependencies
+└── README.md                # This file
 ```
+
+For detailed information about the code organization and architecture, see [docs/CODE_ORGANIZATION.md](docs/CODE_ORGANIZATION.md).
 
 ## Usage
 

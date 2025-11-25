@@ -2,36 +2,49 @@ const path = require('path');
 const pool = require('../db/pool');
 const { getMarkdownContent } = require('../utils/markdownLoader');
 
+// Whitelist of valid table names to prevent SQL injection
+const VALID_TABLES = ['brigades', 'detachments', 'divisions', 'corps'];
+
+/**
+ * Validate table name against whitelist
+ * @param {string} tableName - Name to validate
+ * @returns {boolean} True if valid
+ */
+function isValidTableName(tableName) {
+    return VALID_TABLES.includes(tableName);
+}
+
 /**
  * Generic controller to fetch military units from database
  * @param {string} tableName - Name of the database table
  * @param {string} assetFolder - Folder name in public/assets
  */
 async function getMilitaryUnits(tableName, assetFolder) {
+    if (!isValidTableName(tableName)) {
+        throw new Error(`Invalid table name: ${tableName}`);
+    }
+
     const query = `SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM ${tableName}`;
     
-    return new Promise((resolve, reject) => {
-        pool.query(query, async (err, results) => {
-            if (err) {
-                console.error(`Error fetching ${tableName}:`, err);
-                reject(err);
-                return;
-            }
+    try {
+        const [results] = await pool.query(query);
 
-            // Fetch Markdown content dynamically
-            const units = await Promise.all(
-                results.map(async (unit) => {
-                    if (unit.description && unit.description.endsWith('.md')) {
-                        const filePath = path.join(__dirname, '../../public', 'assets', assetFolder, unit.description);
-                        unit.description = await getMarkdownContent(filePath);
-                    }
-                    return unit;
-                })
-            );
+        // Fetch Markdown content dynamically
+        const units = await Promise.all(
+            results.map(async (unit) => {
+                if (unit.description && unit.description.endsWith('.md')) {
+                    const filePath = path.join(__dirname, '../../public', 'assets', assetFolder, unit.description);
+                    unit.description = await getMarkdownContent(filePath);
+                }
+                return unit;
+            })
+        );
 
-            resolve(units);
-        });
-    });
+        return units;
+    } catch (error) {
+        console.error(`Error fetching ${tableName}:`, error);
+        throw error;
+    }
 }
 
 /**
@@ -40,18 +53,19 @@ async function getMilitaryUnits(tableName, assetFolder) {
  * @param {number} unitId - ID of the unit
  */
 async function getMilitaryUnitById(tableName, unitId) {
+    if (!isValidTableName(tableName)) {
+        throw new Error(`Invalid table name: ${tableName}`);
+    }
+
     const query = `SELECT id, name, formation_date, formation_site, description, ST_AsText(location) AS location, wikipedia_url FROM ${tableName} WHERE id = ?`;
     
-    return new Promise((resolve, reject) => {
-        pool.query(query, [unitId], (err, results) => {
-            if (err) {
-                console.error(`Error fetching unit from ${tableName}:`, err);
-                reject(err);
-                return;
-            }
-            resolve(results.length > 0 ? results[0] : null);
-        });
-    });
+    try {
+        const [results] = await pool.query(query, [unitId]);
+        return results.length > 0 ? results[0] : null;
+    } catch (error) {
+        console.error(`Error fetching unit from ${tableName}:`, error);
+        throw error;
+    }
 }
 
 module.exports = {
