@@ -90,13 +90,6 @@ body {
 }
 
 .years-menu {
-<<<<<<< HEAD
-    display: flex;
-    justify-content: center; /* Center year buttons */
-    align-items: center; /* Align items vertically */
-    list-style-type: none;
-    padding: 0;
-=======
     margin-top: 10px;
     margin-bottom: 0;
     max-height: 0;
@@ -109,7 +102,6 @@ body {
     max-height: 100px;
     opacity: 1;
     margin-bottom: 20px;
->>>>>>> 91bcf7a92803a6498fe25265e7becc1e320f8d5b
 }
 
 .months-menu {
