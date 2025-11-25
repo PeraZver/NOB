@@ -1,13 +1,15 @@
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js'; // Import layer functions
-import { loadDefaultText } from './sidebar.js'; // Import sidebar functions
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js';
+import { loadDefaultText } from './sidebar.js';
+import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter } from './handlers/filterHandlers.js';
+import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
-export const map = L.map('map').setView([44.5, 17.5], 7); // Adjusted coordinates and zoom level
+export const map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
 
-// Load a basic tile layer (like Google Maps)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+// Load a basic tile layer
+L.tileLayer(MAP_CONFIG.tileLayerUrl, {
+    attribution: MAP_CONFIG.tileLayerAttribution
 }).addTo(map);
 
 map.on('click', function (e) {
@@ -16,29 +18,9 @@ map.on('click', function (e) {
 
 // Add a map click event to reset the sidebar to default text
 map.on('click', function () {
-    var markdownFile = '';
-    switch (layerState.currentLayerName) { // Use the singleton object
-        case 'Occupied Territory':
-            markdownFile = 'assets/occupied-territory.md';
-            break;
-        case 'Detachments':
-            markdownFile = 'assets/detachments.md';
-            break;
-        case 'Brigades':
-            markdownFile = 'assets/brigades.md';
-            break;
-        case 'Divisions':
-            markdownFile = 'assets/divizije.md';
-            break;
-        case 'Corps':
-            markdownFile = 'assets/korpusi.md';
-            break;
-        case 'Battles':
-            markdownFile = 'assets/battles.md';
-            break;
-    }
+    const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
     if (markdownFile) {
-        loadDefaultText(markdownFile); // Load the default text for the current layer
+        loadDefaultText(markdownFile);
     }
 });
 
@@ -47,7 +29,7 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const content = document.getElementById('content');
     const mapElement = document.getElementById('map');
 
-    if (layerState.currentLayerName === layerName) { // Use the singleton object
+    if (layerState.currentLayerName === layerName) {
         // If the same button is clicked, toggle the sidebar visibility and remove the layer
         if (sidebar.classList.contains('visible')) {
             if (shouldRemoveLayer) {
@@ -55,24 +37,22 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
                 mapElement.style.transform = 'translateX(0)';
                 content.classList.remove('visible');
                 removeLayer(layerName);
-                // Clear year filter when layer is removed
                 clearYearFilter();
             }
         } else {
             sidebar.classList.add('visible');
-            mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
+            mapElement.style.transform = 'translateX(50%)';
             content.classList.add('visible');
             showLayerByName(layerName);
         }
     } else {
         // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
-        mapElement.style.transform = 'translateX(50%)'; // Adjust this value to match the CSS
+        mapElement.style.transform = 'translateX(50%)';
         content.classList.add('visible');
         if (shouldRemoveLayer) {
-                removeLayer(layerName); // Remove the layer only if removeLayer is true
-            }
-        // Clear year filter when switching layers
+            removeLayer(layerName);
+        }
         clearYearFilter();
         showLayerByName(layerName);
     }
@@ -81,41 +61,32 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     layerState.currentLayerName = layerName;
 }
 
-// Function to clear year filter
-function clearYearFilter() {
-    layerState.selectedYear = null;
-    const allYearButtons = document.querySelectorAll('.year-button');
-    allYearButtons.forEach(btn => btn.classList.remove('active'));
-}
-
 function showLayerByName(layerName) {
-    var markdownFile = '';
+    const markdownFile = MARKDOWN_PATHS[layerName];
+    
     switch (layerName) {
         case 'Occupied Territory':
-            markdownFile = 'assets/territory/occupied-territory.md';
             showOccupiedTerritory();
             break;
         case 'Detachments':
-            markdownFile = 'assets/detachments.md';
-            showLayerFromAPI('/api/detachments', 'detachmentLayer', 'assets/detachments.md', 'detachments');
+            showLayerFromAPI(API_ENDPOINTS.detachments, 'detachmentLayer', 'assets/detachments.md', 'detachments');
             break;
         case 'Brigades':
-            markdownFile = 'assets/brigades.md';
-            showLayerFromAPI('/api/brigades', 'brigadesLayer', 'assets/brigades.md', 'brigades');
+            showLayerFromAPI(API_ENDPOINTS.brigades, 'brigadesLayer', 'assets/brigades.md', 'brigades');
             break;
         case 'Divisions':
             content.innerHTML = `
                 <h1>Divisions</h1>
                 <p>Information about divisions will be displayed here.</p>
             `;
-            showLayerFromAPI('/api/divisions', 'divisionLayer', 'assets/divizije.md', 'divisions');
+            showLayerFromAPI(API_ENDPOINTS.divisions, 'divisionLayer', 'assets/divizije.md', 'divisions');
             break;
         case 'Corps':
             content.innerHTML = `
                 <h1>Corps</h1>
                 <p>Information about corps will be displayed here.</p>
             `;
-            showLayerFromAPI('/api/corps', 'corpsLayer', 'assets/korpusi.md', 'corps');
+            showLayerFromAPI(API_ENDPOINTS.corps, 'corpsLayer', 'assets/korpusi.md', 'corps');
             break;
         case 'Battles':
             content.innerHTML = `
@@ -135,8 +106,6 @@ function showLayerByName(layerName) {
             .catch(error => console.error('Error loading content:', error));
     }
 }
-
-// Removed the image overlay and GeoJSON code from here as it has been moved to the `showOccupiedTerritory` function.
 
 
 document.getElementById('toggleOccupiedTerritory').addEventListener('click', () => {
@@ -164,136 +133,16 @@ document.getElementById('toggleBattles').addEventListener('click', () => {
 });
 
 // Calendar button to toggle years menu
-document.getElementById('toggleYearsMenu').addEventListener('click', () => {
-    const yearsMenu = document.getElementById('yearsMenu');
-    const monthsMenu = document.getElementById('monthsMenu');
-    const calendarButton = document.getElementById('toggleYearsMenu');
-    
-    if (yearsMenu.classList.contains('visible')) {
-        // Hide years and months menus
-        yearsMenu.classList.remove('visible');
-        monthsMenu.classList.remove('visible');
-        calendarButton.classList.remove('active');
-        
-        // Clear year and month filters
-        layerState.selectedYear = null;
-        layerState.selectedMonth = null;
-        const allYearButtons = document.querySelectorAll('.year-button');
-        const allMonthButtons = document.querySelectorAll('.month-button');
-        allYearButtons.forEach(btn => btn.classList.remove('active'));
-        allMonthButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Refresh all visible layers to remove filter
-        refreshAllVisibleLayers();
-    } else {
-        // Show years menu (months menu stays hidden until year is selected)
-        yearsMenu.classList.add('visible');
-        calendarButton.classList.add('active');
-    }
-});
+document.getElementById('toggleYearsMenu').addEventListener('click', handleCalendarToggle);
 
 // Year filter button handlers
-document.getElementById('year1941').addEventListener('click', () => {
-    handleYearFilter(1941);
-});
-
-document.getElementById('year1942').addEventListener('click', () => {
-    handleYearFilter(1942);
-});
-
-document.getElementById('year1943').addEventListener('click', () => {
-    handleYearFilter(1943);
-});
-
-document.getElementById('year1944').addEventListener('click', () => {
-    handleYearFilter(1944);
-});
-
-document.getElementById('year1945').addEventListener('click', () => {
-    handleYearFilter(1945);
-});
-
-// Function to handle year filter
-function handleYearFilter(year) {
-    // Check if any unit layer is currently visible (not just the current one)
-    const hasActiveLayer = layerState.isBrigadesLayerVisible || 
-                           layerState.isDetachmentLayerVisible || 
-                           layerState.isDivisionLayerVisible || 
-                           layerState.isCorpsLayerVisible;
-    
-    if (!hasActiveLayer) {
-        return; // Do nothing if no unit layer is visible
-    }
-    
-    // Toggle year selection
-    const yearButton = document.getElementById(`year${year}`);
-    const allYearButtons = document.querySelectorAll('.year-button');
-    const monthsMenu = document.getElementById('monthsMenu');
-    const allMonthButtons = document.querySelectorAll('.month-button');
-    
-    if (layerState.selectedYear === year) {
-        // Deselect current year
-        layerState.selectedYear = null;
-        layerState.selectedMonth = null;
-        yearButton.classList.remove('active');
-        
-        // Hide months menu and clear month selection
-        monthsMenu.classList.remove('visible');
-        allMonthButtons.forEach(btn => btn.classList.remove('active'));
-    } else {
-        // Select new year
-        layerState.selectedYear = year;
-        layerState.selectedMonth = null; // Clear month when changing year
-        
-        // Remove active class from all year buttons
-        allYearButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Add active class to clicked button
-        yearButton.classList.add('active');
-        
-        // Show months menu
-        monthsMenu.classList.add('visible');
-        
-        // Clear any previously selected month
-        allMonthButtons.forEach(btn => btn.classList.remove('active'));
-    }
-    
-    // Refresh all visible layers with the new filter
-    refreshAllVisibleLayers();
-}
+document.getElementById('year1941').addEventListener('click', () => handleYearFilter(1941));
+document.getElementById('year1942').addEventListener('click', () => handleYearFilter(1942));
+document.getElementById('year1943').addEventListener('click', () => handleYearFilter(1943));
+document.getElementById('year1944').addEventListener('click', () => handleYearFilter(1944));
+document.getElementById('year1945').addEventListener('click', () => handleYearFilter(1945));
 
 // Month filter button handlers
 for (let month = 1; month <= 12; month++) {
-    document.getElementById(`month${month}`).addEventListener('click', () => {
-        handleMonthFilter(month);
-    });
-}
-
-// Function to handle month filter
-function handleMonthFilter(month) {
-    // Month filter only works when a year is selected
-    if (!layerState.selectedYear) {
-        return; // Do nothing if no year is selected
-    }
-    
-    const monthButton = document.getElementById(`month${month}`);
-    const allMonthButtons = document.querySelectorAll('.month-button');
-    
-    if (layerState.selectedMonth === month) {
-        // Deselect current month
-        layerState.selectedMonth = null;
-        monthButton.classList.remove('active');
-    } else {
-        // Select new month
-        layerState.selectedMonth = month;
-        
-        // Remove active class from all month buttons
-        allMonthButtons.forEach(btn => btn.classList.remove('active'));
-        
-        // Add active class to clicked button
-        monthButton.classList.add('active');
-    }
-    
-    // Refresh all visible layers with the new filter
-    refreshAllVisibleLayers();
+    document.getElementById(`month${month}`).addEventListener('click', () => handleMonthFilter(month));
 }

@@ -1,6 +1,7 @@
-import { map, toggleSidebar } from './map.js'; // Import the map object
+import { map, toggleSidebar } from './map.js';
 import { handleMarkerClick } from './map_layers.js';
 import layerState from './layerState.js';
+import { API_ENDPOINTS, MAP_CONFIG } from './config.js';
 
 // DOM Elements
 const searchBox = document.getElementById('search-box');
@@ -14,7 +15,7 @@ async function fetchSuggestions(query) {
     }
 
     try {
-        const response = await fetch(`/api/search?q=${query}`);
+        const response = await fetch(`${API_ENDPOINTS.search}?q=${query}`);
         if (response.ok) {
             return await response.json();
         } else {
@@ -34,7 +35,7 @@ function handleSearchSelection(item) {
     suggestionsBox.style.display = 'none';
 
     // Fetch the selected item's details
-    fetch(`/api/search/${item.type}/${item.id}`)
+    fetch(`${API_ENDPOINTS.search}/${item.type}/${item.id}`)
         .then(response => response.json())
         .then(data => {
             if (data) {
@@ -43,13 +44,13 @@ function handleSearchSelection(item) {
 
                 // Center the map on the item's location
                 const [lng, lat] = data.location.replace('POINT(', '').replace(')', '').split(' ');
-                map.setView([lat, lng], 13); // Center the map and set zoom level
+                map.setView([lat, lng], MAP_CONFIG.searchZoom);
 
                 // Debugging: Log layerState and item.type
                 console.log('Layer state:', layerState);
                 console.log('Item type:', item.type);
 
-                const layerGroup = layerState[`${item.type}Layer`]; // Get the layer group for the item type
+                const layerGroup = layerState[`${item.type}Layer`];
                 if (!layerGroup) {
                     console.error(`Layer group for ${item.type} is not initialized.`);
                     return;
@@ -58,7 +59,7 @@ function handleSearchSelection(item) {
 
                 layerGroup.eachLayer((layer) => {
                     if (layer.getLatLng().lat === parseFloat(lat) && layer.getLatLng().lng === parseFloat(lng)) {
-                        targetMarker = layer; // Find the marker with matching coordinates
+                        targetMarker = layer;
                     }
                 });
 
@@ -66,7 +67,7 @@ function handleSearchSelection(item) {
                     // Call handleMarkerClick to bind the popup and update the sidebar
                     handleMarkerClick(targetMarker, {
                         ...data,
-                        formation_site: data.formation_site // Pass formation_site to handleMarkerClick
+                        formation_site: data.formation_site
                     });
                 } else {
                     console.error('Marker not found in layer group');
