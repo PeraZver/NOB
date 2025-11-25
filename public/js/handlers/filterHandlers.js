@@ -1,3 +1,13 @@
+/**
+ * filterHandlers.js - This file is part of the NOB web project.
+ * 
+ * Event handlers for year and month filtering functionality. Manages user interactions
+ * with the calendar filter UI and refreshes map layers based on selected date ranges.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 import layerState from '../layerState.js';
 import { refreshAllVisibleLayers } from '../map_layers.js';
 

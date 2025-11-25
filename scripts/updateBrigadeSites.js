@@ -1,3 +1,13 @@
+/**
+ * updateBrigadeSites.js - This file is part of the NOB web project.
+ * 
+ * Database update script for brigade formation sites. Updates the formation_site
+ * field for brigades based on data from JSON files.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');

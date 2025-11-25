@@ -1,3 +1,13 @@
+/**
+ * popupUtils.js - This file is part of the NOB web project.
+ * 
+ * Popup content generation utility functions. Creates formatted HTML content
+ * for map marker popups displaying military unit information.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 import { formatDate } from './dateUtils.js';
 
 /**

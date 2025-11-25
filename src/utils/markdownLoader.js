@@ -1,3 +1,13 @@
+/**
+ * markdownLoader.js - This file is part of the NOB web project.
+ * 
+ * Utility functions for loading and reading markdown content from files.
+ * Provides async file reading with error handling.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const fs = require('fs').promises;
 
 /**

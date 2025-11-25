@@ -1,4 +1,14 @@
 /**
+ * config.js - This file is part of the NOB web project.
+ * 
+ * Frontend configuration constants. Contains map settings, API endpoints,
+ * layer configurations, and markdown file paths used throughout the application.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
+/**
  * Frontend configuration constants
  */
 

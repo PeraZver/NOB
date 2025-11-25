@@ -1,3 +1,13 @@
+/**
+ * search.js - This file is part of the NOB web project.
+ * 
+ * Search functionality for military units. Handles search input, suggestions display,
+ * and navigation to selected units on the map.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 import { map, toggleSidebar } from './map.js';
 import { handleMarkerClick } from './map_layers.js';
 import layerState from './layerState.js';

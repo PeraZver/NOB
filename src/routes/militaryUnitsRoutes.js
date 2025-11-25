@@ -1,3 +1,13 @@
+/**
+ * militaryUnitsRoutes.js - This file is part of the NOB web project.
+ * 
+ * API routes for military units using a generic route factory pattern. Handles
+ * GET requests for all unit types (brigades, detachments, divisions, corps).
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const express = require('express');
 const router = express.Router();
 const config = require('../config/config');

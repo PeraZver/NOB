@@ -1,3 +1,13 @@
+/**
+ * importData.js - This file is part of the NOB web project.
+ * 
+ * Data import utility script. Imports military unit data from JSON files
+ * into the database with proper formatting and coordinate conversion.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');

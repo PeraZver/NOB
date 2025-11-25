@@ -1,3 +1,13 @@
+/**
+ * map.js - This file is part of the NOB web project.
+ * 
+ * Main map initialization and UI control logic. Handles Leaflet map setup,
+ * sidebar toggling, layer switching, and event listener registration.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';

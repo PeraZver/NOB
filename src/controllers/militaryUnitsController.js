@@ -1,3 +1,13 @@
+/**
+ * militaryUnitsController.js - This file is part of the NOB web project.
+ * 
+ * Business logic controller for military units. Provides generic functions to fetch
+ * and process military unit data from the database with SQL injection protection.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const path = require('path');
 const pool = require('../db/pool');
 const { getMarkdownContent } = require('../utils/markdownLoader');

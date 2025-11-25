@@ -1,3 +1,13 @@
+/**
+ * config.js - This file is part of the NOB web project.
+ * 
+ * Centralized configuration management for the application. Contains server settings,
+ * database connection parameters, path configurations, and military unit type definitions.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 

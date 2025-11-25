@@ -1,3 +1,13 @@
+/**
+ * populateDescriptions.js - This file is part of the NOB web project.
+ * 
+ * Database population script. Updates military unit description fields
+ * with references to markdown files for detailed information.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');

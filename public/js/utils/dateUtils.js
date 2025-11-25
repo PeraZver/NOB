@@ -1,4 +1,14 @@
 /**
+ * dateUtils.js - This file is part of the NOB web project.
+ * 
+ * Date formatting utility functions. Provides consistent date formatting
+ * across the application for displaying formation dates.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
+/**
  * Utility functions for date formatting
  */
 

@@ -1,4 +1,14 @@
 /**
+ * filterUtils.js - This file is part of the NOB web project.
+ * 
+ * Data filtering utility functions. Implements filtering logic for military units
+ * based on formation dates (year and month).
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
+/**
  * Filter data by formation year and optionally by month
  * @param {Array} data - Array of military units
  * @param {number} selectedYear - Year to filter by (null for no filter)

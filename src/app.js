@@ -1,3 +1,13 @@
+/**
+ * app.js - This file is part of the NOB web project.
+ * 
+ * Main application entry point for the Express server. Handles server setup,
+ * middleware configuration, route registration, and server initialization.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const express = require('express');
 const config = require('./config/config');
 

@@ -1,3 +1,13 @@
+/**
+ * sidebar.js - This file is part of the NOB web project.
+ * 
+ * Sidebar content management functions. Handles updating sidebar content
+ * with markdown-rendered information about military units and layers.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 export function updateSidebar(content) {
     const sidebarContent = document.getElementById('content');
     if (content) {

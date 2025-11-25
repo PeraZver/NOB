@@ -1,3 +1,13 @@
+/**
+ * map_layers.js - This file is part of the NOB web project.
+ * 
+ * Layer management and data fetching for map overlays. Handles showing/hiding layers,
+ * fetching data from APIs, applying filters, and managing marker interactions.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 import { map } from './map.js';
 import { icons } from './constants.js';
 import { updateSidebar, loadDefaultText } from './sidebar.js';

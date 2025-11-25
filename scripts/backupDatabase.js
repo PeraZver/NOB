@@ -1,3 +1,13 @@
+/**
+ * backupDatabase.js - This file is part of the NOB web project.
+ * 
+ * Database backup utility script. Creates separate backups of database structure
+ * and data using mysqldump with timestamped filenames.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const { exec } = require('child_process');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Load .env file

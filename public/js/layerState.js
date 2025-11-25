@@ -1,3 +1,13 @@
+/**
+ * layerState.js - This file is part of the NOB web project.
+ * 
+ * Application state management for map layers. Maintains the visibility state,
+ * layer references, filter selections, and cached data for all map layers.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const layerState = {
     brigadesLayer: null,
     isBrigadesLayerVisible: false,

@@ -1,3 +1,13 @@
+/**
+ * constants.js - This file is part of the NOB web project.
+ * 
+ * Icon definitions for different military unit types on the map.
+ * Configures Leaflet markers with custom icons for brigades, detachments, divisions, and corps.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 export const icons = {
     brigades: L.icon({
         iconUrl: 'assets/icons/brigades-icon.png',

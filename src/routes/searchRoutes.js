@@ -1,3 +1,13 @@
+/**
+ * searchRoutes.js - This file is part of the NOB web project.
+ * 
+ * API routes for search functionality. Handles searching across all military unit types
+ * and retrieving detailed information for specific items.
+ * 
+ * Created: 11/2025
+ * Authors: Pero & Github Copilot
+ */
+
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/pool'); // Database connection pool
