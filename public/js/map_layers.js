@@ -9,13 +9,12 @@
  */
 
 import { map } from './map.js';
-import { icons } from './constants.js';
 import { updateSidebar, loadDefaultText } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { filterDataByYear } from './utils/filterUtils.js';
 import { generatePopupContent } from './utils/popupUtils.js';
-import { OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING } from './config.js';
+import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING } from './config.js';
 
 // Function to show/hide occupied territories on the map
 export function showOccupiedTerritory() {

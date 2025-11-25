@@ -80,8 +80,7 @@ src/
 
 ```
 public/js/
-├── config.js                       # Frontend configuration constants
-├── constants.js                    # Icon definitions (unchanged)
+├── config.js                       # Frontend configuration constants and icon definitions
 ├── layerState.js                   # Application state management (unchanged)
 ├── map.js                          # Map initialization and main UI logic (reduced from 299 to ~170 lines)
 ├── map_layers.js                   # Layer management (reduced from 258 to ~130 lines)

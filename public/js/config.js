@@ -2,7 +2,7 @@
  * config.js - This file is part of the NOB web project.
  * 
  * Frontend configuration constants. Contains map settings, API endpoints,
- * layer configurations, and markdown file paths used throughout the application.
+ * layer configurations, icon definitions, and markdown file paths used throughout the application.
  * 
  * Created: 11/2025
  * Authors: Pero & Github Copilot
@@ -19,6 +19,34 @@ export const MAP_CONFIG = {
     searchZoom: 13,
     tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileLayerAttribution: '&copy; OpenStreetMap contributors'
+};
+
+// Icon definitions for different military unit types
+export const icons = {
+    brigades: L.icon({
+        iconUrl: 'assets/icons/brigades-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    detachments: L.icon({
+        iconUrl: 'assets/icons/detachments-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    divisions: L.icon({
+        iconUrl: 'assets/icons/divisions-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    }),
+    corps: L.icon({
+        iconUrl: 'assets/icons/corps-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    })
 };
 
 // Occupied territory overlay configuration

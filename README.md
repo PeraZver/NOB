@@ -54,8 +54,7 @@ NOB/
 │   ├── assets/              # Data files (JSON, markdown, icons)
 │   ├── css/                 # Stylesheets
 │   ├── js/                  # JavaScript modules
-│   │   ├── config.js        # Frontend configuration
-│   │   ├── constants.js     # Icon definitions
+│   │   ├── config.js        # Frontend configuration and icon definitions
 │   │   ├── layerState.js    # Application state management
 │   │   ├── map.js           # Main map initialization and UI
 │   │   ├── map_layers.js    # Layer management logic
