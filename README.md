@@ -125,7 +125,9 @@ Click on the menu items to toggle different layers:
 - Express.js: Web framework
 - MySQL: Database
 
-### Historical Map Processing
-- Python 3: Scripting language
-- OpenCV: Image processing and edge detection
-- NumPy: Numerical computations
+# Historical references
+- [znaci.org](znaci.org)
+- [Deseti-korpus.com(archive)](https://web.archive.org/web/20160303162517/http://www.deseti-korpus.com/index.php?option=com_content&view=article&id=47&Itemid=28)
+- [Antifasisticki Split - Ratna kronika](https://web.archive.org/web/20181201100801/http://www.ratnakronikasplita.com/impresum/uvod)
+- [NOB Wikipedia Portal](https://sr.wikipedia.org/sr-el/%D0%9F%D0%BE%D1%80%D1%82%D0%B0%D0%BB:%D0%9D%D0%B0%D1%80%D0%BE%D0%B4%D0%BD%D0%BE%D0%BE%D1%81%D0%BB%D0%BE%D0%B1%D0%BE%D0%B4%D0%B8%D0%BB%D0%B0%D1%87%D0%BA%D0%B0_%D0%B1%D0%BE%D1%80%D0%B1%D0%B0)
+- [Wiki - Partizanski odredi Hrvatske](https://sr.wikipedia.org/sr-el/%D0%9A%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D0%B8%D1%98%D0%B0:%D0%9F%D0%B0%D1%80%D1%82%D0%B8%D0%B7%D0%B0%D0%BD%D1%81%D0%BA%D0%B8_%D0%BE%D0%B4%D1%80%D0%B5%D0%B4%D0%B8_%D0%B8%D0%B7_%D0%A5%D1%80%D0%B2%D0%B0%D1%82%D1%81%D0%BA%D0%B5)
