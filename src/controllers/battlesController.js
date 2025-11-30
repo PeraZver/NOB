@@ -50,7 +50,18 @@ async function getBattleById(battleId) {
     
     try {
         const [results] = await pool.query(query, [battleId]);
-        return results.length > 0 ? results[0] : null;
+        if (results.length === 0) {
+            return null;
+        }
+        
+        const battle = results[0];
+        // Fetch Markdown content if description is a .md file
+        if (battle.description && battle.description.endsWith('.md')) {
+            const filePath = path.join(__dirname, '../../public', 'assets', 'battles', battle.description);
+            battle.description = await getMarkdownContent(filePath);
+        }
+        
+        return battle;
     } catch (error) {
         console.error('Error fetching battle:', error);
         throw error;
