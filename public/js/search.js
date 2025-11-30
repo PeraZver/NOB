@@ -9,7 +9,7 @@
  */
 
 import { map, toggleSidebar } from './map.js';
-import { handleMarkerClick } from './map_layers.js';
+import { handleMarkerClick, handleBattleMarkerClick } from './map_layers.js';
 import layerState from './layerState.js';
 import { API_ENDPOINTS, MAP_CONFIG } from './config.js';
 
@@ -60,6 +60,7 @@ function handleSearchSelection(item) {
                 console.log('Layer state:', layerState);
                 console.log('Item type:', item.type);
 
+                // Get the appropriate layer group based on type
                 const layerGroup = layerState[`${item.type}Layer`];
                 if (!layerGroup) {
                     console.error(`Layer group for ${item.type} is not initialized.`);
@@ -74,11 +75,18 @@ function handleSearchSelection(item) {
                 });
 
                 if (targetMarker) {
-                    // Call handleMarkerClick to bind the popup and update the sidebar
-                    handleMarkerClick(targetMarker, {
-                        ...data,
-                        formation_site: data.formation_site
-                    });
+                    // Use appropriate marker click handler based on item type
+                    if (item.type === 'battles') {
+                        handleBattleMarkerClick(targetMarker, {
+                            ...data,
+                            place: data.place
+                        });
+                    } else {
+                        handleMarkerClick(targetMarker, {
+                            ...data,
+                            formation_site: data.formation_site
+                        });
+                    }
                 } else {
                     console.error('Marker not found in layer group');
                 }

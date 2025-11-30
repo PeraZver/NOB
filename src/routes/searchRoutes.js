@@ -28,9 +28,11 @@ router.get('/', async (req, res) => {
             SELECT name, 'divisions' AS type, id FROM divisions WHERE name LIKE ?
             UNION
             SELECT name, 'corps' AS type, id FROM corps WHERE name LIKE ?
+            UNION
+            SELECT name, 'battles' AS type, id FROM battles WHERE name LIKE ?
             LIMIT 10
         `;
-        const [results] = await pool.query(sql, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]);
+        const [results] = await pool.query(sql, [`%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`, `%${query}%`]);
         res.json(results);
     } catch (error) {
         console.error('Error fetching search results:', error);
@@ -41,18 +43,22 @@ router.get('/', async (req, res) => {
 // Fetch details of a specific item
 router.get('/:type/:id', async (req, res) => {
     const { type, id } = req.params;
-    const validTypes = ['brigades', 'detachments', 'divisions', 'corps'];
+    
+    // Define queries for each type to avoid SQL injection
+    const typeQueries = {
+        brigades: `SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM brigades WHERE id = ?`,
+        detachments: `SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM detachments WHERE id = ?`,
+        divisions: `SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM divisions WHERE id = ?`,
+        corps: `SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url FROM corps WHERE id = ?`,
+        battles: `SELECT id, name, place, start_date, end_date, description, ST_AsText(location) AS location, wikipedia_url FROM battles WHERE id = ?`
+    };
 
-    if (!validTypes.includes(type)) {
+    const query = typeQueries[type];
+    if (!query) {
         return res.status(400).send('Invalid type');
     }
 
     try {
-        const query = `
-            SELECT id, name, formation_date, description, ST_AsText(location) AS location, wikipedia_url
-            FROM ${type}
-            WHERE id = ?
-        `;
         const [results] = await pool.query(query, [id]);
 
         if (results.length === 0) {
