@@ -1,0 +1,3 @@
+# Divisions of People's Liberation Army (NOVJ)
+
+First divisions of NOVJ were formed in the late 1942, with a purpose of more effective combat engagement which, at this time, took place over much wider territories. The 1st, 2nd and the 3rd Divisions were formed in the liberated area of Bosnian Krajina and were swiflty pulled into intensive combats during enemy offensives of 1943. They all suffered heavy losses and were subjected to the re-organization in the summer of 1943, followed by the capitulation of Italy and influx of many new fighters.  

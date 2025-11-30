@@ -79,17 +79,13 @@ function showLayerByName(layerName) {
             showOccupiedTerritory();
             break;
         case 'Detachments':
-            showLayerFromAPI(API_ENDPOINTS.detachments, 'detachmentLayer', 'assets/detachments.md', 'detachments');
+            showLayerFromAPI(API_ENDPOINTS.detachments, 'detachmentLayer', 'assets/detachments/detachments.md', 'detachments');
             break;
         case 'Brigades':
-            showLayerFromAPI(API_ENDPOINTS.brigades, 'brigadesLayer', 'assets/brigades.md', 'brigades');
+            showLayerFromAPI(API_ENDPOINTS.brigades, 'brigadesLayer', 'assets/brigades/brigades.md', 'brigades');
             break;
         case 'Divisions':
-            content.innerHTML = `
-                <h1>Divisions</h1>
-                <p>Information about divisions will be displayed here.</p>
-            `;
-            showLayerFromAPI(API_ENDPOINTS.divisions, 'divisionLayer', 'assets/divizije.md', 'divisions');
+            showLayerFromAPI(API_ENDPOINTS.divisions, 'divisionLayer', 'assets/divisions/divisions.md', 'divisions');           
             break;
         case 'Corps':
             content.innerHTML = `
