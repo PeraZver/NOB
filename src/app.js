@@ -23,10 +23,12 @@ app.use(express.static(config.paths.public));
 // Import routes
 const militaryUnitsRoutes = require('./routes/militaryUnitsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
+const battlesRoutes = require('./routes/battlesRoutes');
 
 // Register routes
 app.use('/api', militaryUnitsRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api', battlesRoutes);
 
 // Start server
 app.listen(port, () => {

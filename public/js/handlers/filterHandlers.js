@@ -32,7 +32,8 @@ export function handleYearFilter(year) {
     const hasActiveLayer = layerState.isBrigadesLayerVisible || 
                            layerState.isDetachmentLayerVisible || 
                            layerState.isDivisionLayerVisible || 
-                           layerState.isCorpsLayerVisible;
+                           layerState.isCorpsLayerVisible ||
+                           layerState.isBattlesLayerVisible;
     
     if (!hasActiveLayer) {
         return; // Do nothing if no unit layer is visible

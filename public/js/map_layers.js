@@ -12,9 +12,9 @@ import { map } from './map.js';
 import { updateSidebar, loadDefaultText } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
-import { filterDataByYear } from './utils/filterUtils.js';
-import { generatePopupContent } from './utils/popupUtils.js';
-import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING } from './config.js';
+import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
+import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
+import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 
 // Function to show/hide occupied territories on the map
 export function showOccupiedTerritory() {
@@ -97,13 +97,21 @@ export function refreshAllVisibleLayers() {
                 map.removeLayer(layer);
             }
             
-            // Filter and redraw
-            const filteredData = filterDataByYear(storedData, layerState.selectedYear, layerState.selectedMonth);
+            // Filter based on layer type - battles use date range filtering
+            let filteredData;
+            if (layerInfo.filterType === 'dateRange') {
+                filteredData = filterBattlesByDateRange(storedData, layerState.selectedYear, layerState.selectedMonth);
+            } else {
+                filteredData = filterDataByYear(storedData, layerState.selectedYear, layerState.selectedMonth);
+            }
+            
             const newLayer = L.layerGroup().addTo(map);
             
             filteredData.forEach(item => {
                 const icon = icons[layerInfo.group] || L.Icon.Default;
-                const marker = createMarker(item, icon, handleMarkerClick);
+                // Use appropriate click handler based on layer type
+                const clickHandler = layerInfo.filterType === 'dateRange' ? handleBattleMarkerClick : handleMarkerClick;
+                const marker = createMarker(item, icon, clickHandler);
                 newLayer.addLayer(marker);
             });
             
@@ -114,7 +122,35 @@ export function refreshAllVisibleLayers() {
 
 // Function to show/hide battles on the map
 export function showBattles() {
-    alert('Battles data not available yet.');
+    if (layerState.isBattlesLayerVisible && layerState.battlesLayer) {
+        map.removeLayer(layerState.battlesLayer);
+        layerState.battlesLayer = null;
+        layerState.isBattlesLayerVisible = false;
+    } else {
+        fetch(API_ENDPOINTS.battles)
+            .then(response => response.json())
+            .then(data => {
+                // Store all data for filtering
+                layerState.allLayerData['battlesLayer'] = data;
+                
+                // Filter data based on selected year and month using battle-specific filter
+                const filteredData = filterBattlesByDateRange(data, layerState.selectedYear, layerState.selectedMonth);
+                
+                const newLayer = L.layerGroup().addTo(map);
+                filteredData.forEach(item => {
+                    const icon = icons.battles || L.Icon.Default;
+                    const marker = createMarker(item, icon, handleBattleMarkerClick);
+                    newLayer.addLayer(marker);
+                });
+
+                layerState.battlesLayer = newLayer;
+                layerState.isBattlesLayerVisible = true;
+
+                // Update the sidebar with default text
+                loadDefaultText('assets/battles/battles.md');
+            })
+            .catch(error => console.error('Error fetching battles:', error));
+    }
 }
 
 // Function to remove a layer from the map
@@ -183,6 +219,29 @@ export function handleMarkerClick(marker, item) {
     marker.bindPopup(popupContent).openPopup();
 
     // Update the sidebar with the item's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description));
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
+}
+
+// Function to handle battle marker clicks
+export function handleBattleMarkerClick(marker, item) {
+    console.log('Battle marker clicked:', marker);
+    const popupContent = generateBattlePopupContent({
+        name: item.name,
+        place: item.place,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        wikipedia_url: item.wikipedia_url
+    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the battle's description
     if (item.description) {
         updateSidebar(marked.parse(item.description));
     } else {

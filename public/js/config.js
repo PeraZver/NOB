@@ -46,6 +46,12 @@ export const icons = {
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
+    }),
+    battles: L.icon({
+        iconUrl: 'assets/icons/battles-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
     })
 };
 
@@ -83,6 +89,7 @@ export const API_ENDPOINTS = {
     detachments: '/api/detachments',
     divisions: '/api/divisions',
     corps: '/api/corps',
+    battles: '/api/battles',
     search: '/api/search'
 };
 
@@ -107,5 +114,11 @@ export const LAYER_MAPPING = {
         layerName: 'corpsLayer', 
         group: 'corps', 
         visibleFlag: 'isCorpsLayerVisible' 
+    },
+    'battlesLayer': { 
+        layerName: 'battlesLayer', 
+        group: 'battles', 
+        visibleFlag: 'isBattlesLayerVisible',
+        filterType: 'dateRange'  // Different filter type for battles
     }
 };

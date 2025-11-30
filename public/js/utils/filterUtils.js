@@ -2,7 +2,7 @@
  * filterUtils.js - This file is part of the NOB web project.
  * 
  * Data filtering utility functions. Implements filtering logic for military units
- * based on formation dates (year and month).
+ * based on formation dates (year and month), and battles based on date ranges.
  * 
  * Created: 11/2025
  * Authors: Pero & Github Copilot
@@ -45,5 +45,51 @@ export function filterDataByYear(data, selectedYear, selectedMonth) {
 
         // If only year is selected, show units formed in the selected year or earlier
         return formationYear <= selectedYear;
+    });
+}
+
+/**
+ * Filter battles by date range - shows battles that were ongoing during the selected period
+ * @param {Array} data - Array of battles
+ * @param {number} selectedYear - Year to filter by (null for no filter)
+ * @param {number} selectedMonth - Month to filter by (1-12, null for no filter)
+ * @returns {Array} Filtered data
+ */
+export function filterBattlesByDateRange(data, selectedYear, selectedMonth) {
+    if (!selectedYear) {
+        return data; // No filter applied
+    }
+
+    return data.filter(battle => {
+        if (!battle.start_date || !battle.end_date) {
+            return false; // Exclude battles without date range
+        }
+
+        const startDate = new Date(battle.start_date);
+        const endDate = new Date(battle.end_date);
+        
+        // Validate dates are valid
+        if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+            console.warn(`Invalid date format for battle: ${battle.name}`);
+            return false;
+        }
+
+        // If both year and month are selected, check if battle was ongoing during that month
+        if (selectedMonth) {
+            // Create the first and last day of the selected month
+            const filterMonthStart = new Date(selectedYear, selectedMonth - 1, 1);
+            const filterMonthEnd = new Date(selectedYear, selectedMonth, 0); // Last day of month
+            
+            // Battle is ongoing if:
+            // - Battle started before or during the selected month AND
+            // - Battle ended during or after the selected month
+            return startDate <= filterMonthEnd && endDate >= filterMonthStart;
+        }
+
+        // If only year is selected, check if battle was ongoing during that year
+        const filterYearStart = new Date(selectedYear, 0, 1);
+        const filterYearEnd = new Date(selectedYear, 11, 31);
+        
+        return startDate <= filterYearEnd && endDate >= filterYearStart;
     });
 }
