@@ -4,26 +4,26 @@
 
 USE nob;
 
-CREATE TABLE battles (
+-- Create the 'battles' table only if it does not already exist
+CREATE TABLE IF NOT EXISTS battles (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    place VARCHAR(255),
+    place VARCHAR(255) NOT NULL,
     location POINT,
-    start_date DATE,
-    end_date DATE,
-    description VARCHAR(255),
-    wikipedia_url VARCHAR(500)
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    description TEXT,
+    wikipedia_url VARCHAR(2083)
 );
 
--- Seed data for Battle of Split 1943
--- Location: Klis village near Split (43.5667, 16.5167)
-INSERT INTO battles (id, name, place, location, start_date, end_date, description)
+-- Insert data for 'Kninska operacija'
+INSERT INTO battles (name, place, location, start_date, end_date, description, wikipedia_url)
 VALUES (
-    1,
-    'Battle of Split 1943',
-    'outskirts of Split',
-    ST_GeomFromText('POINT(16.5167 43.5667)'),
-    '1943-09-11',
-    '1943-10-02',
-    '1.md'
+    'Knin operation',
+    'Knin, Croatia',
+    ST_GeomFromText('POINT(16.1973 44.0411)'), -- Note: Longitude comes first in MySQL
+    '1944-11-25', -- Start date of the battle
+    '1944-12-05', -- End date of the battle
+    'knin-1944.md',
+    'https://en.wikipedia.org/wiki/Battle_of_Knin'
 );
