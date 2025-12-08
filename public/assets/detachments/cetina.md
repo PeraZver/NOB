@@ -1,0 +1,9 @@
+# The Cetina detachment
+
+## Formation
+The Cetina detachment was formed in mid-April 1943 from the Mosor and Sinj battalions, with a strength of 350 fighters, armed with 260 rifles and 4 light machine guns. 
+
+## Operations
+Already on April 21, it successfully attacked a company from the 26th Regiment of the Italian "Bergamo" Division and a column of Home Guards from the 1st Volunteer Regiment near the village of Jesenica. 
+After fighting against Ustasha and Home Guard units, it captured the village of Cista on May 5 and entered the abandoned Lovreć. During an attack on the Košute mine near Sinj, it captured the Home Guard crew on May 13 and destroyed the mine facilities. In June and early July, it interrupted the Split-Omiš power line in several places, demolished the Sinj-Split railway several times and attacked enemy columns on the Sinj-Trilj road. At the same time, it repelled repeated attacks by parts of the "Bergamo" division from Split and Omiš in the direction of Mosor, and operated towards Imotski and Sinj. It captured the villages of Vir and Poljice, and cleared the hamlets around Imotski of the enemy. Under pressure from the detachment, the enemy abandoned Trilj. 
+During the Italian Biokovo-Mosor operation, it led fierce battles against the 31st battalion of the 4th "Berserker" Regiment and the 89th Black Shirt Legion near Žrnovnica and one battalion of the 7th SS "Prinz Eugen" Division near Lovreć. In early August 1943, two battalions of the Detachment were sent as part of the Dalmatia Strike Battalion Group, and on September 14, the rest of the detachment became part of the 10th Dalmatian Brigade (Cetina) of the 20th Division.

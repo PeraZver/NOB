@@ -1,0 +1,29 @@
+# 3rd Dalmatian Brigade
+
+## Formation
+ - **Date of formation**: November 12, 1942
+ - **Place of formation**: Vrba, near Muć
+ - **Constituent battalions**: 
+ 	- 1st and 2nd battalions of the brigade were formed from the Moseć detachment
+ 	- 3rd battalion was formed from the Mosor detachment
+ 	- Trogir-Rogoznica company
+
+
+ - **Strength at the time**: 560 fighters						 
+ - **Commander**: Branko Dude
+ - **Commisar**: Mate Ujević
+
+The brigade was under the command of the headquarters of the 4th Operational Zone of Croatia until February 12, 1943, when it joined the newly formed 9th Dalmatian Division.
+
+## Operations
+In the Battle of the Neretva, the brigade fought in the sector of Imotski, Posušje and Široki Brijeg. When crossing the Neretva and Prenja, the 9th Division was responsible for the transport and security of the Central Hospital. On that occasion, the entire division, including the Third Dalmatian Brigade, was affected by typhus.
+
+The 3rd Dalmatian Brigade was reorganized in mid-April 1943 in Nevesinje. It was filled with fighters from the disbanded 4th and 5th Dalmatian Brigades, so it had over 1,200 fighters in five battalions and support units.
+
+During the battle on Sutjeska, the brigade fought as part of the 1st Proletarian and then the 7th Banija Division. Due to serious losses on June 6, 1943, the brigade was disbanded in Vučevo, and its personnel were assigned to the 1st Proletarian and 1st Dalmatian Brigades.
+
+It was re-formed on September 8, 1943 near Vrlika from the Battalion Group. It numbered 952 fighters, of which 70 were women. It became part of the 9th division and remained there until the end of the war. It participated in the fight against German forces during the defense of Split. During November and December, it stood out on German lines, during the "Ziethen" operation. During the landing on Drvar, the brigade was engaged in fierce fighting. It participated in the battles for the liberation of Livno, Duvno and Posušje. It distinguished herself in the Knin and Mostar operations. It took part in liberation of Pag, Rab, Cres and Lošinj. and during the Trieste operation, it participated in the landing on Istria.
+
+In December 1944, it had 1,747 fighters (75 women), and at the end of March 1945, 1,961 fighters (81 women). It was awarded the Order of National Hero, the Order of Merit for the Nation with a golden star and the Order of Brotherhood and Unity with a golden wreath.
+
+Over 4,000 soldiers passed through the brigade, of which 2,110 died.

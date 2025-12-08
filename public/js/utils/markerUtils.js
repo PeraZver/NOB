@@ -21,7 +21,7 @@ export function createMarker(item, icon, onClickHandler) {
 
     // Add label next to the marker
     marker.bindTooltip(item.name || 'Unknown', {
-        permanent: true,
+        permanent: false,
         direction: 'right',
         className: 'marker-label'
     });
