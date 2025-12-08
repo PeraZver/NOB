@@ -26,11 +26,18 @@ Generates markdown files for brigades from Wikipedia content.
 
 **Usage:**
 ```bash
-node scripts/generateBrigadeMarkdown.js <path-to-json-file>
+node scripts/generateBrigadeMarkdown.js <path-to-json-file> [--dry-run]
 ```
+
+**Options:**
+- `--dry-run`: Test the script without fetching content or creating files
+- `--help, -h`: Show help message
 
 **Example:**
 ```bash
+# Test without API key (dry-run)
+node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run
+
 # Using exported data
 node scripts/generateBrigadeMarkdown.js brigades_data.json
 

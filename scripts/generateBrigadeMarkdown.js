@@ -13,22 +13,44 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Anthropic = require('@anthropic-ai/sdk');
 
-// Initialize Anthropic client for AI processing
-const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || ''
-});
+let anthropic = null;
+
+/**
+ * Initialize Anthropic client (lazy initialization)
+ */
+function initializeAnthropic() {
+    if (!anthropic) {
+        if (!process.env.ANTHROPIC_API_KEY) {
+            throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+        }
+        anthropic = new Anthropic({
+            apiKey: process.env.ANTHROPIC_API_KEY
+        });
+    }
+    return anthropic;
+}
 
 /**
  * Converts brigade name to filename format
  * Example: "5. dalmatinska udarna brigada" -> "5th_dalm.md"
  */
 function generateFilename(brigadeName) {
+    // Function to get proper ordinal suffix
+    function getOrdinalSuffix(num) {
+        const j = num % 10;
+        const k = num % 100;
+        if (j === 1 && k !== 11) return num + 'st';
+        if (j === 2 && k !== 12) return num + 'nd';
+        if (j === 3 && k !== 13) return num + 'rd';
+        return num + 'th';
+    }
+    
     // Extract number and first significant word
     const match = brigadeName.match(/^(\d+)[\.\s]+(\w+)/i);
     if (match) {
-        const number = match[1];
+        const number = parseInt(match[1]);
         const word = match[2].substring(0, 4).toLowerCase();
-        return `${number}th_${word}.md`;
+        return `${getOrdinalSuffix(number)}_${word}.md`;
     }
     // Fallback to simple conversion
     return brigadeName.toLowerCase()
@@ -46,20 +68,28 @@ async function fetchWikipediaContent(url) {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (compatible; BrigadeMarkdownGenerator/1.0)'
             },
-            timeout: 30000
+            timeout: 30000,
+            maxRedirects: 5
         });
         
         const $ = cheerio.load(response.data);
         
         // Remove unwanted elements
-        $('script, style, .references, .reflist, .navbox, .vertical-navbox, .sistersitebox, .mw-editsection').remove();
+        $('script, style, .references, .reflist, .navbox, .vertical-navbox, .sistersitebox, .mw-editsection, .infobox, .thumb').remove();
         
         // Get main content
-        const content = $('#mw-content-text .mw-parser-output').text();
+        const content = $('#mw-content-text .mw-parser-output, #bodyContent').text();
+        
+        if (!content || content.trim().length < 100) {
+            console.warn(`Warning: Content seems too short (${content.length} chars)`);
+        }
         
         return content.replace(/\s+/g, ' ').trim();
     } catch (error) {
         console.error(`Error fetching Wikipedia page: ${error.message}`);
+        if (error.response) {
+            console.error(`HTTP Status: ${error.response.status}`);
+        }
         return null;
     }
 }
@@ -67,9 +97,17 @@ async function fetchWikipediaContent(url) {
 /**
  * Process Wikipedia content with AI to extract information and generate markdown
  */
-async function processWithAI(brigadeName, wikipediaContent) {
-    try {
-        const prompt = `You are a military historian specializing in World War II and the Yugoslav Partisan movement.
+async function processWithAI(brigadeName, wikipediaContent, retries = 2) {
+    const client = initializeAnthropic();
+    
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            if (attempt > 0) {
+                console.log(`Retry attempt ${attempt}/${retries}...`);
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+            
+            const prompt = `You are a military historian specializing in World War II and the Yugoslav Partisan movement.
 
 I have Wikipedia content about "${brigadeName}". Please analyze this content and create a structured markdown document following this EXACT template:
 
@@ -99,34 +137,42 @@ Here is the Wikipedia content:
 
 ${wikipediaContent.substring(0, 50000)}`;
 
-        const message = await anthropic.messages.create({
-            model: "claude-3-5-sonnet-20241022",
-            max_tokens: 8000,
-            messages: [{
-                role: "user",
-                content: prompt
-            }]
-        });
+            const message = await client.messages.create({
+                model: "claude-3-5-sonnet-20241022",
+                max_tokens: 8000,
+                messages: [{
+                    role: "user",
+                    content: prompt
+                }]
+            });
 
-        return message.content[0].text;
-    } catch (error) {
-        console.error(`Error processing with AI: ${error.message}`);
-        return null;
+            return message.content[0].text;
+        } catch (error) {
+            console.error(`Error processing with AI (attempt ${attempt + 1}): ${error.message}`);
+            if (attempt === retries) {
+                return null;
+            }
+        }
     }
+    return null;
 }
 
 /**
  * Main processing function
  */
-async function processBrigades(jsonFilePath) {
+async function processBrigades(jsonFilePath, dryRun = false) {
     try {
         // Read brigade data
         const brigadesData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
         console.log(`Processing ${brigadesData.length} brigades...`);
         
+        if (dryRun) {
+            console.log('\n=== DRY RUN MODE - No files will be created ===\n');
+        }
+        
         // Ensure output directory exists
         const outputDir = path.join(__dirname, '../public/assets/brigades');
-        if (!fs.existsSync(outputDir)) {
+        if (!fs.existsSync(outputDir) && !dryRun) {
             fs.mkdirSync(outputDir, { recursive: true });
         }
         
@@ -144,6 +190,16 @@ async function processBrigades(jsonFilePath) {
             
             console.log(`\nProcessing: ${name}`);
             
+            // Generate filename
+            const filename = generateFilename(name);
+            console.log(`Target filename: ${filename}`);
+            
+            if (dryRun) {
+                console.log(`✓ Would process: ${name} -> ${filename}`);
+                processed++;
+                continue;
+            }
+            
             // Fetch Wikipedia content
             const content = await fetchWikipediaContent(wikipedia_url);
             if (!content) {
@@ -151,6 +207,8 @@ async function processBrigades(jsonFilePath) {
                 failed++;
                 continue;
             }
+            
+            console.log(`Fetched ${content.length} characters of content`);
             
             // Process with AI
             const markdown = await processWithAI(name, content);
@@ -160,8 +218,7 @@ async function processBrigades(jsonFilePath) {
                 continue;
             }
             
-            // Generate filename and save
-            const filename = generateFilename(name);
+            // Save markdown file
             const filepath = path.join(outputDir, filename);
             
             fs.writeFileSync(filepath, markdown);
@@ -187,19 +244,28 @@ async function processBrigades(jsonFilePath) {
 if (require.main === module) {
     const args = process.argv.slice(2);
     
-    if (args.length === 0) {
-        console.error('Usage: node scripts/generateBrigadeMarkdown.js <path-to-json-file>');
-        process.exit(1);
+    if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
+        console.log('Usage: node scripts/generateBrigadeMarkdown.js <path-to-json-file> [--dry-run]');
+        console.log('');
+        console.log('Options:');
+        console.log('  --dry-run    Test the script without fetching content or creating files');
+        console.log('  --help, -h   Show this help message');
+        console.log('');
+        console.log('Example:');
+        console.log('  node scripts/generateBrigadeMarkdown.js brigades_sample.json');
+        console.log('  node scripts/generateBrigadeMarkdown.js brigades_data.json --dry-run');
+        process.exit(args.length === 0 ? 1 : 0);
     }
     
     const jsonFilePath = path.resolve(args[0]);
+    const dryRun = args.includes('--dry-run');
     
     if (!fs.existsSync(jsonFilePath)) {
         console.error(`Error: File not found: ${jsonFilePath}`);
         process.exit(1);
     }
     
-    processBrigades(jsonFilePath)
+    processBrigades(jsonFilePath, dryRun)
         .then(() => {
             console.log('\nDone!');
             process.exit(0);
