@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const cheerio = require('cheerio');
-const Anthropic = require('@anthropic-ai/sdk');
+const OpenAI = require('openai');
 
 // Configuration constants
 const CONFIG = {
@@ -21,21 +21,21 @@ const CONFIG = {
     MAX_RETRIES: 2               // Maximum number of retry attempts
 };
 
-let anthropic = null;
+let openai = null;
 
 /**
- * Initialize Anthropic client (lazy initialization)
+ * Initialize OpenAI client (lazy initialization)
  */
-function initializeAnthropic() {
-    if (!anthropic) {
-        if (!process.env.ANTHROPIC_API_KEY) {
-            throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+function initializeOpenAI() {
+    if (!openai) {
+        if (!process.env.OPENAI_API_KEY) {
+            throw new Error('OPENAI_API_KEY environment variable is not set. Get one at https://platform.openai.com/api-keys');
         }
-        anthropic = new Anthropic({
-            apiKey: process.env.ANTHROPIC_API_KEY
+        openai = new OpenAI({
+            apiKey: process.env.OPENAI_API_KEY
         });
     }
-    return anthropic;
+    return openai;
 }
 
 /**
@@ -106,7 +106,7 @@ async function fetchWikipediaContent(url) {
  * Process Wikipedia content with AI to extract information and generate markdown
  */
 async function processWithAI(brigadeName, wikipediaContent, retries = CONFIG.MAX_RETRIES) {
-    const client = initializeAnthropic();
+    const client = initializeOpenAI();
     
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
@@ -145,16 +145,17 @@ Here is the Wikipedia content:
 
 ${wikipediaContent.substring(0, CONFIG.MAX_CONTENT_LENGTH)}`;
 
-            const message = await client.messages.create({
-                model: "claude-3-5-sonnet-20241022",
-                max_tokens: 8000,
+            const completion = await client.chat.completions.create({
+                model: "gpt-4o",
                 messages: [{
                     role: "user",
                     content: prompt
-                }]
+                }],
+                max_tokens: 4000,
+                temperature: 0.3
             });
 
-            return message.content[0].text;
+            return completion.choices[0].message.content;
         } catch (error) {
             console.error(`Error processing with AI (attempt ${attempt + 1}): ${error.message}`);
             if (attempt === retries) {
@@ -168,10 +169,19 @@ ${wikipediaContent.substring(0, CONFIG.MAX_CONTENT_LENGTH)}`;
 /**
  * Main processing function
  */
-async function processBrigades(jsonFilePath, dryRun = false) {
+async function processBrigades(jsonFilePath, options = {}) {
+    const { dryRun = false, limit = null } = options;
+    
     try {
         // Read brigade data
-        const brigadesData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
+        let brigadesData = JSON.parse(fs.readFileSync(jsonFilePath, 'utf8'));
+        
+        // Apply limit if specified
+        if (limit !== null && limit > 0) {
+            brigadesData = brigadesData.slice(0, limit);
+            console.log(`Limiting to first ${limit} brigades`);
+        }
+        
         console.log(`Processing ${brigadesData.length} brigades...`);
         
         if (dryRun) {
@@ -253,27 +263,43 @@ if (require.main === module) {
     const args = process.argv.slice(2);
     
     if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
-        console.log('Usage: node scripts/generateBrigadeMarkdown.js <path-to-json-file> [--dry-run]');
+        console.log('Usage: node scripts/generateBrigadeMarkdown.js <path-to-json-file> [options]');
         console.log('');
         console.log('Options:');
-        console.log('  --dry-run    Test the script without fetching content or creating files');
-        console.log('  --help, -h   Show this help message');
+        console.log('  --dry-run         Test the script without fetching content or creating files');
+        console.log('  -a, --all         Process all brigades (default)');
+        console.log('  -<number>         Process only the first N brigades (e.g., -3 for first 3)');
+        console.log('  --help, -h        Show this help message');
         console.log('');
-        console.log('Example:');
-        console.log('  node scripts/generateBrigadeMarkdown.js brigades_sample.json');
-        console.log('  node scripts/generateBrigadeMarkdown.js brigades_data.json --dry-run');
+        console.log('Examples:');
+        console.log('  node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3');
+        console.log('  node scripts/generateBrigadeMarkdown.js brigades_croatia.json -a');
+        console.log('  node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run');
+        console.log('');
+        console.log('Environment Variables:');
+        console.log('  OPENAI_API_KEY    Required for AI processing (get from https://platform.openai.com/api-keys)');
         process.exit(args.length === 0 ? 1 : 0);
     }
     
     const jsonFilePath = path.resolve(args[0]);
     const dryRun = args.includes('--dry-run');
+    const allBrigades = args.includes('-a') || args.includes('--all');
+    
+    // Parse limit argument (e.g., -3, -5, etc.)
+    let limit = null;
+    for (const arg of args) {
+        if (arg.match(/^-\d+$/)) {
+            limit = parseInt(arg.substring(1));
+            break;
+        }
+    }
     
     if (!fs.existsSync(jsonFilePath)) {
         console.error(`Error: File not found: ${jsonFilePath}`);
         process.exit(1);
     }
     
-    processBrigades(jsonFilePath, dryRun)
+    processBrigades(jsonFilePath, { dryRun, limit })
         .then(() => {
             console.log('\nDone!');
             process.exit(0);
