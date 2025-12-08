@@ -91,6 +91,19 @@ NOB/
 
 For detailed information about the code organization and architecture, see [docs/CODE_ORGANIZATION.md](docs/CODE_ORGANIZATION.md).
 
+## Generating Brigade Markdown Files
+
+To generate formatted markdown files for brigades from Wikipedia content, see the comprehensive guide: [docs/BRIGADE_MARKDOWN_GENERATION.md](docs/BRIGADE_MARKDOWN_GENERATION.md)
+
+Quick start:
+```bash
+# Export brigade data from database
+node scripts/exportBrigades.js
+
+# Generate markdown files (requires ANTHROPIC_API_KEY)
+node scripts/generateBrigadeMarkdown.js brigades_data.json
+```
+
 ## Usage
 
 ### Viewing Layers
