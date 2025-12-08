@@ -76,6 +76,12 @@ async function importBrigades() {
             if (existingRows.length > 0) {
                 const existingBrigade = existingRows[0];
 
+                // If the name matches entirely, skip the item
+                if (existingBrigade.name === name) {
+                    console.log(`Brigade "${name}" already exists with the same name. Skipping...`);
+                    continue;
+                }
+
                 // Check and update missing data
                 const updates = [];
                 const updateValues = [];
@@ -116,7 +122,7 @@ async function importBrigades() {
 
             // Check for similar names
             const bestMatch = stringSimilarity.findBestMatch(name, existingNames);
-            if (bestMatch.bestMatch.rating > 0.95) {
+            if (bestMatch.bestMatch.rating > 0.99) {
                 console.log(`Brigade "${name}" is very similar to "${bestMatch.bestMatch.target}". Skipping...`);
                 continue;
             } else if (bestMatch.bestMatch.rating > 0.8) {

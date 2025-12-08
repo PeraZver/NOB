@@ -1,6 +1,16 @@
 # 8th Dalmatian Brigade
 
 ## Formation
+ - **Date of formation**: September 10, 1943
+ - **Place of formation**: Sratok (today Bogdanovići)
+ - **Constituent battalions**: 
+ 	- Šibenik NOP detachment
+
+ - **Strength at the time**: 890 fighters						 
+ - **Commander**: -
+ - **Commisar**: -
+
+## Formation
 The 8th Dalmatian Brigade, also known as the *Šibenik Brigade*, was formed on September 10, 1943 in the village of Sratok (today Bogdanovići) from the Šibenik NOP detachment and new fighters from Šibenik and the surrounding area. At the time of formation, it consisted of a headquarters, four battalions and staff units with a total of 890 fighters, of which 71 were women. It was part of the 20th Dalmatian Division from its founding in October 1943 until the end of the war.
 
 ## Operations

@@ -120,7 +120,7 @@ async function importDetachments() {
 
             // Check for similar names
             const bestMatch = stringSimilarity.findBestMatch(name, existingNames);
-            if (bestMatch.bestMatch.rating > 0.95) {
+            if (bestMatch.bestMatch.rating > 0.99) {
                 console.log(`Detachment "${name}" is very similar to "${bestMatch.bestMatch.target}". Skipping...`);
                 continue;
             } else if (bestMatch.bestMatch.rating > 0.8) {
