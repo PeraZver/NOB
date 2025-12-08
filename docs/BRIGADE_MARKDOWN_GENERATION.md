@@ -29,10 +29,10 @@ DB_PASSWORD=your_password
 DB_NAME=nob
 
 # API Configuration (for generateBrigadeMarkdown.js)
-OPENAI_API_KEY=your_anthropic_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-**Important:** You need a GPT-4 API key from OpenAI. Get one at: https://platform.openai.com/api-keys
+**Important:** You need an OpenAI API key. Get one at: https://platform.openai.com/api-keys
 
 ## Quick Start
 

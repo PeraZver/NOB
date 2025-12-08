@@ -124,7 +124,7 @@ node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run
 
 - `axios@1.12.0` - HTTP client for fetching Wikipedia pages (updated to fix security vulnerabilities)
 - `cheerio@1.0.0` - HTML parsing for extracting Wikipedia content
-- `@anthropic-ai/sdk@0.32.1` - GPT-4 AI SDK for content processing
+- `openai@6.10.0` - OpenAI SDK for GPT-4 content processing
 
 ## Files Created/Modified
 
@@ -178,7 +178,7 @@ Generated markdown files are saved to:
 
 ## Next Steps for User
 
-1. **Set up API key:** Get a GPT-4 API key from https://console.anthropic.com/
+1. **Set up API key:** Get an OpenAI API key from https://platform.openai.com/api-keys
 2. **Prepare data:** Either export from database or prepare JSON file
 3. **Run the script:** Follow instructions in `docs/BRIGADE_MARKDOWN_GENERATION.md`
 4. **Review output:** Check generated markdown files in `/public/assets/brigades/`
