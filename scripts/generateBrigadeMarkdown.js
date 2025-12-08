@@ -13,6 +13,14 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const Anthropic = require('@anthropic-ai/sdk');
 
+// Configuration constants
+const CONFIG = {
+    MAX_CONTENT_LENGTH: 50000,  // Maximum Wikipedia content length to send to AI
+    RETRY_DELAY_MS: 3000,        // Delay between retry attempts
+    RATE_LIMIT_DELAY_MS: 2000,   // Delay between processing brigades
+    MAX_RETRIES: 2               // Maximum number of retry attempts
+};
+
 let anthropic = null;
 
 /**
@@ -97,14 +105,14 @@ async function fetchWikipediaContent(url) {
 /**
  * Process Wikipedia content with AI to extract information and generate markdown
  */
-async function processWithAI(brigadeName, wikipediaContent, retries = 2) {
+async function processWithAI(brigadeName, wikipediaContent, retries = CONFIG.MAX_RETRIES) {
     const client = initializeAnthropic();
     
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
             if (attempt > 0) {
                 console.log(`Retry attempt ${attempt}/${retries}...`);
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, CONFIG.RETRY_DELAY_MS));
             }
             
             const prompt = `You are a military historian specializing in World War II and the Yugoslav Partisan movement.
@@ -117,7 +125,7 @@ I have Wikipedia content about "${brigadeName}". Please analyze this content and
  - **Date of formation**: [Extract the formation date in format: Month Day, Year. If not found, write "Information not available"]
  - **Place of formation**: [Extract the place/location of formation. If not found, write "Information not available"]
  - **Constituent battalions**: 
-\t- [List each constituent battalion on a separate line with a bullet point. If not found, write "Information not available"]
+   - [List each constituent battalion on a separate line with a bullet point. If not found, write "Information not available"]
  - **Strength at the time**: [Extract the number of fighters at the time of formation. If not found, write "Information not available"]
  - **Commander**: [Extract the name of the first commander. If not found, write "Information not available"]
  - **Commissar**: [Extract the name of the political commissar. If not found, write "Information not available"]
@@ -135,7 +143,7 @@ Important guidelines:
 
 Here is the Wikipedia content:
 
-${wikipediaContent.substring(0, 50000)}`;
+${wikipediaContent.substring(0, CONFIG.MAX_CONTENT_LENGTH)}`;
 
             const message = await client.messages.create({
                 model: "claude-3-5-sonnet-20241022",
@@ -226,7 +234,7 @@ async function processBrigades(jsonFilePath, dryRun = false) {
             processed++;
             
             // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, CONFIG.RATE_LIMIT_DELAY_MS));
         }
         
         console.log(`\n=== Summary ===`);
