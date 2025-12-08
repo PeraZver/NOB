@@ -13,7 +13,7 @@ This implementation provides automated generation of markdown files for brigade 
 
 ### 2. Generation Script (`scripts/generateBrigadeMarkdown.js`)
 - Fetches Wikipedia content from provided URLs
-- Translates content to English if needed (using Claude AI)
+- Translates content to English if needed (using GPT-4 AI)
 - Extracts structured information:
   - Formation date, place
   - Constituent battalions
@@ -90,7 +90,7 @@ Generated markdown files follow this template:
 3. **Generate markdown files:**
    ```bash
    # Set API key
-   export ANTHROPIC_API_KEY=your_key_here
+   export OPENAI_API_KEY=your_key_here
    
    # Generate from exported data
    node scripts/generateBrigadeMarkdown.js brigades_data.json
@@ -124,7 +124,7 @@ node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run
 
 - `axios@1.12.0` - HTTP client for fetching Wikipedia pages (updated to fix security vulnerabilities)
 - `cheerio@1.0.0` - HTML parsing for extracting Wikipedia content
-- `@anthropic-ai/sdk@0.32.1` - Claude AI SDK for content processing
+- `@anthropic-ai/sdk@0.32.1` - GPT-4 AI SDK for content processing
 
 ## Files Created/Modified
 
@@ -178,7 +178,7 @@ Generated markdown files are saved to:
 
 ## Next Steps for User
 
-1. **Set up API key:** Get a Claude API key from https://console.anthropic.com/
+1. **Set up API key:** Get a GPT-4 API key from https://console.anthropic.com/
 2. **Prepare data:** Either export from database or prepare JSON file
 3. **Run the script:** Follow instructions in `docs/BRIGADE_MARKDOWN_GENERATION.md`
 4. **Review output:** Check generated markdown files in `/public/assets/brigades/`
@@ -192,7 +192,7 @@ For detailed instructions and troubleshooting, see:
 
 ## Limitations
 
-- Requires valid Anthropic API key
+- Requires valid OpenAI API key
 - Wikipedia URLs must be accessible
 - Content extraction accuracy depends on Wikipedia page structure
 - Some manual review of generated content may be needed for accuracy

@@ -26,36 +26,38 @@ Generates markdown files for brigades from Wikipedia content.
 
 **Usage:**
 ```bash
-node scripts/generateBrigadeMarkdown.js <path-to-json-file> [--dry-run]
+node scripts/generateBrigadeMarkdown.js <path-to-json-file> [options]
 ```
 
 **Options:**
 - `--dry-run`: Test the script without fetching content or creating files
+- `-<number>`: Process only the first N brigades (e.g., `-3` for first 3)
+- `-a, --all`: Process all brigades (default)
 - `--help, -h`: Show help message
 
-**Example:**
+**Examples:**
 ```bash
+# Process only the first 3 brigades
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3
+
+# Process all brigades
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -a
+
 # Test without API key (dry-run)
 node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run
-
-# Using exported data
-node scripts/generateBrigadeMarkdown.js brigades_data.json
-
-# Using sample data
-node scripts/generateBrigadeMarkdown.js brigades_sample.json
 ```
 
 **Requirements:**
-- `ANTHROPIC_API_KEY` environment variable set with a valid Claude API key
+- `OPENAI_API_KEY` environment variable set with a valid OpenAI API key (get from https://platform.openai.com/api-keys)
 - Input JSON file with brigade data containing at least:
   - `name`: Brigade name
   - `wikipedia_url`: URL to Wikipedia article
 
 **Process:**
 1. Reads brigade data from JSON file
-2. For each brigade:
+2. For each brigade (up to the specified limit):
    - Fetches Wikipedia content from the provided URL
-   - Uses AI (Claude) to translate to English if needed
+   - Uses AI (GPT-4) to translate to English if needed
    - Extracts formation details (date, place, battalions, strength, commanders)
    - Summarizes operations and war path
    - Generates formatted markdown file

@@ -29,10 +29,10 @@ DB_PASSWORD=your_password
 DB_NAME=nob
 
 # API Configuration (for generateBrigadeMarkdown.js)
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+OPENAI_API_KEY=your_anthropic_api_key_here
 ```
 
-**Important:** You need a Claude API key from Anthropic. Get one at: https://console.anthropic.com/
+**Important:** You need a GPT-4 API key from OpenAI. Get one at: https://platform.openai.com/api-keys
 
 ## Quick Start
 
@@ -45,7 +45,7 @@ If you have the database running with brigade data:
 node scripts/exportBrigades.js
 
 # Step 2: Set your API key (if not in .env)
-export ANTHROPIC_API_KEY=your_api_key_here
+export OPENAI_API_KEY=your_api_key_here
 
 # Step 3: Generate markdown files
 node scripts/generateBrigadeMarkdown.js brigades_data.json
@@ -57,7 +57,7 @@ If you already have a JSON file with brigade data:
 
 ```bash
 # Set your API key (if not in .env)
-export ANTHROPIC_API_KEY=your_api_key_here
+export OPENAI_API_KEY=your_api_key_here
 
 # Generate markdown files
 node scripts/generateBrigadeMarkdown.js path/to/your/brigades.json
@@ -71,9 +71,34 @@ A sample JSON file is provided for testing:
 # Dry run (no API calls, just test filenames)
 node scripts/generateBrigadeMarkdown.js brigades_sample.json --dry-run
 
-# Actual generation (requires API key)
-node scripts/generateBrigadeMarkdown.js brigades_sample.json
+# Process only the first 3 brigades (useful for testing)
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3
+
+# Process all brigades
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -a
 ```
+
+### Processing Limits
+
+You can control how many brigades to process using the limit flag:
+
+```bash
+# Process only the first 3 brigades
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3
+
+# Process only the first 5 brigades
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -5
+
+# Process all brigades (default behavior)
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json -a
+# or simply
+node scripts/generateBrigadeMarkdown.js brigades_croatia.json
+```
+
+This is particularly useful when:
+- Testing the script with real data
+- Saving on API costs
+- Processing brigades in batches
 
 ## JSON File Format
 
@@ -109,7 +134,7 @@ The input JSON file should contain an array of brigade objects with at least the
 
 3. **Fetches Wikipedia content** - Downloads the full article from the URL
 
-4. **AI Processing** - Uses Claude AI to:
+4. **AI Processing** - Uses GPT-4 AI to:
    - Translate content to English if needed
    - Extract formation details (date, place, battalions, strength, commanders)
    - Summarize operations and war path
@@ -196,11 +221,11 @@ Total: 10
 
 ## Troubleshooting
 
-### "ANTHROPIC_API_KEY not set"
+### "OPENAI_API_KEY not set"
 
 **Solution:** Set the API key:
 ```bash
-export ANTHROPIC_API_KEY=your_key_here
+export OPENAI_API_KEY=your_key_here
 # Or add it to .env file
 ```
 
@@ -223,7 +248,7 @@ export ANTHROPIC_API_KEY=your_key_here
 **Solution:** 
 - Verify your API key is correct
 - Wait a few minutes and retry
-- Check your Anthropic account usage
+- Check your OpenAI account usage
 
 ### Database Connection Failed (exportBrigades.js)
 
@@ -264,5 +289,5 @@ For issues or questions:
 ## Credits
 
 - Wikipedia content is used under Creative Commons licenses
-- AI processing powered by Anthropic's Claude
+- AI processing powered by OpenAI's GPT-4
 - Script created for the NOB (People's Liberation Struggle) project

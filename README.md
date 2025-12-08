@@ -100,7 +100,7 @@ Quick start:
 # Export brigade data from database
 node scripts/exportBrigades.js
 
-# Generate markdown files (requires ANTHROPIC_API_KEY)
+# Generate markdown files (requires OPENAI_API_KEY)
 node scripts/generateBrigadeMarkdown.js brigades_data.json
 ```
 
