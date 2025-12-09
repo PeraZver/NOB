@@ -1,6 +1,5 @@
 node_modules
-src/db/backups/
-src/db/backup_test/
+src/db
 public/img
 *.json
 .env
