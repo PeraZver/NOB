@@ -27,6 +27,7 @@ node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3 --dry-run
 This will show:
 - Which brigades will be processed
 - What filenames will be created
+- Which files already exist
 - No API calls or file creation
 
 ### 2. Generate First 3 Brigades (Recommended for Testing)
@@ -38,16 +39,39 @@ node scripts/generateBrigadeMarkdown.js brigades_croatia.json -3
 
 This will:
 - Process only the first 3 brigades
+- Check if markdown files already exist (prompts before overwriting)
+- Translate brigade names to English
 - Fetch Wikipedia content
 - Use GPT-4 to translate and extract information
 - Create 3 markdown files in `/public/assets/brigades/`
 
 Expected output files:
-- `1st_li.md` - 1. lička proleterska udarna brigada "Marko Orešković"
-- `2nd_li.md` - 2. lička proleterska udarna brigada
-- `4th_kord.md` - 4. kordunaška udarna brigada
+- `1st_li.md` - 1st Lika Proletarian Assault Brigade "Marko Orešković"
+- `2nd_li.md` - 2nd Lika Proletarian Assault Brigade
+- `4th_kord.md` - 4th Kordun Assault Brigade
 
-### 3. Process All Brigades
+### 3. Process Single Brigade by ID
+
+If you want to update or create a specific brigade from the database:
+
+```bash
+export OPENAI_API_KEY=your_key_here
+node scripts/generateBrigadeMarkdown.js --id 5
+```
+
+This will:
+- Connect to the database
+- Fetch brigade with ID 5
+- Check if markdown file exists (prompts before overwriting)
+- Translate brigade name to English
+- Generate markdown file
+
+To force recreation without prompt:
+```bash
+node scripts/generateBrigadeMarkdown.js --id 5 --force
+```
+
+### 4. Process All Brigades
 
 Once you're satisfied with the results:
 
@@ -70,18 +94,56 @@ Check the sample files already created:
 - `/public/assets/brigades/4th_kord_SAMPLE.md`
 
 These show the expected format with:
+- **English brigade name in title** (e.g., "1st Lika Proletarian Assault Brigade")
 - Formation details (date, place, battalions, strength, commanders)
 - Operations narrative organized chronologically
 - Proper markdown formatting
 
+## New Features
+
+### Existing File Protection
+When processing brigades, the script:
+1. Checks if markdown file already exists
+2. Prompts: "Do you want to recreate it? (yes/no)"
+3. Skips if you answer 'no'
+4. Overwrites if you answer 'yes'
+
+This prevents accidental overwriting of manually edited files.
+
+### English Brigade Names
+All markdown files now have English titles:
+- Original: "1. lička proleterska udarna brigada"
+- Translated: "1st Lika Proletarian Assault Brigade"
+- Source material remains in original language if needed
+
+### Database Integration
+Process individual brigades directly from database:
+```bash
+node scripts/generateBrigadeMarkdown.js --id 5
+```
+
+Requires database environment variables in `.env`:
+```
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=nob
+```
+
 ## Available Options
 
 ```bash
+# Mode 1: Process brigades from JSON file
 node scripts/generateBrigadeMarkdown.js <json-file> [options]
 
+# Mode 2: Process single brigade by ID from database
+node scripts/generateBrigadeMarkdown.js --id <brigade-id> [options]
+
 Options:
-  -3, -5, -10    Process first N brigades
-  -a, --all      Process all brigades (default)
+  -3, -5, -10    Process first N brigades (JSON mode)
+  -a, --all      Process all brigades (JSON mode, default)
+  --id <number>  Process a single brigade by database ID
+  --force        Force recreation without prompt (with --id)
   --dry-run      Test without API calls or file creation
   --help         Show help message
 ```
@@ -98,6 +160,12 @@ node scripts/generateBrigadeMarkdown.js brigades_croatia.json -10
 # Process all brigades with dry run first
 node scripts/generateBrigadeMarkdown.js brigades_croatia.json --dry-run
 node scripts/generateBrigadeMarkdown.js brigades_croatia.json -a
+
+# Process single brigade by ID
+node scripts/generateBrigadeMarkdown.js --id 15
+
+# Force recreation of existing file
+node scripts/generateBrigadeMarkdown.js --id 15 --force
 ```
 
 ## Expected Processing Time
