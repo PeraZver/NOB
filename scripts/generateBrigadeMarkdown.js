@@ -337,13 +337,8 @@ async function processSingleBrigadeById(brigadeId, options = {}) {
         
         // Check if file already exists
         if (fs.existsSync(filepath) && !forceRecreate) {
-            console.log(`\nMarkdown file already exists: ${filename}`);
-            const shouldRecreate = await promptUser('Do you want to recreate it? (yes/no): ');
-            
-            if (!shouldRecreate) {
-                console.log('Skipping brigade');
-                return;
-            }
+            console.log(`Markdown file already exists: ${filename} - skipping`);
+            return;
         }
         
         // Ensure output directory exists
@@ -458,14 +453,9 @@ async function processBrigades(jsonFilePath, options = {}) {
             
             // Check if file already exists
             if (fs.existsSync(filepath) && skipExisting && !dryRun) {
-                console.log(`File already exists: ${filename}`);
-                const shouldRecreate = await promptUser('Do you want to recreate it? (yes/no): ');
-                
-                if (!shouldRecreate) {
-                    console.log('Skipping...');
-                    skipped++;
-                    continue;
-                }
+                console.log(`File already exists: ${filename} - skipping`);
+                skipped++;
+                continue;
             }
             
             if (dryRun) {
