@@ -70,6 +70,10 @@ node scripts/generateBrigadeMarkdown.js --id 10 --force
 1. **Existing File Detection**: Checks if markdown file already exists and prompts user before recreating
 2. **Brigade Name Translation**: Automatically translates brigade names to English for markdown titles
 3. **Database Integration**: Can process individual brigades directly from database by ID
+4. **Automatic Database Updates**: Updates `description` column in brigades table
+   - If NULL: Automatically adds filename
+   - If matches: Confirms and skips
+   - If differs: Prompts user to update
 
 **Process:**
 1. Reads brigade data from JSON file or database
@@ -81,6 +85,7 @@ node scripts/generateBrigadeMarkdown.js --id 10 --force
    - Extracts formation details (date, place, battalions, strength, commanders)
    - Summarizes operations and war path
    - Generates formatted markdown file with English title
+   - Updates database `description` column (if brigade ID available)
 3. Saves markdown files to `/public/assets/brigades/`
 
 **Filename Convention:**
