@@ -130,6 +130,30 @@ DB_PASSWORD=your_password
 DB_NAME=nob
 ```
 
+### Automatic Database Updates
+The script automatically manages the `description_file` column in the database:
+
+**Behavior:**
+1. **If description_file is NULL**: Automatically adds the generated filename
+2. **If description_file matches**: Confirms and skips
+3. **If description_file differs**: Prompts you to update
+
+**Example Console Output:**
+```
+✓ Created: 5th_dalm.md
+✓ Updated database: description_file = 5th_dalm.md
+```
+
+**Or if there's a mismatch:**
+```
+Database has different description_file:
+  Current in DB: old_5th_dalm.md
+  New filename:  5th_dalm.md
+Do you want to update the database? (yes/no):
+```
+
+This works in both `--id` mode and JSON batch mode (when brigade IDs are available in the JSON file).
+
 ## Available Options
 
 ```bash
