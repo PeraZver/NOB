@@ -237,6 +237,64 @@ ${wikipediaContent.substring(0, CONFIG.MAX_CONTENT_LENGTH)}`;
 }
 
 /**
+ * Update description_file in database for a brigade
+ */
+async function updateDescriptionFile(connection, brigadeId, filename, brigadeName) {
+    try {
+        // Check current description_file value
+        const [result] = await connection.execute(
+            'SELECT description_file FROM brigades WHERE id = ?',
+            [brigadeId]
+        );
+        
+        if (result.length === 0) {
+            console.error(`Brigade with ID ${brigadeId} not found`);
+            return false;
+        }
+        
+        const currentDescriptionFile = result[0].description_file;
+        
+        // If description_file is null, update it
+        if (!currentDescriptionFile) {
+            await connection.execute(
+                'UPDATE brigades SET description_file = ? WHERE id = ?',
+                [filename, brigadeId]
+            );
+            console.log(`✓ Updated database: description_file = ${filename}`);
+            return true;
+        }
+        
+        // If description_file matches, skip
+        if (currentDescriptionFile === filename) {
+            console.log(`Database already has correct description_file: ${filename}`);
+            return true;
+        }
+        
+        // If description_file differs, ask user
+        console.log(`\nDatabase has different description_file:`);
+        console.log(`  Current in DB: ${currentDescriptionFile}`);
+        console.log(`  New filename:  ${filename}`);
+        const shouldUpdate = await promptUser('Do you want to update the database? (yes/no): ');
+        
+        if (shouldUpdate) {
+            await connection.execute(
+                'UPDATE brigades SET description_file = ? WHERE id = ?',
+                [filename, brigadeId]
+            );
+            console.log(`✓ Updated database: description_file = ${filename}`);
+            return true;
+        } else {
+            console.log('Database not updated');
+            return false;
+        }
+        
+    } catch (error) {
+        console.error(`Error updating description_file: ${error.message}`);
+        return false;
+    }
+}
+
+/**
  * Process a single brigade by ID from database
  */
 async function processSingleBrigadeById(brigadeId, options = {}) {
@@ -316,6 +374,9 @@ async function processSingleBrigadeById(brigadeId, options = {}) {
         fs.writeFileSync(filepath, markdown);
         console.log(`✓ Created: ${filename}`);
         
+        // Update description_file in database
+        await updateDescriptionFile(connection, brigadeId, filename, brigade.name);
+        
     } catch (error) {
         console.error('Error processing brigade:', error.message);
         throw error;
@@ -333,7 +394,8 @@ async function processSingleBrigadeById(brigadeId, options = {}) {
  * Main processing function
  */
 async function processBrigades(jsonFilePath, options = {}) {
-    const { dryRun = false, limit = null, skipExisting = true } = options;
+    const { dryRun = false, limit = null, skipExisting = true, updateDatabase = true } = options;
+    let connection = null;
     
     try {
         // Read brigade data
@@ -351,6 +413,18 @@ async function processBrigades(jsonFilePath, options = {}) {
             console.log('\n=== DRY RUN MODE - No files will be created ===\n');
         }
         
+        // Connect to database if updating description_file
+        if (updateDatabase && !dryRun) {
+            try {
+                connection = await mysql.createConnection(dbConfig);
+                console.log('Connected to database for description_file updates');
+            } catch (error) {
+                console.warn('Warning: Could not connect to database. description_file will not be updated.');
+                console.warn(`Database error: ${error.message}`);
+                connection = null;
+            }
+        }
+        
         // Ensure output directory exists
         const outputDir = path.join(__dirname, '../public/assets/brigades');
         if (!fs.existsSync(outputDir) && !dryRun) {
@@ -362,7 +436,7 @@ async function processBrigades(jsonFilePath, options = {}) {
         let failed = 0;
         
         for (const brigade of brigadesData) {
-            const { name, wikipedia_url } = brigade;
+            const { id, name, wikipedia_url } = brigade;
             
             if (!wikipedia_url) {
                 console.log(`Skipping ${name} - no Wikipedia URL`);
@@ -424,6 +498,13 @@ async function processBrigades(jsonFilePath, options = {}) {
             console.log(`✓ Created: ${filename}`);
             processed++;
             
+            // Update description_file in database if connected and ID is available
+            if (connection && id) {
+                await updateDescriptionFile(connection, id, filename, name);
+            } else if (!id) {
+                console.log('Note: No brigade ID in JSON, skipping database update');
+            }
+            
             // Add delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, CONFIG.RATE_LIMIT_DELAY_MS));
         }
@@ -438,6 +519,10 @@ async function processBrigades(jsonFilePath, options = {}) {
         console.error('Error in main process:', error.message);
         throw error;
     } finally {
+        if (connection) {
+            await connection.end();
+            console.log('Database connection closed');
+        }
         if (rl) {
             rl.close();
         }
@@ -474,7 +559,9 @@ if (require.main === module) {
         console.log('');
         console.log('Environment Variables:');
         console.log('  OPENAI_API_KEY    Required for AI processing (get from https://platform.openai.com/api-keys)');
-        console.log('  DB_HOST, DB_USER, DB_PASSWORD, DB_NAME    Required for --id mode');
+        console.log('  DB_HOST, DB_USER, DB_PASSWORD, DB_NAME    Required for --id mode and database updates');
+        console.log('');
+        console.log('Note: Script automatically updates description_file column in database when brigade ID is available.');
         process.exit(args.length === 0 ? 1 : 0);
     }
     
