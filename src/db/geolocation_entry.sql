@@ -1,5 +1,5 @@
 use nob;
-UPDATE divisions
-SET location = ST_GeomFromText('POINT(13.773155642157821 46.17098484829277)', 4326),
-    formation_site = 'Posočje'
-WHERE id = 30;
+UPDATE brigades
+SET location = ST_GeomFromText('POINT( 15.659197829093895 44.64437576488723)', 4326),
+    formation_site = 'Laudonov Gaj, near Krbavsko Polje'
+WHERE id = 16;
