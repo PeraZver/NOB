@@ -237,13 +237,13 @@ ${wikipediaContent.substring(0, CONFIG.MAX_CONTENT_LENGTH)}`;
 }
 
 /**
- * Update description_file in database for a brigade
+ * Update description in database for a brigade
  */
 async function updateDescriptionFile(connection, brigadeId, filename, brigadeName) {
     try {
-        // Check current description_file value
+        // Check current description value
         const [result] = await connection.execute(
-            'SELECT description_file FROM brigades WHERE id = ?',
+            'SELECT description FROM brigades WHERE id = ?',
             [brigadeId]
         );
         
@@ -252,36 +252,36 @@ async function updateDescriptionFile(connection, brigadeId, filename, brigadeNam
             return false;
         }
         
-        const currentDescriptionFile = result[0].description_file;
+        const currentDescription = result[0].description;
         
-        // If description_file is null, update it
-        if (!currentDescriptionFile) {
+        // If description is null, update it
+        if (!currentDescription) {
             await connection.execute(
-                'UPDATE brigades SET description_file = ? WHERE id = ?',
+                'UPDATE brigades SET description = ? WHERE id = ?',
                 [filename, brigadeId]
             );
-            console.log(`✓ Updated database: description_file = ${filename}`);
+            console.log(`✓ Updated database: description = ${filename}`);
             return true;
         }
         
-        // If description_file matches, skip
-        if (currentDescriptionFile === filename) {
-            console.log(`Database already has correct description_file: ${filename}`);
+        // If description matches, skip
+        if (currentDescription === filename) {
+            console.log(`Database already has correct description: ${filename}`);
             return true;
         }
         
-        // If description_file differs, ask user
-        console.log(`\nDatabase has different description_file:`);
-        console.log(`  Current in DB: ${currentDescriptionFile}`);
+        // If description differs, ask user
+        console.log(`\nDatabase has different description:`);
+        console.log(`  Current in DB: ${currentDescription}`);
         console.log(`  New filename:  ${filename}`);
         const shouldUpdate = await promptUser('Do you want to update the database? (yes/no): ');
         
         if (shouldUpdate) {
             await connection.execute(
-                'UPDATE brigades SET description_file = ? WHERE id = ?',
+                'UPDATE brigades SET description = ? WHERE id = ?',
                 [filename, brigadeId]
             );
-            console.log(`✓ Updated database: description_file = ${filename}`);
+            console.log(`✓ Updated database: description = ${filename}`);
             return true;
         } else {
             console.log('Database not updated');
@@ -289,7 +289,7 @@ async function updateDescriptionFile(connection, brigadeId, filename, brigadeNam
         }
         
     } catch (error) {
-        console.error(`Error updating description_file: ${error.message}`);
+        console.error(`Error updating description: ${error.message}`);
         return false;
     }
 }
@@ -374,7 +374,7 @@ async function processSingleBrigadeById(brigadeId, options = {}) {
         fs.writeFileSync(filepath, markdown);
         console.log(`✓ Created: ${filename}`);
         
-        // Update description_file in database
+        // Update description in database
         await updateDescriptionFile(connection, brigadeId, filename, brigade.name);
         
     } catch (error) {
@@ -413,13 +413,13 @@ async function processBrigades(jsonFilePath, options = {}) {
             console.log('\n=== DRY RUN MODE - No files will be created ===\n');
         }
         
-        // Connect to database if updating description_file
+        // Connect to database if updating description
         if (updateDatabase && !dryRun) {
             try {
                 connection = await mysql.createConnection(dbConfig);
-                console.log('Connected to database for description_file updates');
+                console.log('Connected to database for description updates');
             } catch (error) {
-                console.warn('Warning: Could not connect to database. description_file will not be updated.');
+                console.warn('Warning: Could not connect to database. description will not be updated.');
                 console.warn(`Database error: ${error.message}`);
                 connection = null;
             }
@@ -498,7 +498,7 @@ async function processBrigades(jsonFilePath, options = {}) {
             console.log(`✓ Created: ${filename}`);
             processed++;
             
-            // Update description_file in database if connected and ID is available
+            // Update description in database if connected and ID is available
             if (connection && id) {
                 await updateDescriptionFile(connection, id, filename, name);
             } else if (!id) {
@@ -561,7 +561,7 @@ if (require.main === module) {
         console.log('  OPENAI_API_KEY    Required for AI processing (get from https://platform.openai.com/api-keys)');
         console.log('  DB_HOST, DB_USER, DB_PASSWORD, DB_NAME    Required for --id mode and database updates');
         console.log('');
-        console.log('Note: Script automatically updates description_file column in database when brigade ID is available.');
+        console.log('Note: Script automatically updates description column in database when brigade ID is available.');
         process.exit(args.length === 0 ? 1 : 0);
     }
     
