@@ -67,7 +67,7 @@ node scripts/generateBrigadeMarkdown.js --id 10 --force
   - `wikipedia_url`: URL to Wikipedia article
 
 **Features:**
-1. **Existing File Detection**: Checks if markdown file already exists and prompts user before recreating
+1. **Existing File Detection**: Checks if markdown file already exists and automatically skips it (use `--force` with `--id` to override)
 2. **Brigade Name Translation**: Automatically translates brigade names to English for markdown titles
 3. **Database Integration**: Can process individual brigades directly from database by ID
 4. **Automatic Database Updates**: Updates `description` column in brigades table
@@ -78,7 +78,7 @@ node scripts/generateBrigadeMarkdown.js --id 10 --force
 **Process:**
 1. Reads brigade data from JSON file or database
 2. For each brigade (up to the specified limit):
-   - Checks if markdown file already exists (prompts user if found)
+   - Checks if markdown file already exists (auto-skips if found)
    - Translates brigade name to English
    - Fetches Wikipedia content from the provided URL
    - Uses AI (GPT-4) to translate content to English if needed

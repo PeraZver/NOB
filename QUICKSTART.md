@@ -104,9 +104,13 @@ These show the expected format with:
 ### Existing File Protection
 When processing brigades, the script:
 1. Checks if markdown file already exists
-2. Prompts: "Do you want to recreate it? (yes/no)"
-3. Skips if you answer 'no'
-4. Overwrites if you answer 'yes'
+2. Automatically skips existing files with message: "File already exists: filename.md - skipping"
+3. Tracks skipped files in summary
+
+To force recreation of an existing file, use `--force` flag with `--id` mode:
+```bash
+node scripts/generateBrigadeMarkdown.js --id 5 --force
+```
 
 This prevents accidental overwriting of manually edited files.
 
