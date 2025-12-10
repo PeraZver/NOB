@@ -80,11 +80,17 @@ router.get('/:type/:id', async (req, res) => {
 
         // Load markdown content if description is a filename
         if (item.description && item.description.endsWith('.md')) {
-            const filePath = path.join(__dirname, '../../public', 'assets', assetFolders[type], item.description);
-            const markdownContent = await getMarkdownContent(filePath);
-            // Only update description if markdown was successfully loaded
-            if (markdownContent) {
-                item.description = markdownContent;
+            // Sanitize filename to prevent directory traversal
+            const filename = path.basename(item.description);
+            
+            // Additional security check: ensure filename doesn't contain path separators
+            if (filename === item.description && !filename.includes('..')) {
+                const filePath = path.join(__dirname, '../../public', 'assets', assetFolders[type], filename);
+                const markdownContent = await getMarkdownContent(filePath);
+                // Only update description if markdown was successfully loaded
+                if (markdownContent) {
+                    item.description = markdownContent;
+                }
             }
         }
 
