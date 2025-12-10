@@ -13,6 +13,11 @@ import { handleMarkerClick, handleBattleMarkerClick } from './map_layers.js';
 import layerState from './layerState.js';
 import { API_ENDPOINTS, MAP_CONFIG } from './config.js';
 
+// Constants for layer initialization retry logic
+const LAYER_INIT_MAX_RETRIES = 20; // Maximum number of retry attempts
+const LAYER_INIT_RETRY_DELAY_MS = 100; // Delay between retries in milliseconds
+const COORDINATE_PRECISION = 6; // Decimal places for coordinate comparison
+
 // DOM Elements
 const searchBox = document.getElementById('search-box');
 const suggestionsBox = document.getElementById('suggestions');
@@ -65,26 +70,33 @@ function handleSearchSelection(item) {
 
 // Helper function to wait for layer initialization and show marker
 function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
-    const maxRetries = 20; // Wait up to 2 seconds (20 * 100ms)
     const layerGroup = layerState[`${item.type}Layer`];
     
     if (!layerGroup) {
-        if (retryCount < maxRetries) {
+        if (retryCount < LAYER_INIT_MAX_RETRIES) {
             // Layer not yet initialized, wait and retry
             setTimeout(() => {
                 waitForLayerAndShowMarker(item, data, lat, lng, retryCount + 1);
-            }, 100);
+            }, LAYER_INIT_RETRY_DELAY_MS);
         } else {
-            console.error(`Layer group for ${item.type} could not be initialized after ${maxRetries} retries.`);
+            console.error(`Layer group for ${item.type} could not be initialized after ${LAYER_INIT_MAX_RETRIES} retries.`);
         }
         return;
     }
 
     // Layer is initialized, find the marker
     let targetMarker = null;
+    const targetLat = parseFloat(lat).toFixed(COORDINATE_PRECISION);
+    const targetLng = parseFloat(lng).toFixed(COORDINATE_PRECISION);
+    
     layerGroup.eachLayer((layer) => {
-        if (layer.getLatLng().lat === parseFloat(lat) && layer.getLatLng().lng === parseFloat(lng)) {
-            targetMarker = layer;
+        if (!targetMarker) {
+            const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
+            const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
+            
+            if (markerLat === targetLat && markerLng === targetLng) {
+                targetMarker = layer;
+            }
         }
     });
 
