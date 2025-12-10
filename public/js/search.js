@@ -91,12 +91,13 @@ function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
     
     // Search for the marker with matching coordinates
     layerGroup.eachLayer((layer) => {
-        const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
-        const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
-        
-        if (markerLat === targetLat && markerLng === targetLng) {
-            targetMarker = layer;
-            return; // Exit early once found
+        if (!targetMarker) {
+            const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
+            const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
+            
+            if (markerLat === targetLat && markerLng === targetLng) {
+                targetMarker = layer;
+            }
         }
     });
 
