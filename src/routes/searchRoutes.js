@@ -81,7 +81,11 @@ router.get('/:type/:id', async (req, res) => {
         // Load markdown content if description is a filename
         if (item.description && item.description.endsWith('.md')) {
             const filePath = path.join(__dirname, '../../public', 'assets', assetFolders[type], item.description);
-            item.description = await getMarkdownContent(filePath);
+            const markdownContent = await getMarkdownContent(filePath);
+            // Only update description if markdown was successfully loaded
+            if (markdownContent) {
+                item.description = markdownContent;
+            }
         }
 
         res.json(item);
