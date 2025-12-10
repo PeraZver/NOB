@@ -56,43 +56,54 @@ function handleSearchSelection(item) {
                 const [lng, lat] = data.location.replace('POINT(', '').replace(')', '').split(' ');
                 map.setView([lat, lng], MAP_CONFIG.searchZoom);
 
-                // Debugging: Log layerState and item.type
-                console.log('Layer state:', layerState);
-                console.log('Item type:', item.type);
-
-                // Get the appropriate layer group based on type
-                const layerGroup = layerState[`${item.type}Layer`];
-                if (!layerGroup) {
-                    console.error(`Layer group for ${item.type} is not initialized.`);
-                    return;
-                }
-                let targetMarker = null;
-
-                layerGroup.eachLayer((layer) => {
-                    if (layer.getLatLng().lat === parseFloat(lat) && layer.getLatLng().lng === parseFloat(lng)) {
-                        targetMarker = layer;
-                    }
-                });
-
-                if (targetMarker) {
-                    // Use appropriate marker click handler based on item type
-                    if (item.type === 'battles') {
-                        handleBattleMarkerClick(targetMarker, {
-                            ...data,
-                            place: data.place
-                        });
-                    } else {
-                        handleMarkerClick(targetMarker, {
-                            ...data,
-                            formation_site: data.formation_site
-                        });
-                    }
-                } else {
-                    console.error('Marker not found in layer group');
-                }
+                // Wait for the layer to be loaded and then find the marker
+                waitForLayerAndShowMarker(item, data, lat, lng);
             }
         })
         .catch(error => console.error('Error fetching search result details:', error));
+}
+
+// Helper function to wait for layer initialization and show marker
+function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
+    const maxRetries = 20; // Wait up to 2 seconds (20 * 100ms)
+    const layerGroup = layerState[`${item.type}Layer`];
+    
+    if (!layerGroup) {
+        if (retryCount < maxRetries) {
+            // Layer not yet initialized, wait and retry
+            setTimeout(() => {
+                waitForLayerAndShowMarker(item, data, lat, lng, retryCount + 1);
+            }, 100);
+        } else {
+            console.error(`Layer group for ${item.type} could not be initialized after ${maxRetries} retries.`);
+        }
+        return;
+    }
+
+    // Layer is initialized, find the marker
+    let targetMarker = null;
+    layerGroup.eachLayer((layer) => {
+        if (layer.getLatLng().lat === parseFloat(lat) && layer.getLatLng().lng === parseFloat(lng)) {
+            targetMarker = layer;
+        }
+    });
+
+    if (targetMarker) {
+        // Use appropriate marker click handler based on item type
+        if (item.type === 'battles') {
+            handleBattleMarkerClick(targetMarker, {
+                ...data,
+                place: data.place
+            });
+        } else {
+            handleMarkerClick(targetMarker, {
+                ...data,
+                formation_site: data.formation_site
+            });
+        }
+    } else {
+        console.error('Marker not found in layer group');
+    }
 }
 
 // Display suggestions
