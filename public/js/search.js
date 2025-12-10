@@ -16,7 +16,7 @@ import { API_ENDPOINTS, MAP_CONFIG } from './config.js';
 // Constants for layer initialization retry logic
 const LAYER_INIT_MAX_RETRIES = 20; // Maximum number of retry attempts
 const LAYER_INIT_RETRY_DELAY_MS = 100; // Delay between retries in milliseconds
-const COORDINATE_PRECISION = 6; // Decimal places for coordinate comparison (provides ~0.11 meter precision)
+const COORDINATE_TOLERANCE = 0.0000005; // Tolerance for coordinate comparison (~0.05 meter precision)
 
 // DOM Elements
 const searchBox = document.getElementById('search-box');
@@ -86,16 +86,17 @@ function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
 
     // Layer is initialized, find the marker
     let targetMarker = null;
-    const targetLat = parseFloat(lat).toFixed(COORDINATE_PRECISION);
-    const targetLng = parseFloat(lng).toFixed(COORDINATE_PRECISION);
+    const targetLat = parseFloat(lat);
+    const targetLng = parseFloat(lng);
     
-    // Search for the marker with matching coordinates
+    // Search for the marker with matching coordinates (using tolerance for floating-point comparison)
     layerGroup.eachLayer((layer) => {
         if (!targetMarker) {
-            const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
-            const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
+            const markerLatLng = layer.getLatLng();
+            const latDiff = Math.abs(markerLatLng.lat - targetLat);
+            const lngDiff = Math.abs(markerLatLng.lng - targetLng);
             
-            if (markerLat === targetLat && markerLng === targetLng) {
+            if (latDiff < COORDINATE_TOLERANCE && lngDiff < COORDINATE_TOLERANCE) {
                 targetMarker = layer;
             }
         }
