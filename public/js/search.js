@@ -90,6 +90,7 @@ function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
     const targetLng = parseFloat(lng);
     
     // Search for the marker with matching coordinates (using tolerance for floating-point comparison)
+    // Note: eachLayer doesn't support early exit, so we use a conditional check
     layerGroup.eachLayer((layer) => {
         if (!targetMarker) {
             const markerLatLng = layer.getLatLng();
