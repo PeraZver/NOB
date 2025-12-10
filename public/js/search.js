@@ -16,7 +16,7 @@ import { API_ENDPOINTS, MAP_CONFIG } from './config.js';
 // Constants for layer initialization retry logic
 const LAYER_INIT_MAX_RETRIES = 20; // Maximum number of retry attempts
 const LAYER_INIT_RETRY_DELAY_MS = 100; // Delay between retries in milliseconds
-const COORDINATE_PRECISION = 6; // Decimal places for coordinate comparison
+const COORDINATE_PRECISION = 6; // Decimal places for coordinate comparison (provides ~0.11 meter precision)
 
 // DOM Elements
 const searchBox = document.getElementById('search-box');
@@ -89,14 +89,14 @@ function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
     const targetLat = parseFloat(lat).toFixed(COORDINATE_PRECISION);
     const targetLng = parseFloat(lng).toFixed(COORDINATE_PRECISION);
     
+    // Search for the marker with matching coordinates
     layerGroup.eachLayer((layer) => {
-        if (!targetMarker) {
-            const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
-            const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
-            
-            if (markerLat === targetLat && markerLng === targetLng) {
-                targetMarker = layer;
-            }
+        const markerLat = layer.getLatLng().lat.toFixed(COORDINATE_PRECISION);
+        const markerLng = layer.getLatLng().lng.toFixed(COORDINATE_PRECISION);
+        
+        if (markerLat === targetLat && markerLng === targetLng) {
+            targetMarker = layer;
+            return; // Exit early once found
         }
     });
 
