@@ -80,6 +80,11 @@ function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
     };
     
     const layerName = typeToLayerMap[item.type];
+    if (!layerName) {
+        console.error(`Unknown layer type: ${item.type}`);
+        return;
+    }
+    
     const layerGroup = layerState[layerName];
     
     if (!layerGroup) {
