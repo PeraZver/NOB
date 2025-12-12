@@ -18,6 +18,15 @@ const LAYER_INIT_MAX_RETRIES = 20; // Maximum number of retry attempts
 const LAYER_INIT_RETRY_DELAY_MS = 100; // Delay between retries in milliseconds
 const COORDINATE_TOLERANCE = 0.0000005; // Tolerance for coordinate comparison (~0.05 meter precision)
 
+// Map API type names to layer property names in layerState
+const TYPE_TO_LAYER_MAP = {
+    'brigades': 'brigadesLayer',
+    'detachments': 'detachmentLayer',
+    'divisions': 'divisionLayer',
+    'corps': 'corpsLayer',
+    'battles': 'battlesLayer'
+};
+
 // DOM Elements
 const searchBox = document.getElementById('search-box');
 const suggestionsBox = document.getElementById('suggestions');
@@ -70,16 +79,7 @@ function handleSearchSelection(item) {
 
 // Helper function to wait for layer initialization and show marker
 function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
-    // Map API type names to layer property names
-    const typeToLayerMap = {
-        'brigades': 'brigadesLayer',
-        'detachments': 'detachmentLayer',
-        'divisions': 'divisionLayer',
-        'corps': 'corpsLayer',
-        'battles': 'battlesLayer'
-    };
-    
-    const layerName = typeToLayerMap[item.type];
+    const layerName = TYPE_TO_LAYER_MAP[item.type];
     if (!layerName) {
         console.error(`Unknown layer type: ${item.type}`);
         return;
