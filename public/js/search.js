@@ -70,7 +70,17 @@ function handleSearchSelection(item) {
 
 // Helper function to wait for layer initialization and show marker
 function waitForLayerAndShowMarker(item, data, lat, lng, retryCount = 0) {
-    const layerGroup = layerState[`${item.type}Layer`];
+    // Map API type names to layer property names
+    const typeToLayerMap = {
+        'brigades': 'brigadesLayer',
+        'detachments': 'detachmentLayer',
+        'divisions': 'divisionLayer',
+        'corps': 'corpsLayer',
+        'battles': 'battlesLayer'
+    };
+    
+    const layerName = typeToLayerMap[item.type];
+    const layerGroup = layerState[layerName];
     
     if (!layerGroup) {
         if (retryCount < LAYER_INIT_MAX_RETRIES) {
