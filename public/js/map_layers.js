@@ -62,7 +62,11 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 filteredData.forEach(item => {
                     const icon = icons[group] || L.Icon.Default;
                     const marker = createMarker(item, icon, handleMarkerClick);
-                    newLayer.addLayer(marker);
+                    if (marker) {
+                        newLayer.addLayer(marker);
+                    } else {
+                        console.warn(`Skipping null marker for item: ${item.name}`);
+                    }
                 });
 
                 layerState[`${layerName}`] = newLayer;
@@ -108,11 +112,20 @@ export function refreshAllVisibleLayers() {
             const newLayer = L.layerGroup().addTo(map);
             
             filteredData.forEach(item => {
+                if (!item.location || typeof item.location !== 'string') {
+                    console.warn(`Skipping item with invalid or null location: ${item.name}`);
+                    return;
+                }
+
                 const icon = icons[layerInfo.group] || L.Icon.Default;
                 // Use appropriate click handler based on layer type
                 const clickHandler = layerInfo.filterType === 'dateRange' ? handleBattleMarkerClick : handleMarkerClick;
                 const marker = createMarker(item, icon, clickHandler);
-                newLayer.addLayer(marker);
+                if (marker) {
+                    newLayer.addLayer(marker);
+                } else {
+                    console.warn(`Skipping null marker for item: ${item.name}`);
+                }
             });
             
             layerState[layerInfo.layerName] = newLayer;
@@ -128,8 +141,8 @@ export function showBattles() {
         layerState.isBattlesLayerVisible = false;
     } else {
         fetch(API_ENDPOINTS.battles)
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
+                const data = response.json();
                 // Store all data for filtering
                 layerState.allLayerData['battlesLayer'] = data;
                 
@@ -140,7 +153,11 @@ export function showBattles() {
                 filteredData.forEach(item => {
                     const icon = icons.battles || L.Icon.Default;
                     const marker = createMarker(item, icon, handleBattleMarkerClick);
-                    newLayer.addLayer(marker);
+                    if (marker) {
+                        newLayer.addLayer(marker);
+                    } else {
+                        console.warn(`Skipping null marker for battle: ${item.name}`);
+                    }
                 });
 
                 layerState.battlesLayer = newLayer;

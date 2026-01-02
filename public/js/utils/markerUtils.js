@@ -16,6 +16,11 @@
  * @returns {Object} Leaflet marker
  */
 export function createMarker(item, icon, onClickHandler) {
+    if (!item.location) {
+        console.warn(`Cannot create marker: location is null for item ${item.name || 'Unknown'}`);
+        return null;
+    }
+
     const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
     const marker = L.marker([lat, lng], { icon: icon || L.Icon.Default });
 
