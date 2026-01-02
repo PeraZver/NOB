@@ -25,7 +25,13 @@ for (const file of scriptFiles) {
 
 // Test 2: Check dependencies
 console.log('\nTest 2: Checking dependencies...');
-const pkg = require('../package.json');
+let pkg;
+try {
+    pkg = require('../package.json');
+} catch (error) {
+    console.log('  ✗ Failed to load package.json:', error.message);
+    process.exit(1);
+}
 const required = ['axios', 'cheerio', 'dotenv', 'openai', 'mysql2'];
 const missing = required.filter(dep => !pkg.dependencies[dep]);
 if (missing.length > 0) {

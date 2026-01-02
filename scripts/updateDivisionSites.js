@@ -243,6 +243,19 @@ If you cannot determine coordinates, respond with:
 }
 
 /**
+ * Helper function to create formation_geo object
+ */
+function createFormationGeo(geocoordinates) {
+    if (geocoordinates && geocoordinates.latitude && geocoordinates.longitude) {
+        return {
+            latitude: geocoordinates.latitude,
+            longitude: geocoordinates.longitude
+        };
+    }
+    return null;
+}
+
+/**
  * Process a single division
  */
 async function processDivision(division) {
@@ -283,10 +296,7 @@ async function processDivision(division) {
     const updatedDivision = {
         ...division,
         formation_site: formationSiteResult.formation_site,
-        formation_geo: geocoordinates && geocoordinates.latitude && geocoordinates.longitude ? {
-            latitude: geocoordinates.latitude,
-            longitude: geocoordinates.longitude
-        } : null
+        formation_geo: createFormationGeo(geocoordinates)
     };
     
     console.log('\n✓ Division processing complete');
