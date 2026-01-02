@@ -39,6 +39,18 @@ OPENAI_API_KEY=your_openai_api_key
    - `description` (text)
    - `wikipedia_url` (varchar)
 
+**OR** if working with a standalone JSON file, ensure it has this structure:
+```json
+[
+  {
+    "name": "Division name",
+    "formation_date": "YYYY-MM-DD",
+    "composition": "Optional composition info",
+    "wikipedia_url": "https://..."
+  }
+]
+```
+
 ## Usage
 
 ### Step 1: Export Divisions from Database
@@ -53,10 +65,16 @@ This creates `divisions_data.json` in the project root containing all divisions 
 
 ### Step 2: Enrich Division Data
 
-Process the exported JSON file to add formation sites and geocoordinates:
+Process the exported JSON file (or your own incomplete JSON file) to add formation sites and geocoordinates:
 
 ```bash
 node scripts/updateDivisionSites.js divisions_data.json
+```
+
+Or if you have your own JSON file:
+
+```bash
+node scripts/updateDivisionSites.js path/to/your/divisions.json
 ```
 
 This will:
@@ -81,26 +99,34 @@ const CONFIG = {
 
 ## Output Format
 
-The updated JSON file will contain the original fields plus:
+The updated JSON file will add `formation_site` and `formation_geo` fields to each division:
 
+**Input (incomplete JSON):**
 ```json
 {
-  "id": 1,
-  "name": "1. proleterska divizija",
-  "formation_date": "1941-10-11",
-  "formation_site": "Užice",
-  "formation_site_confidence": "high",
-  "formation_site_explanation": "Formation site extracted from Wikipedia...",
-  "geocoordinates": {
-    "latitude": 43.8583,
-    "longitude": 19.8483,
-    "confidence": "high",
-    "location_details": "Užice, Serbia"
-  },
-  "description": "1.md",
-  "wikipedia_url": "https://sr.wikipedia.org/wiki/1._proleterska_divizija"
+  "name": "1. proleterska udarna",
+  "formation_date": "1942-11-01",
+  "composition": "1. proleterska, 3. proleterska i 3. krajiška brigada",
+  "wikipedia_url": "https://sr.wikipedia.org/sr-el/1._пролетерска_дивизија_НОВЈ"
 }
 ```
+
+**Output (enriched JSON):**
+```json
+{
+  "name": "1. proleterska udarna",
+  "formation_date": "1942-11-01",
+  "formation_site": "Livno",
+  "formation_geo": {
+    "latitude": 43.8267,
+    "longitude": 17.0081
+  },
+  "composition": "1. proleterska, 3. proleterska i 3. krajiška brigada",
+  "wikipedia_url": "https://sr.wikipedia.org/sr-el/1._пролетерска_дивизија_НОВЈ"
+}
+```
+
+If the formation site or geocoordinates cannot be determined, the fields will be `null`.
 
 ## Example Workflow
 
@@ -113,6 +139,8 @@ node scripts/updateDivisionSites.js divisions_data.json
 
 # 3. Review the updated file: divisions_data_updated.json
 ```
+
+See `divisions_data_example_output.json` for an example of what the enriched output looks like.
 
 ## Notes
 

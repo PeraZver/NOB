@@ -247,7 +247,7 @@ If you cannot determine coordinates, respond with:
  */
 async function processDivision(division) {
     console.log(`\n${'='.repeat(70)}`);
-    console.log(`Processing: ${division.name} (ID: ${division.id})`);
+    console.log(`Processing: ${division.name}`);
     console.log(`${'='.repeat(70)}`);
     
     // Check if division already has formation_site
@@ -283,13 +283,9 @@ async function processDivision(division) {
     const updatedDivision = {
         ...division,
         formation_site: formationSiteResult.formation_site,
-        formation_site_confidence: formationSiteResult.confidence,
-        formation_site_explanation: formationSiteResult.explanation,
-        geocoordinates: geocoordinates ? {
+        formation_geo: geocoordinates && geocoordinates.latitude && geocoordinates.longitude ? {
             latitude: geocoordinates.latitude,
-            longitude: geocoordinates.longitude,
-            confidence: geocoordinates.confidence,
-            location_details: geocoordinates.location_details
+            longitude: geocoordinates.longitude
         } : null
     };
     
@@ -352,7 +348,7 @@ async function main() {
         
         // Print summary
         const processedCount = updatedDivisions.filter(d => d.formation_site).length;
-        const withGeoCount = updatedDivisions.filter(d => d.geocoordinates && d.geocoordinates.latitude).length;
+        const withGeoCount = updatedDivisions.filter(d => d.formation_geo && d.formation_geo.latitude).length;
         
         console.log('Summary:');
         console.log(`  Total divisions: ${updatedDivisions.length}`);
