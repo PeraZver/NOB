@@ -104,7 +104,7 @@ The updated JSON file will add `formation_site` and `formation_geo` fields to ea
 **Input (incomplete JSON):**
 ```json
 {
-  "name": "1. proleterska udarna",
+  "name": "1. proleterska udarna divizija",
   "formation_date": "1942-11-01",
   "composition": "1. proleterska, 3. proleterska i 3. krajiška brigada",
   "wikipedia_url": "https://sr.wikipedia.org/sr-el/1._пролетерска_дивизија_НОВЈ"
@@ -114,7 +114,7 @@ The updated JSON file will add `formation_site` and `formation_geo` fields to ea
 **Output (enriched JSON):**
 ```json
 {
-  "name": "1. proleterska udarna",
+  "name": "1. proleterska udarna divizija",
   "formation_date": "1942-11-01",
   "formation_site": "Livno",
   "formation_geo": {
