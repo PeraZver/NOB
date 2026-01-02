@@ -1,5 +1,6 @@
 # 3rd Dalmatian Brigade
 
+
 ## Formation
  - **Date of formation**: November 12, 1942
  - **Place of formation**: Vrba, near Muć
