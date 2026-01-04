@@ -1,0 +1,178 @@
+/*
+ * Script: importCorps.js
+ * Description: Imports corps data from a JSON file into the database.
+ * Ensures no duplicate entries and prompts the user for confirmation when necessary.
+ * Author: PeraZver
+ * Date: January 3, 2026
+ */
+
+require('dotenv').config(); // Load environment variables from .env file
+
+const dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'nob',
+};
+
+const fs = require('fs');
+const path = require('path');
+const mysql = require('mysql2/promise');
+const readline = require('readline');
+const stringSimilarity = require('string-similarity');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+
+// Parse command-line arguments
+const argv = yargs(hideBin(process.argv))
+    .option('f', {
+        alias: 'file',
+        describe: 'Path to the JSON file containing corps data',
+        type: 'string',
+        demandOption: true
+    })
+    .help()
+    .argv;
+
+const corpsFilePath = path.resolve(argv.file); // Use the file path provided by the user
+
+// Readline interface for user prompts
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+
+// Helper function to prompt the user
+const promptUser = (question) => {
+    return new Promise((resolve) => {
+        rl.question(question, (answer) => {
+            resolve(answer.toLowerCase());
+        });
+    });
+};
+
+// Main function to import corps
+async function importCorps() {
+    let connection;
+
+    try {
+        // Read the JSON file
+        const corpsData = JSON.parse(fs.readFileSync(corpsFilePath, 'utf8'));
+
+        // Connect to the database
+        connection = await mysql.createConnection(dbConfig);
+
+        console.log('Connected to the database.');
+
+        for (const corps of corpsData) {
+            const { name, formation_date, formation_geo, formation_site, wikipedia_url } = corps;
+
+            // Fetch all existing corps names and data from the database
+            const [existingRows] = await connection.execute(
+                'SELECT * FROM corps WHERE name = ?',
+                [name]
+            );
+
+            if (existingRows.length > 0) {
+                const existingCorps = existingRows[0];
+
+                // If the name matches entirely, skip the item
+                if (existingCorps.name === name) {
+                    console.log(`Corps "${name}" already exists with the same name. Skipping...`);
+                    continue;
+                }
+
+                // Check and update missing data
+                const updates = [];
+                const updateValues = [];
+
+                if (!existingCorps.formation_site && formation_site) {
+                    updates.push('formation_site = ?');
+                    updateValues.push(formation_site);
+                }
+                if (!existingCorps.formation_date && formation_date) {
+                    updates.push('formation_date = ?');
+                    updateValues.push(formation_date);
+                }
+                if (!existingCorps.location && formation_geo) {
+                    updates.push('location = ST_GeomFromText(?)');
+                    updateValues.push(`POINT(${formation_geo.longitude} ${formation_geo.latitude})`);
+                }
+                if (!existingCorps.wikipedia_url && wikipedia_url) {
+                    updates.push('wikipedia_url = ?');
+                    updateValues.push(wikipedia_url);
+                }
+
+                if (updates.length > 0) {
+                    const updateQuery = `UPDATE corps SET ${updates.join(', ')} WHERE id = ?`;
+                    updateValues.push(existingCorps.id);
+
+                    await connection.execute(updateQuery, updateValues);
+                    console.log(`Corps "${name}" updated with missing data.`);
+                } else {
+                    console.log(`Corps "${name}" already exists with complete data. Skipping...`);
+                }
+
+                continue;
+            }
+
+            // Fetch all existing corps names for similarity check
+            const [allRows] = await connection.execute('SELECT name FROM corps');
+            const existingNames = allRows.map(row => row.name);
+
+            // Check for similar names
+            const bestMatch = stringSimilarity.findBestMatch(name, existingNames);
+            if (bestMatch.bestMatch.rating > 0.99) {
+                console.log(`Corps "${name}" is very similar to "${bestMatch.bestMatch.target}". Skipping...`);
+                continue;
+            } else if (bestMatch.bestMatch.rating > 0.8) {
+                const userResponse = await promptUser(
+                    `Corps "${name}" is somewhat similar to "${bestMatch.bestMatch.target}". Do you want to insert it? (yes/no): `
+                );
+
+                if (userResponse !== 'yes') {
+                    console.log(`Corps "${name}" was not inserted.`);
+                    continue;
+                }
+            }
+
+            // Get the next available ID
+            const [idResult] = await connection.execute(
+                'SELECT MAX(id) AS maxId FROM corps'
+            );
+            const nextId = (idResult[0].maxId || 0) + 1;
+
+            // Convert formation_geo to WKT format for ST_GeomFromText()
+            const location = formation_geo
+                ? `POINT(${formation_geo.longitude} ${formation_geo.latitude})`
+                : null;
+
+            // Ensure all parameters are defined, replace undefined with null
+            const safeFormationDate = formation_date || null;
+            const safeFormationSite = formation_site || null;
+            const safeWikipediaUrl = wikipedia_url || null;
+
+            // Insert the corps into the database
+            await connection.execute(
+                `INSERT INTO corps (id, name, formation_date, formation_site, location, wikipedia_url)
+                 VALUES (?, ?, ?, ?, ST_GeomFromText(?), ?)`,
+                [nextId, name, safeFormationDate, safeFormationSite, location, safeWikipediaUrl]
+            );
+
+            console.log(`Corps "${name}" has been inserted into the database.`);
+        }
+
+        console.log('Import process completed.');
+    } catch (error) {
+        console.error('Error during import:', error.message);
+    } finally {
+        if (connection) {
+            await connection.end();
+            console.log('Database connection closed.');
+        }
+        rl.close();
+    }
+}
+
+// Run the import function
+importCorps();
