@@ -300,6 +300,24 @@ async function updateDescriptionFile(connection, divisionId, filename, divisionN
 }
 
 /**
+ * Generate filename from database ID
+ */
+async function generateFilenameFromDatabaseId(divisionId) {
+    try {
+        // Ensure the divisionId is a valid number or string
+        if (typeof divisionId !== 'number' && typeof divisionId !== 'string') {
+            throw new Error(`Invalid divisionId: ${divisionId}. Expected a number or string.`);
+        }
+
+        // Use the provided ID directly to create the filename
+        return `${divisionId}.md`;
+    } catch (error) {
+        console.error(`Error generating filename: ${error.message}`);
+        throw error;
+    }
+}
+
+/**
  * Process a single division by ID from database
  */
 async function processSingleDivisionById(divisionId, options = {}) {
@@ -331,7 +349,7 @@ async function processSingleDivisionById(divisionId, options = {}) {
         }
 
         // Generate filename
-        const filename = generateFilename(division.name);
+        const filename = await generateFilenameFromDatabaseId(divisionId);
         const outputDir = path.join(__dirname, '../public/assets/divisions');
         const filepath = path.join(outputDir, filename);
 
@@ -447,7 +465,7 @@ async function processDivisions(jsonFilePath, options = {}) {
             console.log(`\nProcessing: ${name}`);
 
             // Generate filename
-            const filename = generateFilename(name);
+            const filename = await generateFilenameFromDatabaseId(connection, id);
             const filepath = path.join(outputDir, filename);
             console.log(`Target filename: ${filename}`);
 
