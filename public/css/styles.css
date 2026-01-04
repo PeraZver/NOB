@@ -16,12 +16,11 @@ body {
 
 .main-title {
     font-size: 72px; /* Large, monumental font size */
-    font-family: 'Russo One', sans-serif; /* Bold, geometric font */
     font-weight: bold;
     color: black;
     letter-spacing: 5px; /* Add spacing between letters */
     display: block; /* Ensure block-level alignment */
-    width: 100%; /* Full width for alignment */
+    margin-bottom: 10px;
 }
 
 .subtitle {
@@ -32,8 +31,6 @@ body {
     margin-top: 10px;
     letter-spacing: 1px; /* Slight spacing for readability */
     display: block; /* Ensure block-level alignment */
-    width: 100%; /* Full width for alignment */
-    text-align: center; /* Center the text within the block */
 }
 
 .container {
@@ -206,13 +203,15 @@ body {
 
 /* Search Box */
 .search-container {
-	position: relative; /* Relative to the menu container */
-    margin-left: 535px; /* Push it to the far right */
-    margin-top: -30px;
-    width: 225px; /* Keep the width consistent */
-    text-align: left; /* Align content to the right */
-    z-index: 1000; /* Ensure it stays on top */
+  position: absolute;
+  right: 0;     /* ← aligns its right edge with the parent’s right edge */
+  top: 0;       /* optional: adjust vertical placement */
+  width: auto;
+  text-align: left;
+  margin-top: -30px;
+  z-index: 1000;
 }
+
 
 #search-box {
 	width: 100%;
@@ -220,6 +219,7 @@ body {
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	font-size: 14px;
+    box-sizing: border-box;
 }
 
 .suggestions {
