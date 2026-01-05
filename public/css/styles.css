@@ -7,8 +7,8 @@ body {
 
 .title {
     text-align: center;
-    margin-top: 50px;
-    margin-bottom: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     font-size: 42px;
     font-weight: bold;
     font-family: 'Russo One', sans-serif; /* Bold, geometric font */
@@ -20,7 +20,6 @@ body {
     color: black;
     letter-spacing: 5px; /* Add spacing between letters */
     display: block; /* Ensure block-level alignment */
-    margin-bottom: 10px;
 }
 
 .subtitle {
@@ -28,7 +27,6 @@ body {
     font-weight: normal;
     color: black;
     font-family: 'Red October', sans-serif;
-    margin-top: 10px;
     letter-spacing: 1px; /* Slight spacing for readability */
     display: block; /* Ensure block-level alignment */
 }
@@ -39,6 +37,14 @@ body {
     flex-direction: column;
     align-items: center;
 }
+
+.menu-wrapper {
+    display: flex;
+    flex-direction: column; /* search above menu */
+    align-items: flex-end;  /* right-align both elements */
+    position: relative;
+}
+
 
 .menu-section {
     display: flex;
@@ -203,7 +209,6 @@ body {
 
 /* Search Box */
 .search-container {
-  position: absolute;
   right: 0;     /* ← aligns its right edge with the parent’s right edge */
   top: 0;       /* optional: adjust vertical placement */
   width: auto;
@@ -223,10 +228,8 @@ body {
 }
 
 .suggestions {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    width: 100%;
+    position: absolute; 
+    width: auto;
     background: white;
     border: 1px solid #ccc;
     border-radius: 4px;
