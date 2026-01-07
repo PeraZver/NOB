@@ -426,8 +426,23 @@ body {
 
     .menu li {
         margin: 5px 0;
-        width: 100%;
+        width: 50%;
         text-align: center;
+    }
+
+    /* Years menu - overlay the main menu on mobile */
+    .menu-section {
+        position: relative;
+    }
+
+    .years-menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        z-index: 100;
+        margin-top: 0;
     }
 
     /* Map and sidebar adjustments for mobile */
