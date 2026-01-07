@@ -279,11 +279,13 @@ body {
     background: #f0f0f0;
     border: 2px solid #ccc;
     border-radius: 5px;
-    padding: 10px;
+    padding: 0;
     cursor: pointer;
     width: 50px;
     height: 50px;
     transition: background-color 0.3s;
+    align-items: center;
+    justify-content: center;
 }
 
 .menu-toggle:hover {
@@ -298,9 +300,12 @@ body {
 /* Hamburger icon lines */
 .hamburger-icon {
     display: block;
-    position: relative;
-    width: 30px;
-    height: 3px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px;
+    height: 2px;
     background: #333;
     transition: background 0.3s;
 }
@@ -309,18 +314,19 @@ body {
 .hamburger-icon::after {
     content: '';
     position: absolute;
-    width: 30px;
-    height: 3px;
+    left: 0;
+    width: 26px;
+    height: 2px;
     background: #333;
     transition: transform 0.3s, top 0.3s;
 }
 
 .hamburger-icon::before {
-    top: -10px;
+    top: -8px;
 }
 
 .hamburger-icon::after {
-    top: 10px;
+    top: 8px;
 }
 
 /* Hamburger icon animation when menu is open */
@@ -444,38 +450,41 @@ body {
         height: 50vh;
         margin: 0;
         border: 1px solid black;
+        order: 1;
     }
 
-    /* Override desktop transform for mobile */
+    /* Override desktop transform for mobile - map should never slide */
     #map,
-    .map-sidebar-container #map {
+    .map-sidebar-container #map,
+    .map-sidebar-container .sidebar.visible + #map {
         transform: none;
     }
 
-    /* Sidebar positioning for mobile */
+    /* Sidebar positioning for mobile - appears below map */
     .sidebar {
         position: relative;
         left: 0;
         width: 100%;
         transform: none;
-        margin-top: 10px;
+        margin-top: 0;
         max-height: none;
         overflow-y: auto;
+        order: 2;
+        display: none;
     }
 
     .sidebar.visible {
         display: block;
-        left: 0;
     }
 
     /* Content in sidebar */
     .content {
         width: 100%;
+        display: block;
     }
-
-    /* Override desktop transforms */
-    .map-sidebar-container .sidebar.visible + #map {
-        transform: none;
+    
+    .content.visible {
+        display: block;
     }
 }
 
