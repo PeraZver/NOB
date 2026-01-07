@@ -21,6 +21,11 @@
 		</div>
 	</div>
 	<div class="container">
+		<!-- Hamburger Menu Button (visible on mobile) -->
+		<button id="menu-toggle" class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+			<span class="hamburger-icon"></span>
+		</button>
+		
 		<div class="menu-wrapper">	
 		<!-- Search Box -->
 		<div class="search-container">
@@ -28,7 +33,7 @@
 			<div id="suggestions" class="suggestions"></div>
 		</div>
 		<!-- Menu Section -->
-		<div class="menu-section">
+		<nav class="menu-section" id="menu-section" role="navigation" aria-label="Main navigation">
 			<ul class="menu">
 				<li id="toggleYearsMenu" class="calendar-button" title="Toggle year filter">📅</li>
 				<li id="toggleOccupiedTerritory">Occupation</li>
@@ -59,7 +64,7 @@
 				<li id="month11" class="month-button" data-month="11">Nov</li>
 				<li id="month12" class="month-button" data-month="12">Dec</li>
 			</ul>
-		</div>
+		</nav>
 		</div>
 		<!-- Map and Sidebar Container -->
 		<div class="map-sidebar-container">
@@ -71,6 +76,7 @@
 			<div id="map" style="height: 100vh;"></div>
 		</div>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+		<script src="js/menu.js"></script>
 		<script type="module" src="js/map.js"></script>
 		<script type="module" src="js/search.js"></script>
 	</div>

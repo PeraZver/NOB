@@ -264,3 +264,231 @@ body {
 .marker-label::before {
     content: none;
 }
+
+/* ============================================
+   RESPONSIVE DESIGN - Mobile/Tablet Styles
+   ============================================ */
+
+/* Hamburger Menu Button - Hidden on desktop */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    transition: background-color 0.3s;
+}
+
+.menu-toggle:hover {
+    background-color: #e0e0e0;
+}
+
+.menu-toggle:focus {
+    outline: 2px solid #2196F3;
+    outline-offset: 2px;
+}
+
+/* Hamburger icon lines */
+.hamburger-icon {
+    display: block;
+    position: relative;
+    width: 30px;
+    height: 3px;
+    background: #333;
+    transition: background 0.3s;
+}
+
+.hamburger-icon::before,
+.hamburger-icon::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 3px;
+    background: #333;
+    transition: transform 0.3s, top 0.3s;
+}
+
+.hamburger-icon::before {
+    top: -10px;
+}
+
+.hamburger-icon::after {
+    top: 10px;
+}
+
+/* Hamburger icon animation when menu is open */
+.menu-toggle.active .hamburger-icon {
+    background: transparent;
+}
+
+.menu-toggle.active .hamburger-icon::before {
+    top: 0;
+    transform: rotate(45deg);
+}
+
+.menu-toggle.active .hamburger-icon::after {
+    top: 0;
+    transform: rotate(-45deg);
+}
+
+/* Media Query for Mobile and Tablet Devices */
+@media screen and (max-width: 768px) {
+    /* Show hamburger menu button on mobile */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Title adjustments for mobile */
+    .title {
+        margin-top: 5px;
+        margin-bottom: 10px;
+        font-size: 28px;
+    }
+
+    .main-title {
+        font-size: 48px;
+        letter-spacing: 3px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+
+    /* Container adjustments */
+    .container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Menu wrapper positioning */
+    .menu-wrapper {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: white;
+        box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        transition: right 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 80px 20px 20px 20px;
+        overflow-y: auto;
+    }
+
+    /* Show menu when active */
+    .menu-wrapper.active {
+        right: 0;
+    }
+
+    /* Search container in mobile menu */
+    .search-container {
+        position: relative;
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    /* Menu section in mobile */
+    .menu-section {
+        width: 100%;
+        align-items: stretch;
+    }
+
+    /* Menu layout changes for mobile */
+    .menu {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .menu li {
+        margin: 5px 0;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Years and months menu in mobile */
+    .years-menu,
+    .months-menu {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .years-menu li,
+    .months-menu li {
+        margin: 5px 0;
+        width: 100%;
+    }
+
+    /* Map and sidebar container adjustments */
+    .map-sidebar-container {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 0;
+    }
+
+    /* Map takes full width on mobile */
+    #map {
+        width: 100% !important;
+        height: 50vh !important;
+        margin: 0;
+        border: 1px solid black;
+        transform: none !important; /* Override desktop transform */
+    }
+
+    /* Sidebar positioning for mobile */
+    .sidebar {
+        position: relative;
+        left: 0 !important;
+        width: 100% !important;
+        transform: none !important;
+        margin-top: 10px;
+        max-height: none;
+        overflow-y: auto;
+    }
+
+    .sidebar.visible {
+        display: block;
+    }
+
+    /* Content in sidebar */
+    .content {
+        width: 100%;
+    }
+
+    /* Override desktop transforms */
+    .map-sidebar-container .sidebar.visible + #map {
+        transform: none !important;
+    }
+}
+
+/* Larger tablets */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    #map {
+        width: 60%;
+    }
+
+    .sidebar {
+        width: 40%;
+        left: -40%;
+    }
+
+    .sidebar.visible {
+        left: 0;
+    }
+
+    .map-sidebar-container .sidebar.visible + #map {
+        transform: translateX(40%);
+    }
+}
