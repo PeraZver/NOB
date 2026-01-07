@@ -96,10 +96,9 @@ body {
 
 .years-menu {
     position: absolute;
-    bottom: 100%;
+    top: 0;
     left: 0;
     right: 0;
-    margin-bottom: 10px;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -107,21 +106,19 @@ body {
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 201;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-bottom 0.3s ease-out;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .years-menu.visible {
     max-height: 200px;
     opacity: 1;
-    margin-bottom: 5px;
 }
 
 .months-menu {
     position: absolute;
-    bottom: 100%;
+    top: 0;
     left: 0;
     right: 0;
-    margin-bottom: 10px;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -129,13 +126,12 @@ body {
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 202;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-bottom 0.3s ease-out;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .months-menu.visible {
     max-height: 200px;
     opacity: 1;
-    margin-bottom: 5px;
 }
 
 .month-button {
