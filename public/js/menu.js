@@ -5,7 +5,7 @@
  * Includes accessibility features (ARIA attributes, keyboard navigation).
  * 
  * Created: 01/2026
- * Authors: Pero & Github Copilot
+ * Authors: Pero & GitHub Copilot
  */
 
 // Wait for DOM to be fully loaded
@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
         menuToggle.classList.add('active');
         menuToggle.setAttribute('aria-expanded', 'true');
         
-        // Focus first menu item for accessibility
-        const firstMenuItem = menuSection.querySelector('li, input');
-        if (firstMenuItem) {
-            firstMenuItem.focus();
+        // Focus first focusable element for accessibility
+        const searchBox = document.getElementById('search-box');
+        if (searchBox) {
+            searchBox.focus();
         }
     }
 
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Close menu when a main menu item is clicked (on mobile)
-    const menuItems = document.querySelectorAll('.menu:first-of-type > li');
+    const menuItems = document.querySelectorAll('#main-menu-list > li');
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
             // Check if we're on mobile by checking if menu toggle is visible
