@@ -36,6 +36,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    z-index: 10;
 }
 
 .menu-wrapper {
@@ -50,7 +51,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 100;
+    z-index: 200;
+    position: relative;
 }
 
 .menu {
@@ -93,33 +95,49 @@ body {
 }
 
 .years-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     margin-top: 10px;
     margin-bottom: 0;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 201;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out;
 }
 
 .years-menu.visible {
-    max-height: 100px;
+    max-height: 150px;
     opacity: 1;
-    margin-bottom: 20px;
+    margin-top: 5px;
 }
 
 .months-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
     margin-top: 10px;
     margin-bottom: 0;
     max-height: 0;
     overflow: hidden;
     opacity: 0;
-    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 202;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out;
 }
 
 .months-menu.visible {
-    max-height: 100px;
+    max-height: 150px;
     opacity: 1;
-    margin-bottom: 20px;
+    margin-top: 5px;
 }
 
 .month-button {
@@ -156,6 +174,7 @@ body {
     display: flex;
     justify-content: center;
     transition: margin-top 0.4s ease-out;
+    z-index: 1;
 }
 
 #map {

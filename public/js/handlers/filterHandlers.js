@@ -5,11 +5,16 @@
  * with the calendar filter UI and refreshes map layers based on selected date ranges.
  * 
  * Created: 11/2025
- * Authors: Pero & Github Copilot
+ * Authors: Pero & GitHub Copilot
  */
 
 import layerState from '../layerState.js';
 import { refreshAllVisibleLayers } from '../map_layers.js';
+
+// Auto-hide timers
+let yearsMenuTimer = null;
+let monthsMenuTimer = null;
+const AUTO_HIDE_DELAY = 5000; // 5 seconds
 
 /**
  * Clear year and month filter
@@ -21,6 +26,47 @@ export function clearYearFilter() {
     const allMonthButtons = document.querySelectorAll('.month-button');
     allYearButtons.forEach(btn => btn.classList.remove('active'));
     allMonthButtons.forEach(btn => btn.classList.remove('active'));
+}
+
+/**
+ * Auto-hide years menu after delay
+ */
+function startYearsMenuTimer() {
+    clearTimeout(yearsMenuTimer);
+    yearsMenuTimer = setTimeout(() => {
+        const yearsMenu = document.getElementById('yearsMenu');
+        const monthsMenu = document.getElementById('monthsMenu');
+        const calendarButton = document.getElementById('toggleYearsMenu');
+        
+        yearsMenu.classList.remove('visible');
+        monthsMenu.classList.remove('visible');
+        calendarButton.classList.remove('active');
+    }, AUTO_HIDE_DELAY);
+}
+
+/**
+ * Auto-hide months menu after delay
+ */
+function startMonthsMenuTimer() {
+    clearTimeout(monthsMenuTimer);
+    monthsMenuTimer = setTimeout(() => {
+        const monthsMenu = document.getElementById('monthsMenu');
+        monthsMenu.classList.remove('visible');
+    }, AUTO_HIDE_DELAY);
+}
+
+/**
+ * Cancel auto-hide timer for years menu
+ */
+function cancelYearsMenuTimer() {
+    clearTimeout(yearsMenuTimer);
+}
+
+/**
+ * Cancel auto-hide timer for months menu
+ */
+function cancelMonthsMenuTimer() {
+    clearTimeout(monthsMenuTimer);
 }
 
 /**
@@ -39,6 +85,10 @@ export function handleYearFilter(year) {
         return; // Do nothing if no unit layer is visible
     }
     
+    // Cancel previous timers
+    cancelYearsMenuTimer();
+    cancelMonthsMenuTimer();
+    
     // Toggle year selection
     const yearButton = document.getElementById(`year${year}`);
     const allYearButtons = document.querySelectorAll('.year-button');
@@ -54,6 +104,9 @@ export function handleYearFilter(year) {
         // Hide months menu and clear month selection
         monthsMenu.classList.remove('visible');
         allMonthButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Restart years menu timer
+        startYearsMenuTimer();
     } else {
         // Select new year
         layerState.selectedYear = year;
@@ -70,6 +123,9 @@ export function handleYearFilter(year) {
         
         // Clear any previously selected month
         allMonthButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // Start months menu timer
+        startMonthsMenuTimer();
     }
     
     // Refresh all visible layers with the new filter
@@ -85,6 +141,9 @@ export function handleMonthFilter(month) {
     if (!layerState.selectedYear) {
         return; // Do nothing if no year is selected
     }
+    
+    // Cancel previous timer
+    cancelMonthsMenuTimer();
     
     const monthButton = document.getElementById(`month${month}`);
     const allMonthButtons = document.querySelectorAll('.month-button');
@@ -104,6 +163,9 @@ export function handleMonthFilter(month) {
         monthButton.classList.add('active');
     }
     
+    // Start months menu timer
+    startMonthsMenuTimer();
+    
     // Refresh all visible layers with the new filter
     refreshAllVisibleLayers();
 }
@@ -115,6 +177,10 @@ export function handleCalendarToggle() {
     const yearsMenu = document.getElementById('yearsMenu');
     const monthsMenu = document.getElementById('monthsMenu');
     const calendarButton = document.getElementById('toggleYearsMenu');
+    
+    // Cancel previous timers
+    cancelYearsMenuTimer();
+    cancelMonthsMenuTimer();
     
     if (yearsMenu.classList.contains('visible')) {
         // Hide years and months menus
@@ -131,5 +197,39 @@ export function handleCalendarToggle() {
         // Show years menu (months menu stays hidden until year is selected)
         yearsMenu.classList.add('visible');
         calendarButton.classList.add('active');
+        
+        // Start auto-hide timer
+        startYearsMenuTimer();
     }
+}
+
+// Add mouse enter/leave handlers to cancel/restart timers
+export function setupCalendarHoverHandlers() {
+    const yearsMenu = document.getElementById('yearsMenu');
+    const monthsMenu = document.getElementById('monthsMenu');
+    const calendarButton = document.getElementById('toggleYearsMenu');
+    
+    // Years menu hover handlers
+    yearsMenu.addEventListener('mouseenter', cancelYearsMenuTimer);
+    yearsMenu.addEventListener('mouseleave', () => {
+        if (yearsMenu.classList.contains('visible')) {
+            startYearsMenuTimer();
+        }
+    });
+    
+    // Months menu hover handlers
+    monthsMenu.addEventListener('mouseenter', cancelMonthsMenuTimer);
+    monthsMenu.addEventListener('mouseleave', () => {
+        if (monthsMenu.classList.contains('visible')) {
+            startMonthsMenuTimer();
+        }
+    });
+    
+    // Calendar button hover handlers
+    calendarButton.addEventListener('mouseenter', cancelYearsMenuTimer);
+    calendarButton.addEventListener('mouseleave', () => {
+        if (yearsMenu.classList.contains('visible')) {
+            startYearsMenuTimer();
+        }
+    });
 }

@@ -11,7 +11,7 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
-import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter } from './handlers/filterHandlers.js';
+import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
@@ -44,21 +44,30 @@ export function toggleSidebar(layerName, shouldRemoveLayer = true) {
         if (sidebar.classList.contains('visible')) {
             if (shouldRemoveLayer) {
                 sidebar.classList.remove('visible');
-                mapElement.style.transform = 'translateX(0)';
+                // Only apply transform on desktop (not mobile)
+                if (window.innerWidth > 768) {
+                    mapElement.style.transform = 'translateX(0)';
+                }
                 content.classList.remove('visible');
                 removeLayer(layerName);
                 clearYearFilter();
             }
         } else {
             sidebar.classList.add('visible');
-            mapElement.style.transform = 'translateX(50%)';
+            // Only apply transform on desktop (not mobile)
+            if (window.innerWidth > 768) {
+                mapElement.style.transform = 'translateX(50%)';
+            }
             content.classList.add('visible');
             showLayerByName(layerName);
         }
     } else {
         // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
-        mapElement.style.transform = 'translateX(50%)';
+        // Only apply transform on desktop (not mobile)
+        if (window.innerWidth > 768) {
+            mapElement.style.transform = 'translateX(50%)';
+        }
         content.classList.add('visible');
         if (shouldRemoveLayer) {
             removeLayer(layerName);
@@ -152,3 +161,6 @@ document.getElementById('year1945').addEventListener('click', () => handleYearFi
 for (let month = 1; month <= 12; month++) {
     document.getElementById(`month${month}`).addEventListener('click', () => handleMonthFilter(month));
 }
+
+// Setup calendar hover handlers for auto-hide functionality
+setupCalendarHoverHandlers();
