@@ -82,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Close menu when a menu item is clicked (on mobile)
-    const menuItems = document.querySelectorAll('.menu li');
+    // Close menu when a main menu item is clicked (on mobile)
+    const menuItems = document.querySelectorAll('.menu:first-of-type > li');
     menuItems.forEach(item => {
         item.addEventListener('click', function() {
             // Check if we're on mobile by checking if menu toggle is visible
