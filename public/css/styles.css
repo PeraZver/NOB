@@ -99,8 +99,10 @@ body {
     top: 0;
     left: 0;
     right: 0;
+    padding-top: 50px;
     max-height: 0;
     overflow: hidden;
+    overflow-y: auto;
     opacity: 0;
     background: white;
     border-radius: 5px;
@@ -110,7 +112,7 @@ body {
 }
 
 .years-menu.visible {
-    max-height: 200px;
+    max-height: 300px;
     opacity: 1;
 }
 
@@ -119,8 +121,10 @@ body {
     top: 0;
     left: 0;
     right: 0;
+    padding-top: 50px;
     max-height: 0;
     overflow: hidden;
+    overflow-y: auto;
     opacity: 0;
     background: white;
     border-radius: 5px;
@@ -130,13 +134,15 @@ body {
 }
 
 .months-menu.visible {
-    max-height: 200px;
+    max-height: 350px;
     opacity: 1;
 }
 
 .month-button {
     font-size: 12px;
     padding: 6px 10px;
+    max-width: 80px;
+    margin: 5px auto;
 }
 
 .month-button.active {
@@ -154,6 +160,8 @@ body {
 .year-button {
     font-size: 14px;
     padding: 8px 15px;
+    max-width: 100px;
+    margin: 5px auto;
 }
 
 .year-button.active {
