@@ -1,110 +1,104 @@
 /**
- * menu.js - This file is part of the NOB web project.
+ * menu.js - Mobile menu functionality
  * 
- * Handles responsive menu toggle functionality for mobile devices.
- * Includes accessibility features (ARIA attributes, keyboard navigation).
- * 
- * Created: 01/2026
- * Authors: Pero & GitHub Copilot
+ * Handles hamburger menu toggle for mobile devices only (≤768px)
+ * Desktop functionality remains unchanged
  */
 
-// Wait for DOM to be fully loaded
+// Only run on mobile devices
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
+// Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.getElementById('menu-toggle');
     const menuWrapper = document.querySelector('.menu-wrapper');
-    const menuSection = document.getElementById('menu-section');
-
-    // Function to toggle menu
-    function toggleMenu() {
-        const isOpen = menuWrapper.classList.contains('active');
-        
-        if (isOpen) {
-            closeMenu();
-        } else {
-            openMenu();
-        }
-    }
-
-    // Function to open menu
-    function openMenu() {
-        menuWrapper.classList.add('active');
-        menuToggle.classList.add('active');
-        menuToggle.setAttribute('aria-expanded', 'true');
-        
-        // Focus first focusable element for accessibility
-        const searchBox = document.getElementById('search-box');
-        if (searchBox) {
-            searchBox.focus();
-        }
-    }
-
-    // Function to close menu
-    function closeMenu() {
-        menuWrapper.classList.remove('active');
-        menuToggle.classList.remove('active');
-        menuToggle.setAttribute('aria-expanded', 'false');
+    const menuItems = document.querySelectorAll('#main-menu-list li');
+    
+    if (!menuToggle || !menuWrapper) {
+        return; // Exit if elements don't exist
     }
 
     // Toggle menu on button click
-    if (menuToggle) {
-        menuToggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleMenu();
-        });
-    }
-
-    // Close menu when clicking outside
-    document.addEventListener('click', function(e) {
-        const isClickInsideMenu = menuWrapper.contains(e.target);
-        const isClickOnToggle = menuToggle.contains(e.target);
+    menuToggle.addEventListener('click', function() {
+        if (!isMobile()) return; // Only work on mobile
         
-        if (!isClickInsideMenu && !isClickOnToggle && menuWrapper.classList.contains('active')) {
-            closeMenu();
+        const isActive = menuWrapper.classList.contains('active');
+        
+        if (isActive) {
+            // Close menu
+            menuWrapper.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        } else {
+            // Open menu
+            menuWrapper.classList.add('active');
+            menuToggle.classList.add('active');
+            menuToggle.setAttribute('aria-expanded', 'true');
+            
+            // Focus on search box when menu opens
+            const searchBox = document.getElementById('search-box');
+            if (searchBox) {
+                setTimeout(() => searchBox.focus(), 300);
+            }
         }
     });
 
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        // Close menu on Escape key
-        if (e.key === 'Escape' && menuWrapper.classList.contains('active')) {
-            closeMenu();
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!isMobile()) return; // Only work on mobile
+        
+        if (menuWrapper.classList.contains('active')) {
+            if (!menuWrapper.contains(event.target) && !menuToggle.contains(event.target)) {
+                menuWrapper.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        }
+    });
+
+    // Close menu on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (!isMobile()) return; // Only work on mobile
+        
+        if (event.key === 'Escape' && menuWrapper.classList.contains('active')) {
+            menuWrapper.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
             menuToggle.focus();
         }
     });
 
-    // Handle Enter key on menu toggle button
-    if (menuToggle) {
-        menuToggle.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                toggleMenu();
-            }
-        });
-    }
-
-    // Close menu when a main menu item is clicked (on mobile)
-    const menuItems = document.querySelectorAll('#main-menu-list > li');
-    menuItems.forEach(item => {
+    // Close menu when menu item is clicked (on mobile only)
+    const mainMenuItems = document.querySelectorAll('.menu li');
+    mainMenuItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Check if we're on mobile by checking if menu toggle is visible
-            if (window.getComputedStyle(menuToggle).display !== 'none') {
-                // Small delay to allow the action to register before closing
-                setTimeout(() => {
-                    closeMenu();
-                }, 300);
+            if (!isMobile()) return; // Only work on mobile
+            
+            // Don't close if clicking calendar button or year/month buttons
+            if (item.classList.contains('calendar-button') || 
+                item.classList.contains('year-button') || 
+                item.classList.contains('month-button')) {
+                return;
             }
+            
+            // Close menu after selection
+            setTimeout(() => {
+                menuWrapper.classList.remove('active');
+                menuToggle.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }, 100);
         });
     });
 
-    // Handle window resize - close menu if resizing to desktop
-    let resizeTimer;
+    // Handle window resize
     window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            // If resized to desktop view, close mobile menu
-            if (window.innerWidth > 768 && menuWrapper.classList.contains('active')) {
-                closeMenu();
-            }
-        }, 250);
+        if (window.innerWidth > 768) {
+            // On desktop, ensure menu is not in mobile state
+            menuWrapper.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
     });
 });

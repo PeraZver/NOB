@@ -36,7 +36,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 10;
 }
 
 .menu-wrapper {
@@ -51,8 +50,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 200;
-    position: relative;
+    z-index: 100;
 }
 
 .menu {
@@ -95,54 +93,38 @@ body {
 }
 
 .years-menu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding-top: 50px;
+    margin-top: 10px;
+    margin-bottom: 0;
     max-height: 0;
     overflow: hidden;
-    overflow-y: auto;
     opacity: 0;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 201;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
 }
 
 .years-menu.visible {
-    max-height: 300px;
+    max-height: 100px;
     opacity: 1;
+    margin-bottom: 20px;
 }
 
 .months-menu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding-top: 50px;
+    margin-top: 10px;
+    margin-bottom: 0;
     max-height: 0;
     overflow: hidden;
-    overflow-y: auto;
     opacity: 0;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 202;
-    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, margin-bottom 0.4s ease-out;
 }
 
 .months-menu.visible {
-    max-height: 350px;
+    max-height: 100px;
     opacity: 1;
+    margin-bottom: 20px;
 }
 
 .month-button {
     font-size: 12px;
     padding: 6px 10px;
-    max-width: 80px;
-    margin: 5px auto;
 }
 
 .month-button.active {
@@ -160,8 +142,6 @@ body {
 .year-button {
     font-size: 14px;
     padding: 8px 15px;
-    max-width: 100px;
-    margin: 5px auto;
 }
 
 .year-button.active {
@@ -176,7 +156,6 @@ body {
     display: flex;
     justify-content: center;
     transition: margin-top 0.4s ease-out;
-    z-index: 1;
 }
 
 #map {
@@ -287,89 +266,90 @@ body {
 }
 
 /* ============================================
-   RESPONSIVE DESIGN - Mobile/Tablet Styles
+   RESPONSIVE DESIGN - Mobile Only (≤768px)
+   Desktop remains completely unchanged
    ============================================ */
 
-/* Hamburger Menu Button - Hidden on desktop */
+/* Hamburger Menu Button - Hidden on desktop, shown on mobile */
 .menu-toggle {
-    display: none;
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1001;
-    background: #f0f0f0;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    padding: 0;
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    transition: background-color 0.3s;
-    align-items: center;
-    justify-content: center;
+    display: none; /* Hidden by default on desktop */
 }
 
-.menu-toggle:hover {
-    background-color: #e0e0e0;
-}
-
-.menu-toggle:focus {
-    outline: 2px solid #2196F3;
-    outline-offset: 2px;
-}
-
-/* Hamburger icon lines */
-.hamburger-icon {
-    display: block;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 26px;
-    height: 2px;
-    background: #333;
-    transition: background 0.3s;
-}
-
-.hamburger-icon::before,
-.hamburger-icon::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    width: 26px;
-    height: 2px;
-    background: #333;
-    transition: transform 0.3s, top 0.3s;
-}
-
-.hamburger-icon::before {
-    top: -8px;
-}
-
-.hamburger-icon::after {
-    top: 8px;
-}
-
-/* Hamburger icon animation when menu is open */
-.menu-toggle.active .hamburger-icon {
-    background: transparent;
-}
-
-.menu-toggle.active .hamburger-icon::before {
-    top: 0;
-    transform: rotate(45deg);
-}
-
-.menu-toggle.active .hamburger-icon::after {
-    top: 0;
-    transform: rotate(-45deg);
-}
-
-/* Media Query for Mobile and Tablet Devices */
+/* Media Query for Mobile Devices ONLY */
 @media screen and (max-width: 768px) {
     /* Show hamburger menu button on mobile */
     .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        background: #f0f0f0;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        padding: 0;
+        cursor: pointer;
+        width: 50px;
+        height: 50px;
+        transition: background-color 0.3s;
+    }
+
+    .menu-toggle:hover {
+        background-color: #e0e0e0;
+    }
+
+    .menu-toggle:focus {
+        outline: 2px solid #2196F3;
+        outline-offset: 2px;
+    }
+
+    /* Hamburger icon lines */
+    .hamburger-icon {
         display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 26px;
+        height: 2px;
+        background: #333;
+        transition: background 0.3s;
+    }
+
+    .hamburger-icon::before,
+    .hamburger-icon::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 26px;
+        height: 2px;
+        background: #333;
+        transition: transform 0.3s, top 0.3s;
+    }
+
+    .hamburger-icon::before {
+        top: -8px;
+    }
+
+    .hamburger-icon::after {
+        top: 8px;
+    }
+
+    /* Hamburger icon animation when menu is open */
+    .menu-toggle.active .hamburger-icon {
+        background: transparent;
+    }
+
+    .menu-toggle.active .hamburger-icon::before {
+        top: 0;
+        transform: rotate(45deg);
+    }
+
+    .menu-toggle.active .hamburger-icon::after {
+        top: 0;
+        transform: rotate(-45deg);
     }
 
     /* Title adjustments for mobile */
@@ -394,7 +374,7 @@ body {
         align-items: stretch;
     }
 
-    /* Menu wrapper positioning */
+    /* Menu wrapper - slide in from right on mobile */
     .menu-wrapper {
         position: fixed;
         top: 0;
@@ -427,13 +407,18 @@ body {
         text-align: left;
     }
 
+    #search-box {
+        width: 100%;
+    }
+
     /* Menu section in mobile */
     .menu-section {
         width: 100%;
+        display: flex;
+        flex-direction: column;
         align-items: stretch;
     }
 
-    /* Menu layout changes for mobile */
     .menu {
         flex-direction: column;
         width: 100%;
@@ -445,51 +430,26 @@ body {
         text-align: center;
     }
 
-    /* Years and months menu in mobile */
-    .years-menu,
-    .months-menu {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .years-menu li,
-    .months-menu li {
-        margin: 5px 0;
-        width: 100%;
-    }
-
-    /* Map and sidebar container adjustments */
+    /* Map and sidebar adjustments for mobile */
     .map-sidebar-container {
+        display: flex;
         flex-direction: column;
         width: 100%;
-        margin-top: 0;
+        height: auto;
     }
 
-    /* Map takes full width on mobile */
     #map {
-        width: 100%;
-        height: 50vh;
-        margin: 0;
-        border: 1px solid black;
+        width: 100% !important;
+        height: 60vh !important;
         order: 1;
+        transform: none !important; /* Never slide map on mobile */
     }
 
-    /* Override desktop transform for mobile - map should never slide */
-    #map,
-    .map-sidebar-container #map,
-    .map-sidebar-container .sidebar.visible + #map {
-        transform: none;
-    }
-
-    /* Sidebar positioning for mobile - appears below map */
     .sidebar {
-        position: relative;
-        left: 0;
-        width: 100%;
-        transform: none;
-        margin-top: 0;
-        max-height: none;
-        overflow-y: auto;
+        position: relative !important;
+        width: 100% !important;
+        height: auto !important;
+        transform: none !important;
         order: 2;
         display: none;
     }
@@ -498,33 +458,8 @@ body {
         display: block;
     }
 
-    /* Content in sidebar */
     .content {
-        width: 100%;
-        display: block;
-    }
-    
-    .content.visible {
-        display: block;
-    }
-}
-
-/* Larger tablets */
-@media screen and (min-width: 769px) and (max-width: 1024px) {
-    #map {
-        width: 60%;
-    }
-
-    .sidebar {
-        width: 40%;
-        left: -40%;
-    }
-
-    .sidebar.visible {
-        left: 0;
-    }
-
-    .map-sidebar-container .sidebar.visible + #map {
-        transform: translateX(40%);
+        max-height: none;
+        overflow-y: visible;
     }
 }
