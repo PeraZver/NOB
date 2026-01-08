@@ -430,19 +430,17 @@ body {
         text-align: center;
     }
 
-    /* Years menu - overlay the main menu on mobile */
-    .menu-section {
-        position: relative;
+    /* Years and months menu - dropdown below calendar icon on mobile */
+    .years-menu,
+    .months-menu {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
     }
 
-    .years-menu {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        z-index: 100;
-        margin-top: 0;
+    .years-menu li,
+    .months-menu li {
+        width: 50%;
     }
 
     /* Map and sidebar adjustments for mobile */
