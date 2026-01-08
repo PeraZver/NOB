@@ -102,7 +102,7 @@ body {
 }
 
 .years-menu.visible {
-    max-height: 100px;
+    max-height: none;
     opacity: 1;
     margin-bottom: 20px;
 }
@@ -117,7 +117,7 @@ body {
 }
 
 .months-menu.visible {
-    max-height: 100px;
+    max-height: none;
     opacity: 1;
     margin-bottom: 20px;
 }
