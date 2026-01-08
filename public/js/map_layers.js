@@ -141,14 +141,14 @@ export function showBattles() {
         layerState.isBattlesLayerVisible = false;
     } else {
         fetch(API_ENDPOINTS.battles)
-            .then(response => {
-                const data = response.json();
+            .then(response => response.json()) // Await the JSON parsing
+            .then(data => {
                 // Store all data for filtering
                 layerState.allLayerData['battlesLayer'] = data;
-                
+
                 // Filter data based on selected year and month using battle-specific filter
                 const filteredData = filterBattlesByDateRange(data, layerState.selectedYear, layerState.selectedMonth);
-                
+
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
                     const icon = icons.battles || L.Icon.Default;
