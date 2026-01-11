@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - appnet
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    volumes:
+      - nob-db:/var/lib/mysql  # Define a named volume for the MySQL data
+      - ./src/db:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: nob
+#    ports:
+#      - "3306:3306"
+    networks:
+      - appnet
+    restart: always
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - appnet
+    depends_on:
+      - app
+
+
+networks:
+  appnet:
+
+volumes:
+  nob-db:

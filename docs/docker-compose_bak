@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - appnet
+    restart: always
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    volumes:
+      - nob-db:/var/lib/mysql  # Define a named volume for the MySQL data
+      - ./src/db:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: nob
+#    ports:
+#      - "3306:3306"
+    networks:
+      - appnet
+    restart: always
+
+  cloudflare-ddns:
+    image: oznu/cloudflare-ddns:latest
+    container_name: cloudflare_ddns
+    restart: always
+    environment:
+      API_KEY: "${CF_API_TOKEN}"
+      ZONE: "nob.hr"
+      SUBDOMAINS: "@,www"
+      PROXIED: "false"
+      # Optional: how often to check/update (seconds)
+      # This image supports periodic updates; if not present it still checks regularly.
+      # Leave default unless you want it faster/slower.
+    networks:
+      - appnet
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+     - ./Caddyfile:/etc/caddy/Caddyfile:ro
+     - caddy-data:/data
+     - caddy-config:/config
+    networks:
+     - appnet
+    depends_on:
+     - app
+
+networks:
+  appnet:
+
+volumes:
+  nob-db:
+  caddy-data:
+  caddy-config:
