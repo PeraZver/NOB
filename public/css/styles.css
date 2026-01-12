@@ -450,7 +450,8 @@ body {
         pointer-events: none;
         z-index: 1002;
         transition: max-height 0.25s ease-out, opacity 0.25s ease-out, padding 0.25s ease-out;
-        margin-top: 6px;
+        margin-top: 0;
+        transform: translateY(-50%);
     }
 
     .years-menu.visible,
@@ -466,7 +467,7 @@ body {
         grid-template-columns: repeat(1, minmax(0, 1fr));
         gap: 12px;
         justify-items: center;
-        margin-top: -50%;
+        /* margin-top: -50%; */
     }
 
     .months-menu {
@@ -474,7 +475,7 @@ body {
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 14px;
         justify-items: center;
-        margin-top: -50%;
+        /* margin-top: -50%; */
     }
 
     .years-menu li,
