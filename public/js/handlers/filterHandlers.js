@@ -50,7 +50,7 @@ export function positionCalendarMenus() {
 
     const wrapperRect = menuWrapper.getBoundingClientRect();
     const buttonRect = calendarButton.getBoundingClientRect();
-    const offsetTop = buttonRect.bottom - wrapperRect.top + menuWrapper.scrollTop + 8;
+    const offsetTop = buttonRect.bottom - wrapperRect.top + menuWrapper.scrollTop + 2;
 
     yearsMenu.style.top = `${offsetTop}px`;
     monthsMenu.style.top = `${offsetTop}px`;
