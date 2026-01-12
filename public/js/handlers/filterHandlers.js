@@ -16,7 +16,7 @@ let yearsMenuTimer = null;
 let monthsMenuTimer = null;
 const MOBILE_BREAKPOINT = 768;
 const DESKTOP_AUTO_HIDE_DELAY = 5000; // 5 seconds
-const MOBILE_AUTO_HIDE_DELAY = 1000;  // 1 second for mobile inactivity
+const MOBILE_AUTO_HIDE_DELAY = 5000;  // 5 seconds for mobile inactivity
 
 function isMobile() {
     return window.innerWidth <= MOBILE_BREAKPOINT;
@@ -91,17 +91,7 @@ function startMonthsMenuTimer() {
     clearTimeout(monthsMenuTimer);
     monthsMenuTimer = setTimeout(() => {
         const monthsMenu = document.getElementById('monthsMenu');
-        const yearsMenu = document.getElementById('yearsMenu');
-        const calendarButton = document.getElementById('toggleYearsMenu');
         monthsMenu.classList.remove('visible');
-        if (isMobile()) {
-            if (yearsMenu) {
-                yearsMenu.classList.remove('visible');
-            }
-            if (calendarButton) {
-                calendarButton.classList.remove('active');
-            }
-        }
     }, getAutoHideDelay());
 }
 

@@ -427,7 +427,7 @@ body {
 
     .menu li {
         margin: 5px 0;
-        width: 50%;
+        width: 70%;
         text-align: center;
     }
 
@@ -462,19 +462,33 @@ body {
 
     .years-menu {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+        grid-template-columns: repeat(1, minmax(0, 1fr));
+        gap: 12px;
+        justify-items: center;
     }
 
     .months-menu {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 8px;
+        gap: 14px;
+        justify-items: center;
     }
 
     .years-menu li,
     .months-menu li {
-        width: 100%;
+        width: 85%;
+    }
+
+    .months-menu li {
+        width: 90%;
+    }
+
+    .months-menu .month-button {
+        padding: 6px 6px;
+    }
+
+    .years-menu .year-button {
+        padding: 8px 10px;
     }
 
     /* Map and sidebar adjustments for mobile */
