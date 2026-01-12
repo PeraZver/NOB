@@ -11,7 +11,7 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
-import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers } from './handlers/filterHandlers.js';
+import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers, positionCalendarMenus } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
@@ -164,3 +164,7 @@ for (let month = 1; month <= 12; month++) {
 
 // Setup calendar hover handlers for auto-hide functionality
 setupCalendarHoverHandlers();
+
+// Ensure calendar dropdowns align under the calendar button on load and resize (mobile only)
+positionCalendarMenus();
+window.addEventListener('resize', positionCalendarMenus);

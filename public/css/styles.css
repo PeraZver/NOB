@@ -417,6 +417,7 @@ body {
         display: flex;
         flex-direction: column;
         align-items: stretch;
+        position: relative;
     }
 
     .menu {
@@ -433,14 +434,47 @@ body {
     /* Years and months menu - dropdown below calendar icon on mobile */
     .years-menu,
     .months-menu {
-        position: static;
-        width: 100%;
-        margin-top: 10px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        margin: 0;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        padding: 0;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 1002;
+        transition: max-height 0.25s ease-out, opacity 0.25s ease-out, padding 0.25s ease-out;
+    }
+
+    .years-menu.visible,
+    .months-menu.visible {
+        opacity: 1;
+        max-height: 340px;
+        padding: 10px;
+        pointer-events: auto;
+    }
+
+    .years-menu {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .months-menu {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
     }
 
     .years-menu li,
     .months-menu li {
-        width: 50%;
+        width: 100%;
     }
 
     /* Map and sidebar adjustments for mobile */

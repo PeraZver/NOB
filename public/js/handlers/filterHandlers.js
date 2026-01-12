@@ -14,7 +14,47 @@ import { refreshAllVisibleLayers } from '../map_layers.js';
 // Auto-hide timers
 let yearsMenuTimer = null;
 let monthsMenuTimer = null;
-const AUTO_HIDE_DELAY = 5000; // 5 seconds
+const MOBILE_BREAKPOINT = 768;
+const DESKTOP_AUTO_HIDE_DELAY = 5000; // 5 seconds
+const MOBILE_AUTO_HIDE_DELAY = 1000;  // 1 second for mobile inactivity
+
+function isMobile() {
+    return window.innerWidth <= MOBILE_BREAKPOINT;
+}
+
+function getAutoHideDelay() {
+    return isMobile() ? MOBILE_AUTO_HIDE_DELAY : DESKTOP_AUTO_HIDE_DELAY;
+}
+
+export function positionCalendarMenus() {
+    const yearsMenu = document.getElementById('yearsMenu');
+    const monthsMenu = document.getElementById('monthsMenu');
+
+    if (!yearsMenu || !monthsMenu) {
+        return;
+    }
+
+    if (!isMobile()) {
+        // Clear positioning when returning to desktop
+        yearsMenu.style.removeProperty('top');
+        monthsMenu.style.removeProperty('top');
+        return;
+    }
+
+    const menuWrapper = document.querySelector('.menu-wrapper');
+    const calendarButton = document.getElementById('toggleYearsMenu');
+
+    if (!menuWrapper || !calendarButton) {
+        return;
+    }
+
+    const wrapperRect = menuWrapper.getBoundingClientRect();
+    const buttonRect = calendarButton.getBoundingClientRect();
+    const offsetTop = buttonRect.bottom - wrapperRect.top + menuWrapper.scrollTop + 8;
+
+    yearsMenu.style.top = `${offsetTop}px`;
+    monthsMenu.style.top = `${offsetTop}px`;
+}
 
 /**
  * Clear year and month filter
@@ -41,7 +81,7 @@ function startYearsMenuTimer() {
         yearsMenu.classList.remove('visible');
         monthsMenu.classList.remove('visible');
         calendarButton.classList.remove('active');
-    }, AUTO_HIDE_DELAY);
+    }, getAutoHideDelay());
 }
 
 /**
@@ -51,8 +91,18 @@ function startMonthsMenuTimer() {
     clearTimeout(monthsMenuTimer);
     monthsMenuTimer = setTimeout(() => {
         const monthsMenu = document.getElementById('monthsMenu');
+        const yearsMenu = document.getElementById('yearsMenu');
+        const calendarButton = document.getElementById('toggleYearsMenu');
         monthsMenu.classList.remove('visible');
-    }, AUTO_HIDE_DELAY);
+        if (isMobile()) {
+            if (yearsMenu) {
+                yearsMenu.classList.remove('visible');
+            }
+            if (calendarButton) {
+                calendarButton.classList.remove('active');
+            }
+        }
+    }, getAutoHideDelay());
 }
 
 /**
@@ -88,6 +138,7 @@ export function handleYearFilter(year) {
     // Cancel previous timers
     cancelYearsMenuTimer();
     cancelMonthsMenuTimer();
+    positionCalendarMenus();
     
     // Toggle year selection
     const yearButton = document.getElementById(`year${year}`);
@@ -195,6 +246,7 @@ export function handleCalendarToggle() {
         refreshAllVisibleLayers();
     } else {
         // Show years menu (months menu stays hidden until year is selected)
+        positionCalendarMenus();
         yearsMenu.classList.add('visible');
         calendarButton.classList.add('active');
         
