@@ -450,6 +450,7 @@ body {
         pointer-events: none;
         z-index: 1002;
         transition: max-height 0.25s ease-out, opacity 0.25s ease-out, padding 0.25s ease-out;
+        margin-top: 6px;
     }
 
     .years-menu.visible,
@@ -477,6 +478,10 @@ body {
     .years-menu li,
     .months-menu li {
         width: 85%;
+    }
+
+    .years-menu li {
+        width: 50%;
     }
 
     .months-menu li {
