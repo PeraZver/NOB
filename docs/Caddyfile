@@ -1,0 +1,4 @@
+nob.hr, www.nob.hr {
+	# Send traffic to your Node app container
+	reverse_proxy app:3000
+}
