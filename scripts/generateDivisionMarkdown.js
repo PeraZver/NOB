@@ -431,19 +431,15 @@ async function processDivisions(jsonFilePath, options = {}) {
             console.log('\n=== DRY RUN MODE - No files will be created ===\n');
         }
 
-        // Connect to database if updating description
-        if (updateDatabase && !dryRun) {
-            try {
-                connection = await mysql.createConnection(dbConfig);
-                console.log('Connected to database for description updates');
-            } catch (error) {
-                console.warn('Warning: Could not connect to database. Description will not be updated.');
-                console.warn(`Database error: ${error.message}`);
-                connection = null;
-            }
+        // Connect to database
+        try {
+            connection = await mysql.createConnection(dbConfig);
+            console.log('Connected to database');
+        } catch (error) {
+            console.error('Error connecting to database:', error.message);
+            return;
         }
 
-        // Ensure output directory exists
         const outputDir = path.join(__dirname, '../public/assets/divisions');
         if (!fs.existsSync(outputDir) && !dryRun) {
             fs.mkdirSync(outputDir, { recursive: true });
@@ -454,7 +450,7 @@ async function processDivisions(jsonFilePath, options = {}) {
         let failed = 0;
 
         for (const division of divisionsData) {
-            const { id, name, wikipedia_url } = division;
+            const { name, wikipedia_url } = division;
 
             if (!wikipedia_url) {
                 console.log(`Skipping ${name} - no Wikipedia URL`);
@@ -464,8 +460,29 @@ async function processDivisions(jsonFilePath, options = {}) {
 
             console.log(`\nProcessing: ${name}`);
 
+            // Fetch division ID from database
+            let id;
+            try {
+                const [rows] = await connection.execute(
+                    'SELECT id FROM divisions WHERE name = ?',
+                    [name]
+                );
+
+                if (rows.length === 0) {
+                    console.warn(`Skipping ${name} - not found in database`);
+                    failed++;
+                    continue;
+                }
+
+                id = rows[0].id;
+            } catch (error) {
+                console.error(`Error fetching ID for ${name}:`, error.message);
+                failed++;
+                continue;
+            }
+
             // Generate filename
-            const filename = await generateFilenameFromDatabaseId(connection, id);
+            const filename = await generateFilenameFromDatabaseId(id);
             const filepath = path.join(outputDir, filename);
             console.log(`Target filename: ${filename}`);
 
