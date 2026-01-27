@@ -184,6 +184,17 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.brigadesLayer);
                 layerState.isBrigadesLayerVisible = false;
                 layerState.brigadesLayer = null;
+                // Hide Campaign button and remove campaign layer when brigades are hidden
+                const campaignButton = document.getElementById('toggleCampaign');
+                if (campaignButton) {
+                    campaignButton.style.display = 'none';
+                }
+                if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+                    map.removeLayer(layerState.campaignsLayer);
+                    layerState.campaignsLayer = null;
+                    layerState.isCampaignsLayerVisible = false;
+                }
+                layerState.selectedBrigadeId = null;
             }
             break;
         case 'Detachments':
@@ -229,6 +240,20 @@ export function removeLayer(layerName) {
 // Function to handle marker clicks
 export function handleMarkerClick(marker, item) {
     console.log('Marker in handleMarkerClick:', marker);
+    
+    // Hide Campaign button for non-brigade markers
+    const campaignButton = document.getElementById('toggleCampaign');
+    if (campaignButton) {
+        campaignButton.style.display = 'none';
+    }
+    // Remove campaign layer if visible
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+    layerState.selectedBrigadeId = null;
+    
     const popupContent = generatePopupContent({
         name: item.name,
         datum_formiranja: item.formation_date,

@@ -32,6 +32,20 @@ map.on('click', function () {
     if (markdownFile) {
         loadDefaultText(markdownFile);
     }
+    
+    // Hide Campaign button when clicking on map
+    const campaignButton = document.getElementById('toggleCampaign');
+    if (campaignButton) {
+        campaignButton.style.display = 'none';
+    }
+    
+    // Remove campaign layer if visible
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+    layerState.selectedBrigadeId = null;
 });
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
