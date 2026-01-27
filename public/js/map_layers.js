@@ -12,6 +12,7 @@ import { map } from './map.js';
 import { updateSidebar, loadDefaultText } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
+import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
@@ -349,8 +350,13 @@ export function showCampaigns() {
                 }
                 
                 // Parse the POINT geometry
-                const [lng, lat] = campaign.geo_location.replace('POINT(', '').replace(')', '').split(' ');
-                const marker = L.marker([lat, lng], { icon: icons.campaigns || L.Icon.Default });
+                const coords = parsePoint(campaign.geo_location);
+                if (!coords) {
+                    console.warn(`Skipping campaign with invalid location: ${campaign.place}`);
+                    return;
+                }
+                
+                const marker = L.marker([coords.lat, coords.lng], { icon: icons.campaigns || L.Icon.Default });
                 
                 // Create tooltip with date and note
                 let tooltipContent = '';
