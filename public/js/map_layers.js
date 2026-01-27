@@ -39,7 +39,7 @@ export function showOccupiedTerritory() {
 }
 
 // Generic function to fetch and display data for a layer
-export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
+export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null, clickHandler = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1);
     const layer = layerState[`${layerName}`];
     const isVisibleFlag = layerState[`is${capitalizedLayerName}Visible`];
@@ -61,7 +61,8 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
                     const icon = icons[group] || L.Icon.Default;
-                    const marker = createMarker(item, icon, handleMarkerClick);
+                    const handler = clickHandler || handleMarkerClick;
+                    const marker = createMarker(item, icon, handler);
                     if (marker) {
                         newLayer.addLayer(marker);
                     } else {
@@ -119,7 +120,12 @@ export function refreshAllVisibleLayers() {
 
                 const icon = icons[layerInfo.group] || L.Icon.Default;
                 // Use appropriate click handler based on layer type
-                const clickHandler = layerInfo.filterType === 'dateRange' ? handleBattleMarkerClick : handleMarkerClick;
+                let clickHandler = handleMarkerClick;
+                if (layerInfo.filterType === 'dateRange') {
+                    clickHandler = handleBattleMarkerClick;
+                } else if (layerInfo.clickHandlerType === 'brigade') {
+                    clickHandler = handleBrigadeMarkerClick;
+                }
                 const marker = createMarker(item, icon, clickHandler);
                 if (marker) {
                     newLayer.addLayer(marker);
@@ -243,6 +249,23 @@ export function handleMarkerClick(marker, item) {
     }
 }
 
+// Function to handle brigade marker clicks
+export function handleBrigadeMarkerClick(marker, item) {
+    console.log('Brigade marker clicked:', marker, item);
+    
+    // Store the selected brigade ID
+    layerState.selectedBrigadeId = item.id;
+    
+    // Show the Campaign button
+    const campaignButton = document.getElementById('toggleCampaign');
+    if (campaignButton) {
+        campaignButton.style.display = 'block';
+    }
+    
+    // Call the regular handler for popup and sidebar
+    handleMarkerClick(marker, item);
+}
+
 // Function to handle battle marker clicks
 export function handleBattleMarkerClick(marker, item) {
     console.log('Battle marker clicked:', marker);
@@ -264,4 +287,105 @@ export function handleBattleMarkerClick(marker, item) {
     } else {
         updateSidebar('<p>No additional details available.</p>');
     }
+}
+
+// Function to show campaign markers for the selected brigade
+export function showCampaigns() {
+    const brigadeId = layerState.selectedBrigadeId;
+    
+    if (!brigadeId) {
+        console.warn('No brigade selected');
+        return;
+    }
+    
+    // If campaigns are already visible, hide them
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+        return;
+    }
+    
+    // Fetch campaigns for the selected brigade
+    fetch(`${API_ENDPOINTS.campaigns}/brigade/${brigadeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                updateSidebar('<p>No campaign data available for this brigade.</p>');
+                return;
+            }
+            
+            const newLayer = L.layerGroup().addTo(map);
+            
+            data.forEach(campaign => {
+                if (!campaign.geo_location) {
+                    console.warn(`Skipping campaign without location: ${campaign.place}`);
+                    return;
+                }
+                
+                // Parse the POINT geometry
+                const [lng, lat] = campaign.geo_location.replace('POINT(', '').replace(')', '').split(' ');
+                const marker = L.marker([lat, lng], { icon: icons.campaigns || L.Icon.Default });
+                
+                // Create tooltip with date and note
+                let tooltipContent = '';
+                if (campaign.date) {
+                    tooltipContent += `<strong>${campaign.date}</strong><br>`;
+                }
+                if (campaign.note) {
+                    tooltipContent += campaign.note;
+                }
+                
+                if (tooltipContent) {
+                    marker.bindTooltip(tooltipContent, {
+                        permanent: false,
+                        direction: 'right',
+                        className: 'campaign-tooltip'
+                    });
+                }
+                
+                // Add popup with full details
+                let popupContent = `<div class="popup-content">`;
+                if (campaign.place) {
+                    popupContent += `<h3>${campaign.place}</h3>`;
+                }
+                if (campaign.date) {
+                    popupContent += `<p><strong>Date:</strong> ${campaign.date}</p>`;
+                }
+                if (campaign.operation) {
+                    popupContent += `<p><strong>Operation:</strong> ${campaign.operation}</p>`;
+                }
+                if (campaign.division) {
+                    popupContent += `<p><strong>Division:</strong> ${campaign.division}</p>`;
+                }
+                if (campaign.note) {
+                    popupContent += `<p><strong>Note:</strong> ${campaign.note}</p>`;
+                }
+                popupContent += `</div>`;
+                
+                marker.bindPopup(popupContent);
+                newLayer.addLayer(marker);
+            });
+            
+            layerState.campaignsLayer = newLayer;
+            layerState.isCampaignsLayerVisible = true;
+            
+            // Update sidebar
+            let sidebarContent = `<h2>Campaign Movement</h2>`;
+            sidebarContent += `<p>Showing ${data.length} campaign location(s)</p>`;
+            sidebarContent += `<ul>`;
+            data.forEach(campaign => {
+                sidebarContent += `<li><strong>${campaign.date || 'Unknown date'}:</strong> ${campaign.place || 'Unknown location'}`;
+                if (campaign.note) {
+                    sidebarContent += ` - ${campaign.note}`;
+                }
+                sidebarContent += `</li>`;
+            });
+            sidebarContent += `</ul>`;
+            updateSidebar(sidebarContent);
+        })
+        .catch(error => {
+            console.error('Error fetching campaigns:', error);
+            updateSidebar('<p>Error loading campaign data.</p>');
+        });
 }
