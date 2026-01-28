@@ -16,6 +16,7 @@ import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
 import { formatCampaignDate } from './utils/dateUtils.js';
+import { catmullRomSpline, createStarShape } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 
 // Function to show/hide occupied territories on the map
@@ -379,7 +380,10 @@ export function showCampaigns() {
             
             // Create polyline if we have at least 2 points
             if (pathCoords.length >= 2) {
-                const campaignPath = L.polyline(pathCoords, {
+                // Apply Catmull-Rom spline smoothing for smoother curves
+                const smoothedCoords = catmullRomSpline(pathCoords, 0.5, 10);
+                
+                const campaignPath = L.polyline(smoothedCoords, {
                     color: '#e74c3c',
                     weight: 4,
                     opacity: 0.6,
@@ -414,6 +418,9 @@ export function showCampaigns() {
                 newLayer.addLayer(decorator);
             }
             
+            // Track the index to identify the first marker (formation site)
+            let campaignIndex = 0;
+            
             data.forEach(campaign => {
                 if (!campaign.geo_location) {
                     console.warn(`Skipping campaign without location: ${campaign.place}`);
@@ -427,15 +434,32 @@ export function showCampaigns() {
                     return;
                 }
                 
-                // Use a simple circle marker instead of icon
-                const marker = L.circleMarker([coords.lat, coords.lng], {
-                    radius: 6,
-                    fillColor: '#e74c3c',
-                    color: '#c0392b',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                });
+                let marker;
+                
+                // First marker (formation site) - use star shape
+                if (campaignIndex === 0) {
+                    // Create a star-shaped polygon marker
+                    const starCoords = createStarShape(coords.lat, coords.lng, 12, 5, 5);
+                    marker = L.polygon(starCoords, {
+                        fillColor: '#f39c12',
+                        color: '#d68910',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    });
+                } else {
+                    // Regular campaign markers - use circle
+                    marker = L.circleMarker([coords.lat, coords.lng], {
+                        radius: 6,
+                        fillColor: '#e74c3c',
+                        color: '#c0392b',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+                
+                campaignIndex++;
                 
                 // Create tooltip with date and operation
                 let tooltipContent = '';
