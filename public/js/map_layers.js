@@ -243,18 +243,15 @@ export function removeLayer(layerName) {
 export function handleMarkerClick(marker, item) {
     console.log('Marker in handleMarkerClick:', marker);
     
-    // Hide Campaign button for non-brigade markers
-    const campaignButton = document.getElementById('toggleCampaign');
-    if (campaignButton) {
-        campaignButton.style.display = 'none';
+    // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+    if (!layerState.isCampaignsLayerVisible) {
+        const campaignButton = document.getElementById('toggleCampaign');
+        if (campaignButton) {
+            campaignButton.style.display = 'none';
+        }
+        layerState.selectedBrigadeId = null;
     }
-    // Remove campaign layer if visible
-    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
-        map.removeLayer(layerState.campaignsLayer);
-        layerState.campaignsLayer = null;
-        layerState.isCampaignsLayerVisible = false;
-    }
-    layerState.selectedBrigadeId = null;
+    // If campaign markers ARE visible, clicking on non-brigade markers has no effect on them
     
     const popupContent = generatePopupContent({
         name: item.name,

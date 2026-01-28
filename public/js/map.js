@@ -33,19 +33,15 @@ map.on('click', function () {
         loadDefaultText(markdownFile);
     }
     
-    // Hide Campaign button when clicking on map
-    const campaignButton = document.getElementById('toggleCampaign');
-    if (campaignButton) {
-        campaignButton.style.display = 'none';
+    // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+    if (!layerState.isCampaignsLayerVisible) {
+        const campaignButton = document.getElementById('toggleCampaign');
+        if (campaignButton) {
+            campaignButton.style.display = 'none';
+        }
+        layerState.selectedBrigadeId = null;
     }
-    
-    // Remove campaign layer if visible
-    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
-        map.removeLayer(layerState.campaignsLayer);
-        layerState.campaignsLayer = null;
-        layerState.isCampaignsLayerVisible = false;
-    }
-    layerState.selectedBrigadeId = null;
+    // If campaign markers ARE visible, clicking on map has no effect on them
 });
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
