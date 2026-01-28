@@ -15,6 +15,7 @@ import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
+import { formatCampaignDate } from './utils/dateUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 
 // Function to show/hide occupied territories on the map
@@ -380,12 +381,20 @@ export function showCampaigns() {
                     return;
                 }
                 
-                const marker = L.marker([coords.lat, coords.lng], { icon: icons.campaigns || L.Icon.Default });
+                // Use a simple circle marker instead of icon
+                const marker = L.circleMarker([coords.lat, coords.lng], {
+                    radius: 6,
+                    fillColor: '#e74c3c',
+                    color: '#c0392b',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
                 
                 // Create tooltip with date and note
                 let tooltipContent = '';
                 if (campaign.date) {
-                    tooltipContent += `<strong>${campaign.date}</strong><br>`;
+                    tooltipContent += `<strong>${formatCampaignDate(campaign.date)}</strong><br>`;
                 }
                 if (campaign.note) {
                     tooltipContent += campaign.note;
@@ -405,7 +414,7 @@ export function showCampaigns() {
                     popupContent += `<h3>${campaign.place}</h3>`;
                 }
                 if (campaign.date) {
-                    popupContent += `<p><strong>Date:</strong> ${campaign.date}</p>`;
+                    popupContent += `<p><strong>Date:</strong> ${formatCampaignDate(campaign.date)}</p>`;
                 }
                 if (campaign.operation) {
                     popupContent += `<p><strong>Operation:</strong> ${campaign.operation}</p>`;
@@ -430,7 +439,7 @@ export function showCampaigns() {
             sidebarContent += `<p>Showing ${data.length} campaign location(s)</p>`;
             sidebarContent += `<ul>`;
             data.forEach(campaign => {
-                sidebarContent += `<li><strong>${campaign.date || 'Unknown date'}:</strong> ${campaign.place || 'Unknown location'}`;
+                sidebarContent += `<li><strong>${formatCampaignDate(campaign.date)}:</strong> ${campaign.place || 'Unknown location'}`;
                 if (campaign.note) {
                     sidebarContent += ` - ${campaign.note}`;
                 }
