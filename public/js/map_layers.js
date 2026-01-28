@@ -12,8 +12,11 @@ import { map } from './map.js';
 import { updateSidebar, loadDefaultText } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
+import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
+import { formatCampaignDate } from './utils/dateUtils.js';
+import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 
 // Function to show/hide occupied territories on the map
@@ -39,7 +42,7 @@ export function showOccupiedTerritory() {
 }
 
 // Generic function to fetch and display data for a layer
-export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null) {
+export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, group = null, clickHandler = null) {
     const capitalizedLayerName = layerName.charAt(0).toUpperCase() + layerName.slice(1);
     const layer = layerState[`${layerName}`];
     const isVisibleFlag = layerState[`is${capitalizedLayerName}Visible`];
@@ -61,7 +64,8 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
                     const icon = icons[group] || L.Icon.Default;
-                    const marker = createMarker(item, icon, handleMarkerClick);
+                    const handler = clickHandler || handleMarkerClick;
+                    const marker = createMarker(item, icon, handler);
                     if (marker) {
                         newLayer.addLayer(marker);
                     } else {
@@ -119,7 +123,12 @@ export function refreshAllVisibleLayers() {
 
                 const icon = icons[layerInfo.group] || L.Icon.Default;
                 // Use appropriate click handler based on layer type
-                const clickHandler = layerInfo.filterType === 'dateRange' ? handleBattleMarkerClick : handleMarkerClick;
+                let clickHandler = handleMarkerClick;
+                if (layerInfo.filterType === 'dateRange') {
+                    clickHandler = handleBattleMarkerClick;
+                } else if (layerInfo.clickHandlerType === 'brigade') {
+                    clickHandler = handleBrigadeMarkerClick;
+                }
                 const marker = createMarker(item, icon, clickHandler);
                 if (marker) {
                     newLayer.addLayer(marker);
@@ -178,6 +187,17 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.brigadesLayer);
                 layerState.isBrigadesLayerVisible = false;
                 layerState.brigadesLayer = null;
+                // Hide Campaign button and remove campaign layer when brigades are hidden
+                const campaignButton = document.getElementById('toggleCampaign');
+                if (campaignButton) {
+                    campaignButton.style.display = 'none';
+                }
+                if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+                    map.removeLayer(layerState.campaignsLayer);
+                    layerState.campaignsLayer = null;
+                    layerState.isCampaignsLayerVisible = false;
+                }
+                layerState.selectedBrigadeId = null;
             }
             break;
         case 'Detachments':
@@ -223,6 +243,58 @@ export function removeLayer(layerName) {
 // Function to handle marker clicks
 export function handleMarkerClick(marker, item) {
     console.log('Marker in handleMarkerClick:', marker);
+    
+    // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+    if (!layerState.isCampaignsLayerVisible) {
+        const campaignButton = document.getElementById('toggleCampaign');
+        if (campaignButton) {
+            campaignButton.style.display = 'none';
+        }
+        layerState.selectedBrigadeId = null;
+    }
+    // If campaign markers ARE visible, clicking on non-brigade markers has no effect on them
+    
+    const popupContent = generatePopupContent({
+        name: item.name,
+        datum_formiranja: item.formation_date,
+        formation_site: item.formation_site,
+        description: null, // Exclude description from the pop-up
+        wikipedia_url: item.wikipedia_url
+    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the item's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description));
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
+}
+
+// Function to handle brigade marker clicks
+export function handleBrigadeMarkerClick(marker, item) {
+    console.log('Brigade marker clicked:', marker, item);
+    
+    // Store the selected brigade ID
+    layerState.selectedBrigadeId = item.id;
+    
+    // Show the Campaign button
+    const campaignButton = document.getElementById('toggleCampaign');
+    if (campaignButton) {
+        campaignButton.style.display = 'block';
+    }
+    
+    // Remove campaign layer if visible (but keep the button visible)
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+    
+    // Show popup and update sidebar (same as handleMarkerClick but without hiding the button)
     const popupContent = generatePopupContent({
         name: item.name,
         datum_formiranja: item.formation_date,
@@ -264,4 +336,201 @@ export function handleBattleMarkerClick(marker, item) {
     } else {
         updateSidebar('<p>No additional details available.</p>');
     }
+}
+
+// Function to show campaign markers for the selected brigade
+export function showCampaigns() {
+    const brigadeId = layerState.selectedBrigadeId;
+    
+    if (!brigadeId) {
+        console.warn('No brigade selected');
+        return;
+    }
+    
+    // If campaigns are already visible, hide them
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+        return;
+    }
+    
+    // Fetch campaigns for the selected brigade
+    fetch(`${API_ENDPOINTS.campaigns}/brigade/${brigadeId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data || data.length === 0) {
+                updateSidebar('<p>No campaign data available for this brigade.</p>');
+                return;
+            }
+            
+            const newLayer = L.layerGroup().addTo(map);
+            
+            // Create chronological line connecting campaign markers
+            // Extract coordinates from campaigns with valid locations (data is already sorted by date ASC)
+            const pathCoords = [];
+            data.forEach(campaign => {
+                if (campaign.geo_location) {
+                    const coords = parsePoint(campaign.geo_location);
+                    if (coords) {
+                        pathCoords.push([coords.lat, coords.lng]);
+                    }
+                }
+            });
+            
+            // Create polyline if we have at least 2 points
+            if (pathCoords.length >= 2) {
+                // Apply Catmull-Rom spline smoothing for smoother curves
+                const smoothedCoords = catmullRomSpline(pathCoords, 0.5, 10);
+                
+                const campaignPath = L.polyline(smoothedCoords, {
+                    color: '#e74c3c',
+                    weight: 4,
+                    opacity: 0.6,
+                    dashArray: '5, 10',
+                    lineJoin: 'round',
+                    lineCap: 'round'
+                });
+                
+                // Add the line to the layer first (so markers appear on top)
+                newLayer.addLayer(campaignPath);
+                
+                // Add arrow decorators to show direction of movement
+                const decorator = L.polylineDecorator(campaignPath, {
+                    patterns: [
+                        {
+                            offset: '10%',
+                            repeat: 100,
+                            symbol: L.Symbol.arrowHead({
+                                pixelSize: 12,
+                                polygon: false,
+                                pathOptions: {
+                                    stroke: true,
+                                    weight: 3,
+                                    color: '#c0392b',
+                                    opacity: 0.8
+                                }
+                            })
+                        }
+                    ]
+                });
+                
+                newLayer.addLayer(decorator);
+            }
+            
+            // Track the index to identify the first marker (formation site)
+            let campaignIndex = 0;
+            
+            data.forEach(campaign => {
+                if (!campaign.geo_location) {
+                    console.warn(`Skipping campaign without location: ${campaign.place}`);
+                    return;
+                }
+                
+                // Parse the POINT geometry
+                const coords = parsePoint(campaign.geo_location);
+                if (!coords) {
+                    console.warn(`Skipping campaign with invalid location: ${campaign.place}`);
+                    return;
+                }
+                
+                let marker;
+                
+                // First marker (formation site) - use red star icon
+                if (campaignIndex === 0) {
+                    // Create an icon marker using red-star.png
+                    const starIcon = L.icon({
+                        iconUrl: 'assets/icons/red-star.png',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12],
+                        popupAnchor: [0, -12]
+                    });
+                    marker = L.marker([coords.lat, coords.lng], {
+                        icon: starIcon
+                    });
+                } else {
+                    // Regular campaign markers - use circle
+                    marker = L.circleMarker([coords.lat, coords.lng], {
+                        radius: 6,
+                        fillColor: '#e74c3c',
+                        color: '#c0392b',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    });
+                }
+                
+                campaignIndex++;
+                
+                // Create tooltip with date and operation
+                let tooltipContent = '';
+                if (campaign.date) {
+                    tooltipContent += `<strong>${formatCampaignDate(campaign.date)}</strong><br>`;
+                }
+                if (campaign.operation) {
+                    tooltipContent += campaign.operation;
+                }
+                
+                if (tooltipContent) {
+                    marker.bindTooltip(tooltipContent, {
+                        permanent: false,
+                        direction: 'right',
+                        className: 'campaign-tooltip'
+                    });
+                }
+                
+                // Add popup with full details
+                let popupContent = `<div class="popup-content">`;
+                if (campaign.place) {
+                    popupContent += `<h3>${campaign.place}</h3>`;
+                }
+                if (campaign.date) {
+                    popupContent += `<p><strong>Date:</strong> ${formatCampaignDate(campaign.date)}</p>`;
+                }
+                if (campaign.operation) {
+                    popupContent += `<p><strong>Operation:</strong> ${campaign.operation}</p>`;
+                }
+                if (campaign.division) {
+                    popupContent += `<p><strong>Division:</strong> ${campaign.division}</p>`;
+                }
+                if (campaign.note) {
+                    popupContent += `<p><strong>Note:</strong> ${campaign.note}</p>`;
+                }
+                popupContent += `</div>`;
+                
+                marker.bindPopup(popupContent);
+                
+                // Add click event to hide brigade markers when campaign marker is clicked
+                marker.on('click', function() {
+                    if (layerState.brigadesLayer && layerState.isBrigadesLayerVisible) {
+                        map.removeLayer(layerState.brigadesLayer);
+                        // Store that brigades were hidden by campaign click (not removed completely)
+                        layerState.brigadesLayerTemporarilyHidden = true;
+                    }
+                });
+                
+                newLayer.addLayer(marker);
+            });
+            
+            layerState.campaignsLayer = newLayer;
+            layerState.isCampaignsLayerVisible = true;
+            
+            // Update sidebar
+            let sidebarContent = `<h2>Campaign Movement</h2>`;
+            sidebarContent += `<p>Showing ${data.length} campaign location(s)</p>`;
+            sidebarContent += `<ul>`;
+            data.forEach(campaign => {
+                sidebarContent += `<li><strong>${formatCampaignDate(campaign.date)}:</strong> ${campaign.place || 'Unknown location'}`;
+                if (campaign.note) {
+                    sidebarContent += ` - ${campaign.note}`;
+                }
+                sidebarContent += `</li>`;
+            });
+            sidebarContent += `</ul>`;
+            updateSidebar(sidebarContent);
+        })
+        .catch(error => {
+            console.error('Error fetching campaigns:', error);
+            updateSidebar('<p>Error loading campaign data.</p>');
+        });
 }
