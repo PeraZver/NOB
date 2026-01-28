@@ -16,7 +16,7 @@ import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
 import { formatCampaignDate } from './utils/dateUtils.js';
-import { catmullRomSpline, createStarShape } from './utils/splineUtils.js';
+import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 
 // Function to show/hide occupied territories on the map
@@ -436,16 +436,17 @@ export function showCampaigns() {
                 
                 let marker;
                 
-                // First marker (formation site) - use star shape
+                // First marker (formation site) - use red star icon
                 if (campaignIndex === 0) {
-                    // Create a star-shaped polygon marker
-                    const starCoords = createStarShape(coords.lat, coords.lng, 24, 10, 5);
-                    marker = L.polygon(starCoords, {
-                        fillColor: '#f39c12',
-                        color: '#d68910',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.9
+                    // Create an icon marker using red-star.png
+                    const starIcon = L.icon({
+                        iconUrl: 'assets/icons/red-star.png',
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12],
+                        popupAnchor: [0, -12]
+                    });
+                    marker = L.marker([coords.lat, coords.lng], {
+                        icon: starIcon
                     });
                 } else {
                     // Regular campaign markers - use circle
