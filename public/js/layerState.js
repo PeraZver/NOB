@@ -11,6 +11,7 @@
 const layerState = {
     brigadesLayer: null,
     isBrigadesLayerVisible: false,
+    brigadesLayerTemporarilyHidden: false, // Track if brigades were hidden by campaign click
     detachmentLayer: null,
     isDetachmentLayerVisible: false,
     divisionLayer: null,

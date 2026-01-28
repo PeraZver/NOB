@@ -33,6 +33,12 @@ map.on('click', function () {
         loadDefaultText(markdownFile);
     }
     
+    // Restore brigade markers if they were temporarily hidden by campaign marker click
+    if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
+        map.addLayer(layerState.brigadesLayer);
+        layerState.brigadesLayerTemporarilyHidden = false;
+    }
+    
     // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
     if (!layerState.isCampaignsLayerVisible) {
         const campaignButton = document.getElementById('toggleCampaign');
