@@ -8,6 +8,8 @@
  * Authors: Pero & Github Copilot
  */
 
+import { parsePoint } from './geometryUtils.js';
+
 /**
  * Create a marker with label
  * @param {Object} item - Military unit data
@@ -21,8 +23,13 @@ export function createMarker(item, icon, onClickHandler) {
         return null;
     }
 
-    const [lng, lat] = item.location.replace('POINT(', '').replace(')', '').split(' ');
-    const marker = L.marker([lat, lng], { icon: icon || L.Icon.Default });
+    const coords = parsePoint(item.location);
+    if (!coords) {
+        console.warn(`Cannot create marker: invalid location format for item ${item.name || 'Unknown'}`);
+        return null;
+    }
+
+    const marker = L.marker([coords.lat, coords.lng], { icon: icon || L.Icon.Default });
 
     // Add label next to the marker
     marker.bindTooltip(item.name || 'Unknown', {

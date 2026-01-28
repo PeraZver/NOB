@@ -6,6 +6,7 @@ An interactive web application displaying historical military units, battles, an
 
 - Interactive Map: Browse military units, divisions, brigades, corps, and detachments on an interactive map
 - Occupied Territories: View different occupation zones during WWII
+- Campaign Movements: Click on brigade markers to view their campaign movements and operations
 - Search Functionality: Search for specific military units
 - Detailed Information: Click on markers to view detailed information about each unit
 
@@ -65,6 +66,7 @@ NOB/
 │   │   └── utils/           # Utility functions
 │   │       ├── dateUtils.js
 │   │       ├── filterUtils.js
+│   │       ├── geometryUtils.js
 │   │       ├── markerUtils.js
 │   │       └── popupUtils.js
 │   └── index.html           # Main HTML file
@@ -74,11 +76,15 @@ NOB/
 │   ├── config/              # Configuration
 │   │   └── config.js        # Centralized configuration
 │   ├── controllers/         # Business logic
+│   │   ├── battlesController.js
+│   │   ├── campaignsController.js
 │   │   └── militaryUnitsController.js
 │   ├── db/                  # Database files
 │   │   ├── pool.js          # Database connection pool
 │   │   └── *.sql            # SQL scripts
 │   ├── routes/              # API routes
+│   │   ├── battlesRoutes.js
+│   │   ├── campaignsRoutes.js
 │   │   ├── militaryUnitsRoutes.js
 │   │   └── searchRoutes.js
 │   └── utils/               # Utility functions
@@ -112,9 +118,11 @@ Click on the menu items to toggle different layers:
 - Occupied Territory: View different occupation zones
 - Detachments: View partisan detachment formation locations
 - Brigades: View partisan brigade formation locations
+  - Click on a brigade marker to see the "Campaign" button
+  - Click "Campaign" to view that brigade's campaign movements
 - Divisions: View division formation locations
 - Corps: View corps formation locations
-- Battles: View battle locations (coming soon)
+- Battles: View battle locations
 
 
 ## API Endpoints
@@ -124,6 +132,7 @@ Click on the menu items to toggle different layers:
 - `GET /api/detachments` - Get all detachments
 - `GET /api/divisions` - Get all divisions
 - `GET /api/corps` - Get all corps
+- `GET /api/campaigns/brigade/:brigadeId` - Get campaign movements for a specific brigade
 - `GET /api/search` - Search military units
 
 ## Technologies Used

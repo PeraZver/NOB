@@ -9,7 +9,7 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
 import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers, positionCalendarMenus } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
@@ -32,6 +32,20 @@ map.on('click', function () {
     if (markdownFile) {
         loadDefaultText(markdownFile);
     }
+    
+    // Hide Campaign button when clicking on map
+    const campaignButton = document.getElementById('toggleCampaign');
+    if (campaignButton) {
+        campaignButton.style.display = 'none';
+    }
+    
+    // Remove campaign layer if visible
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+    layerState.selectedBrigadeId = null;
 });
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
@@ -91,7 +105,7 @@ function showLayerByName(layerName) {
             showLayerFromAPI(API_ENDPOINTS.detachments, 'detachmentLayer', 'assets/detachments/detachments.md', 'detachments');
             break;
         case 'Brigades':
-            showLayerFromAPI(API_ENDPOINTS.brigades, 'brigadesLayer', 'assets/brigades/brigades.md', 'brigades');
+            showLayerFromAPI(API_ENDPOINTS.brigades, 'brigadesLayer', 'assets/brigades/brigades.md', 'brigades', handleBrigadeMarkerClick);
             break;
         case 'Divisions':
             showLayerFromAPI(API_ENDPOINTS.divisions, 'divisionLayer', 'assets/divisions/divisions.md', 'divisions');           
@@ -145,6 +159,11 @@ document.getElementById('toggleCorps').addEventListener('click', () => {
 
 document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
+});
+
+// Campaign button to show campaigns for selected brigade
+document.getElementById('toggleCampaign').addEventListener('click', () => {
+    showCampaigns();
 });
 
 // Calendar button to toggle years menu

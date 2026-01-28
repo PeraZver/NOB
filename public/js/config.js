@@ -52,6 +52,12 @@ export const icons = {
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
+    }),
+    campaigns: L.icon({
+        iconUrl: 'assets/icons/brigades-icon.png',
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        popupAnchor: [0, -24]
     })
 };
 
@@ -90,7 +96,8 @@ export const API_ENDPOINTS = {
     divisions: '/api/divisions',
     corps: '/api/corps',
     battles: '/api/battles',
-    search: '/api/search'
+    search: '/api/search',
+    campaigns: '/api/campaigns'
 };
 
 // Layer mapping for filtering
@@ -103,7 +110,8 @@ export const LAYER_MAPPING = {
     'brigadesLayer': { 
         layerName: 'brigadesLayer', 
         group: 'brigades', 
-        visibleFlag: 'isBrigadesLayerVisible' 
+        visibleFlag: 'isBrigadesLayerVisible',
+        clickHandlerType: 'brigade'
     },
     'divisionLayer': { 
         layerName: 'divisionLayer', 

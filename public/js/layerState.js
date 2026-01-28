@@ -21,9 +21,12 @@ const layerState = {
     isOccupiedTerritoryLayerVisible: false,
     battlesLayer: null,
     isBattlesLayerVisible: false,
+    campaignsLayer: null,
+    isCampaignsLayerVisible: false,
     currentLayerName: null,
     selectedYear: null, // Track selected year filter
     selectedMonth: null, // Track selected month filter (1-12)
+    selectedBrigadeId: null, // Track selected brigade ID
     allLayerData: {}, // Store all fetched data before filtering
 };
 
