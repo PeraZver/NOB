@@ -425,6 +425,16 @@ export function showCampaigns() {
                 popupContent += `</div>`;
                 
                 marker.bindPopup(popupContent);
+                
+                // Add click event to hide brigade markers when campaign marker is clicked
+                marker.on('click', function() {
+                    if (layerState.brigadesLayer && layerState.isBrigadesLayerVisible) {
+                        map.removeLayer(layerState.brigadesLayer);
+                        // Store that brigades were hidden by campaign click (not removed completely)
+                        layerState.brigadesLayerTemporarilyHidden = true;
+                    }
+                });
+                
                 newLayer.addLayer(marker);
             });
             
