@@ -381,8 +381,8 @@ export function showCampaigns() {
             if (pathCoords.length >= 2) {
                 const campaignPath = L.polyline(pathCoords, {
                     color: '#e74c3c',
-                    weight: 2,
-                    opacity: 0.5,
+                    weight: 4,
+                    opacity: 0.6,
                     dashArray: '5, 10',
                     lineJoin: 'round',
                     lineCap: 'round'
@@ -390,6 +390,28 @@ export function showCampaigns() {
                 
                 // Add the line to the layer first (so markers appear on top)
                 newLayer.addLayer(campaignPath);
+                
+                // Add arrow decorators to show direction of movement
+                const decorator = L.polylineDecorator(campaignPath, {
+                    patterns: [
+                        {
+                            offset: '10%',
+                            repeat: 100,
+                            symbol: L.Symbol.arrowHead({
+                                pixelSize: 12,
+                                polygon: false,
+                                pathOptions: {
+                                    stroke: true,
+                                    weight: 3,
+                                    color: '#c0392b',
+                                    opacity: 0.8
+                                }
+                            })
+                        }
+                    ]
+                });
+                
+                newLayer.addLayer(decorator);
             }
             
             data.forEach(campaign => {
