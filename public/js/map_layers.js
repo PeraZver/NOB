@@ -365,6 +365,33 @@ export function showCampaigns() {
             
             const newLayer = L.layerGroup().addTo(map);
             
+            // Create chronological line connecting campaign markers
+            // Extract coordinates from campaigns with valid locations (data is already sorted by date ASC)
+            const pathCoords = [];
+            data.forEach(campaign => {
+                if (campaign.geo_location) {
+                    const coords = parsePoint(campaign.geo_location);
+                    if (coords) {
+                        pathCoords.push([coords.lat, coords.lng]);
+                    }
+                }
+            });
+            
+            // Create polyline if we have at least 2 points
+            if (pathCoords.length >= 2) {
+                const campaignPath = L.polyline(pathCoords, {
+                    color: '#e74c3c',
+                    weight: 2,
+                    opacity: 0.5,
+                    dashArray: '5, 10',
+                    lineJoin: 'round',
+                    lineCap: 'round'
+                });
+                
+                // Add the line to the layer first (so markers appear on top)
+                newLayer.addLayer(campaignPath);
+            }
+            
             data.forEach(campaign => {
                 if (!campaign.geo_location) {
                     console.warn(`Skipping campaign without location: ${campaign.place}`);
