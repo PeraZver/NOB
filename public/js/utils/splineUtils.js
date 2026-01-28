@@ -89,23 +89,23 @@ export function catmullRomSpline(points, tension = 0.5, numSegments = 10) {
  */
 export function createStarShape(centerLat, centerLng, outerRadius = 15, innerRadius = 7, points = 5) {
     const coordinates = [];
-    const angleStep = Math.PI / points;
+    const angleStep = (Math.PI * 2) / (points * 2); // Full circle divided by total points (outer + inner)
     
-    // Convert pixel radius to approximate lat/lng offset
-    // This is a rough approximation; actual conversion depends on zoom level
-    const latOffset = outerRadius * 0.00001;
-    const lngOffset = outerRadius * 0.00001;
+    // Convert pixel radius to lat/lng offset
+    // At equator: 1 degree ≈ 111km, so we need appropriate scaling
+    // Using a more visible scale: multiply by 0.0001 for better visibility
+    const radiusToLatLng = 0.0001;
     
     for (let i = 0; i < points * 2; i++) {
         const angle = i * angleStep - Math.PI / 2; // Start from top
         const radius = i % 2 === 0 ? outerRadius : innerRadius;
         
         // Convert to lat/lng offsets
-        const latRadius = radius * 0.00001;
-        const lngRadius = radius * 0.00001;
+        const latOffset = Math.sin(angle) * radius * radiusToLatLng;
+        const lngOffset = Math.cos(angle) * radius * radiusToLatLng;
         
-        const lat = centerLat + Math.sin(angle) * latRadius;
-        const lng = centerLng + Math.cos(angle) * lngRadius;
+        const lat = centerLat + latOffset;
+        const lng = centerLng + lngOffset;
         
         coordinates.push([lat, lng]);
     }

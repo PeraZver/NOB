@@ -381,9 +381,7 @@ export function showCampaigns() {
             // Create polyline if we have at least 2 points
             if (pathCoords.length >= 2) {
                 // Apply Catmull-Rom spline smoothing for smoother curves
-                // Higher tension (0.85) reduces loops and overshoot
-                // Fewer segments (5) creates tighter curves
-                const smoothedCoords = catmullRomSpline(pathCoords, 0.85, 5);
+                const smoothedCoords = catmullRomSpline(pathCoords, 0.5, 10);
                 
                 const campaignPath = L.polyline(smoothedCoords, {
                     color: '#e74c3c',
@@ -420,8 +418,8 @@ export function showCampaigns() {
                 newLayer.addLayer(decorator);
             }
             
-            // Track if we've added the first marker (formation site) yet
-            let firstMarkerAdded = false;
+            // Track the index to identify the first marker (formation site)
+            let campaignIndex = 0;
             
             data.forEach(campaign => {
                 if (!campaign.geo_location) {
@@ -439,9 +437,9 @@ export function showCampaigns() {
                 let marker;
                 
                 // First marker (formation site) - use star shape
-                if (!firstMarkerAdded) {
+                if (campaignIndex === 0) {
                     // Create a star-shaped polygon marker
-                    const starCoords = createStarShape(coords.lat, coords.lng, 12, 5, 5);
+                    const starCoords = createStarShape(coords.lat, coords.lng, 24, 10, 5);
                     marker = L.polygon(starCoords, {
                         fillColor: '#f39c12',
                         color: '#d68910',
@@ -449,7 +447,6 @@ export function showCampaigns() {
                         opacity: 1,
                         fillOpacity: 0.9
                     });
-                    firstMarkerAdded = true;
                 } else {
                     // Regular campaign markers - use circle
                     marker = L.circleMarker([coords.lat, coords.lng], {
@@ -461,6 +458,8 @@ export function showCampaigns() {
                         fillOpacity: 0.8
                     });
                 }
+                
+                campaignIndex++;
                 
                 // Create tooltip with date and operation
                 let tooltipContent = '';
