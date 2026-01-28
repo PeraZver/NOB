@@ -207,6 +207,16 @@ body {
     line-height: 1.5; /* Adjust line height for better readability */
 }
 
+/* Campaign tooltip styles */
+.campaign-tooltip {
+    text-align: left !important;
+}
+
+.campaign-tooltip .leaflet-tooltip-left,
+.campaign-tooltip .leaflet-tooltip-right {
+    text-align: left !important;
+}
+
 /* Search Box */
 .search-container {
   right: 0;     /* ← aligns its right edge with the parent’s right edge */

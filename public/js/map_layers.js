@@ -391,13 +391,13 @@ export function showCampaigns() {
                     fillOpacity: 0.8
                 });
                 
-                // Create tooltip with date and note
+                // Create tooltip with date and operation
                 let tooltipContent = '';
                 if (campaign.date) {
                     tooltipContent += `<strong>${formatCampaignDate(campaign.date)}</strong><br>`;
                 }
-                if (campaign.note) {
-                    tooltipContent += campaign.note;
+                if (campaign.operation) {
+                    tooltipContent += campaign.operation;
                 }
                 
                 if (tooltipContent) {
