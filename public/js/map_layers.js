@@ -288,8 +288,32 @@ export function handleBrigadeMarkerClick(marker, item) {
         campaignButton.style.display = 'block';
     }
     
-    // Call the regular handler for popup and sidebar
-    handleMarkerClick(marker, item);
+    // Remove campaign layer if visible (but keep the button visible)
+    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+    
+    // Show popup and update sidebar (same as handleMarkerClick but without hiding the button)
+    const popupContent = generatePopupContent({
+        name: item.name,
+        datum_formiranja: item.formation_date,
+        formation_site: item.formation_site,
+        description: null, // Exclude description from the pop-up
+        wikipedia_url: item.wikipedia_url
+    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the item's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description));
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
 }
 
 // Function to handle battle marker clicks
