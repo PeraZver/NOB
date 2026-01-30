@@ -9,7 +9,7 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
 import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers, positionCalendarMenus } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
@@ -189,3 +189,6 @@ setupCalendarHoverHandlers();
 // Ensure calendar dropdowns align under the calendar button on load and resize (mobile only)
 positionCalendarMenus();
 window.addEventListener('resize', positionCalendarMenus);
+
+// Initialize test mode if URL contains testBrigade parameter
+initTestMode();

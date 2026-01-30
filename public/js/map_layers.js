@@ -403,7 +403,7 @@ export function showCampaigns() {
                             repeat: 100,
                             symbol: L.Symbol.arrowHead({
                                 pixelSize: 12,
-                                polygon: true,
+                                polygon: false,
                                 pathOptions: {
                                     stroke: true,
                                     weight: 3,
@@ -533,4 +533,37 @@ export function showCampaigns() {
             console.error('Error fetching campaigns:', error);
             updateSidebar('<p>Error loading campaign data.</p>');
         });
+}
+
+/**
+ * Initialize test mode for quick testing of campaign trails
+ * Usage: Add ?testBrigade=3 to the URL to automatically load campaigns for brigade with id=3
+ * Example: http://localhost:3000/?testBrigade=3
+ */
+export function initTestMode() {
+    // Check for testBrigade parameter in URL
+    const params = new URLSearchParams(window.location.search);
+    const testBrigadeId = params.get('testBrigade');
+    
+    if (testBrigadeId) {
+        console.log(`🧪 TEST MODE: Loading campaign trail for brigade ${testBrigadeId}`);
+        
+        // Wait for map to be fully loaded, then trigger campaigns
+        const checkInterval = setInterval(() => {
+            if (map && map._loaded) {
+                clearInterval(checkInterval);
+                
+                // Set the selected brigade ID
+                layerState.selectedBrigadeId = parseInt(testBrigadeId);
+                
+                // Show the campaigns
+                showCampaigns();
+                
+                console.log(`✅ TEST MODE: Campaign trail loaded for brigade ${testBrigadeId}`);
+            }
+        }, 100);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => clearInterval(checkInterval), 5000);
+    }
 }
