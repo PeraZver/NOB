@@ -403,7 +403,7 @@ export function showCampaigns() {
                             repeat: 100,
                             symbol: L.Symbol.arrowHead({
                                 pixelSize: 12,
-                                polygon: false,
+                                polygon: true,
                                 pathOptions: {
                                     stroke: true,
                                     weight: 3,
