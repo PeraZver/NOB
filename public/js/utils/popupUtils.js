@@ -20,10 +20,13 @@ export function generatePopupContent(properties) {
     const formationSite = properties.formation_site || 'Unknown location';
 
     return `
-        <strong>${properties.naziv || properties.name || 'Unknown Name'}</strong><br>
-        <small>Formed on ${formattedDate} <br> at ${formationSite}</small><br>
-        ${properties.opis || properties.description ? `<small>${properties.opis || properties.description}</small><br>` : ''}
-        ${properties.wikipedia || properties.wikipedia_url ? `<a href="${properties.wikipedia || properties.wikipedia_url}" target="_blank">Wikipedia</a>` : ''}
+        <div class="popup-content">
+            <h3>${properties.naziv || properties.name || 'Unknown Name'}</h3>
+            <p><strong>Formed:</strong> ${formattedDate}</p>
+            <p><strong>Location:</strong> ${formationSite}</p>
+            ${properties.opis || properties.description ? `<p>${properties.opis || properties.description}</p>` : ''}
+            ${properties.wikipedia || properties.wikipedia_url ? `<p><a href="${properties.wikipedia || properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
+        </div>
     `;
 }
 
@@ -38,9 +41,11 @@ export function generateBattlePopupContent(properties) {
     const place = properties.place || 'Unknown location';
 
     return `
-        <strong>${properties.name || 'Unknown Battle'}</strong><br>
-        <small>Location: ${place}</small><br>
-        <small>From ${formattedStartDate} to ${formattedEndDate}</small><br>
-        ${properties.wikipedia_url ? `<a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a>` : ''}
+        <div class="popup-content">
+            <h3>${properties.name || 'Unknown Battle'}</h3>
+            <p><strong>Location:</strong> ${place}</p>
+            <p><strong>Date:</strong> ${formattedStartDate} to ${formattedEndDate}</p>
+            ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
+        </div>
     `;
 }

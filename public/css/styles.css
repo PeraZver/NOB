@@ -207,6 +207,24 @@ body {
     line-height: 1.5; /* Adjust line height for better readability */
 }
 
+/* Popup content styling - consistent for both brigade and campaign popups */
+.popup-content {
+    text-align: left;
+    font-size: 0.9em;
+    line-height: 1.6;
+}
+
+.popup-content h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.popup-content p {
+    margin: 6px 0;
+    font-size: 0.9em;
+}
+
 /* Campaign tooltip styles */
 .campaign-tooltip {
     text-align: left !important;
