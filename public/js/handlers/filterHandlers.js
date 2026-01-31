@@ -11,20 +11,20 @@
 import layerState from '../layerState.js';
 import { refreshAllVisibleLayers } from '../map_layers.js';
 
-// Auto-hide timers
+// Auto-hide timers (currently disabled - menus stay visible until toggled off)
 let yearsMenuTimer = null;
 let monthsMenuTimer = null;
 const MOBILE_BREAKPOINT = 768;
-const DESKTOP_AUTO_HIDE_DELAY = 5000; // 5 seconds
-const MOBILE_AUTO_HIDE_DELAY = 5000;  // 5 seconds for mobile inactivity
+// const DESKTOP_AUTO_HIDE_DELAY = 5000; // 5 seconds (disabled)
+// const MOBILE_AUTO_HIDE_DELAY = 5000;  // 5 seconds for mobile inactivity (disabled)
 
 function isMobile() {
     return window.innerWidth <= MOBILE_BREAKPOINT;
 }
 
-function getAutoHideDelay() {
-    return isMobile() ? MOBILE_AUTO_HIDE_DELAY : DESKTOP_AUTO_HIDE_DELAY;
-}
+// function getAutoHideDelay() { // Disabled - no longer using auto-hide
+//     return isMobile() ? MOBILE_AUTO_HIDE_DELAY : DESKTOP_AUTO_HIDE_DELAY;
+// }
 
 export function positionCalendarMenus() {
     const yearsMenu = document.getElementById('yearsMenu');
@@ -70,29 +70,33 @@ export function clearYearFilter() {
 
 /**
  * Auto-hide years menu after delay
+ * NOTE: Disabled - menus now stay visible until calendar button toggled off
  */
 function startYearsMenuTimer() {
-    clearTimeout(yearsMenuTimer);
-    yearsMenuTimer = setTimeout(() => {
-        const yearsMenu = document.getElementById('yearsMenu');
-        const monthsMenu = document.getElementById('monthsMenu');
-        const calendarButton = document.getElementById('toggleYearsMenu');
-        
-        yearsMenu.classList.remove('visible');
-        monthsMenu.classList.remove('visible');
-        calendarButton.classList.remove('active');
-    }, getAutoHideDelay());
+    // Disabled: menus stay visible until manually toggled off
+    // clearTimeout(yearsMenuTimer);
+    // yearsMenuTimer = setTimeout(() => {
+    //     const yearsMenu = document.getElementById('yearsMenu');
+    //     const monthsMenu = document.getElementById('monthsMenu');
+    //     const calendarButton = document.getElementById('toggleYearsMenu');
+    //     
+    //     yearsMenu.classList.remove('visible');
+    //     monthsMenu.classList.remove('visible');
+    //     calendarButton.classList.remove('active');
+    // }, getAutoHideDelay());
 }
 
 /**
  * Auto-hide months menu after delay
+ * NOTE: Disabled - menus now stay visible until calendar button toggled off
  */
 function startMonthsMenuTimer() {
-    clearTimeout(monthsMenuTimer);
-    monthsMenuTimer = setTimeout(() => {
-        const monthsMenu = document.getElementById('monthsMenu');
-        monthsMenu.classList.remove('visible');
-    }, getAutoHideDelay());
+    // Disabled: menus stay visible until manually toggled off
+    // clearTimeout(monthsMenuTimer);
+    // monthsMenuTimer = setTimeout(() => {
+    //     const monthsMenu = document.getElementById('monthsMenu');
+    //     monthsMenu.classList.remove('visible');
+    // }, getAutoHideDelay());
 }
 
 /**
