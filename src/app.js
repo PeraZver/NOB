@@ -24,11 +24,13 @@ app.use(express.static(config.paths.public));
 const militaryUnitsRoutes = require('./routes/militaryUnitsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const battlesRoutes = require('./routes/battlesRoutes');
+const campaignsRoutes = require('./routes/campaignsRoutes');
 
 // Register routes
 app.use('/api', militaryUnitsRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api', battlesRoutes);
+app.use('/api', campaignsRoutes);
 
 // Start server
 app.listen(port, () => {

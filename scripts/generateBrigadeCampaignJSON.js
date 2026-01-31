@@ -202,6 +202,9 @@ async function generateBrigadeCampaignJSON() {
         console.log(`\nExtracted Brigade: ${brigadeData.brigade_name}`);
         console.log(`Campaign Records: ${brigadeData.movements.length}`);
 
+        // Attach source URL to the output JSON
+        brigadeData.source = websiteUrl;
+
         // Generate filename from brigade name
         const filename = brigadeNameToFilename(brigadeData.brigade_name, brigadeData.brigade_id);
         const outputPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', filename);

@@ -11,6 +11,7 @@
 const layerState = {
     brigadesLayer: null,
     isBrigadesLayerVisible: false,
+    brigadesLayerTemporarilyHidden: false, // Track if brigades were hidden by campaign click
     detachmentLayer: null,
     isDetachmentLayerVisible: false,
     divisionLayer: null,
@@ -21,9 +22,12 @@ const layerState = {
     isOccupiedTerritoryLayerVisible: false,
     battlesLayer: null,
     isBattlesLayerVisible: false,
+    campaignsLayer: null,
+    isCampaignsLayerVisible: false,
     currentLayerName: null,
     selectedYear: null, // Track selected year filter
     selectedMonth: null, // Track selected month filter (1-12)
+    selectedBrigadeId: null, // Track selected brigade ID
     allLayerData: {}, // Store all fetched data before filtering
 };
 

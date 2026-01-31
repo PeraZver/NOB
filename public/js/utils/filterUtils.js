@@ -2,7 +2,8 @@
  * filterUtils.js - This file is part of the NOB web project.
  * 
  * Data filtering utility functions. Implements filtering logic for military units
- * based on formation dates (year and month), and battles based on date ranges.
+ * based on formation dates (year and month), battles based on date ranges, and
+ * campaigns based on campaign dates.
  * 
  * Created: 11/2025
  * Authors: Pero & Github Copilot
@@ -91,5 +92,48 @@ export function filterBattlesByDateRange(data, selectedYear, selectedMonth) {
         const filterYearEnd = new Date(selectedYear, 11, 31);
         
         return startDate <= filterYearEnd && endDate >= filterYearStart;
+    });
+}
+
+/**
+ * Filter campaigns by date - shows campaigns that occurred before or during the selected period
+ * @param {Array} data - Array of campaigns
+ * @param {number} selectedYear - Year to filter by (null for no filter)
+ * @param {number} selectedMonth - Month to filter by (1-12, null for no filter)
+ * @returns {Array} Filtered data (campaigns that occurred before the selected date)
+ */
+export function filterCampaignsByDate(data, selectedYear, selectedMonth) {
+    if (!selectedYear) {
+        return data; // No filter applied
+    }
+
+    return data.filter(campaign => {
+        if (!campaign.date) {
+            return false; // Exclude campaigns without date
+        }
+
+        const campaignDate = new Date(campaign.date);
+        
+        // Validate date is valid
+        if (isNaN(campaignDate.getTime())) {
+            console.warn(`Invalid date format for campaign at: ${campaign.place}`);
+            return false;
+        }
+
+        const campaignYear = campaignDate.getFullYear();
+        const campaignMonth = campaignDate.getMonth() + 1; // getMonth() returns 0-11, we need 1-12
+
+        // If both year and month are selected, show campaigns that occurred before or during that month
+        if (selectedMonth) {
+            // Create the end of the selected month
+            const filterDate = new Date(selectedYear, selectedMonth, 0); // Last day of selected month
+            
+            // Show campaigns that occurred on or before the selected month
+            return campaignDate <= filterDate;
+        }
+
+        // If only year is selected, show campaigns that occurred before or during that year
+        const filterYearEnd = new Date(selectedYear, 11, 31);
+        return campaignDate <= filterYearEnd;
     });
 }
