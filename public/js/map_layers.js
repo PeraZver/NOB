@@ -13,7 +13,7 @@ import { updateSidebar, loadDefaultText } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
-import { filterDataByYear, filterBattlesByDateRange } from './utils/filterUtils.js';
+import { filterDataByYear, filterBattlesByDateRange, filterCampaignsByDate } from './utils/filterUtils.js';
 import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
 import { formatCampaignDate } from './utils/dateUtils.js';
 import { catmullRomSpline } from './utils/splineUtils.js';
@@ -87,6 +87,19 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
 
 // Function to refresh all visible layers with year filter
 export function refreshAllVisibleLayers() {
+    // Handle campaigns separately since they're stored per brigade
+    if (layerState.isCampaignsLayerVisible && layerState.selectedBrigadeId) {
+        const brigadeId = layerState.selectedBrigadeId;
+        if (layerState.allLayerData.campaigns && layerState.allLayerData.campaigns[brigadeId]) {
+            // Remove existing campaign layer
+            if (layerState.campaignsLayer) {
+                map.removeLayer(layerState.campaignsLayer);
+            }
+            // Re-render campaigns with current filter
+            renderCampaigns(layerState.allLayerData.campaigns[brigadeId], brigadeId);
+        }
+    }
+    
     // Iterate through all layers and refresh the visible ones
     Object.keys(LAYER_MAPPING).forEach(layerKey => {
         const layerInfo = LAYER_MAPPING[layerKey];
@@ -355,6 +368,13 @@ export function showCampaigns() {
         return;
     }
     
+    // Check if we have stored campaign data for this brigade
+    if (layerState.allLayerData.campaigns && layerState.allLayerData.campaigns[brigadeId]) {
+        // Use stored data and apply filtering
+        renderCampaigns(layerState.allLayerData.campaigns[brigadeId], brigadeId);
+        return;
+    }
+    
     // Fetch campaigns for the selected brigade
     fetch(`${API_ENDPOINTS.campaigns}/brigade/${brigadeId}`)
         .then(response => response.json())
@@ -364,175 +384,213 @@ export function showCampaigns() {
                 return;
             }
             
-            const newLayer = L.layerGroup().addTo(map);
-            
-            // Create chronological line connecting campaign markers
-            // Extract coordinates from campaigns with valid locations (data is already sorted by date ASC)
-            const pathCoords = [];
-            data.forEach(campaign => {
-                if (campaign.geo_location) {
-                    const coords = parsePoint(campaign.geo_location);
-                    if (coords) {
-                        pathCoords.push([coords.lat, coords.lng]);
-                    }
-                }
-            });
-            
-            // Create polyline if we have at least 2 points
-            if (pathCoords.length >= 2) {
-                // Apply Catmull-Rom spline smoothing for smoother curves
-                const smoothedCoords = catmullRomSpline(pathCoords, 0.5, 10);
-                
-                const campaignPath = L.polyline(smoothedCoords, {
-                    color: '#e74c3c',
-                    weight: 4,
-                    opacity: 0.6,
-                    dashArray: '5, 10',
-                    lineJoin: 'round',
-                    lineCap: 'round'
-                });
-                
-                // Add the line to the layer first (so markers appear on top)
-                newLayer.addLayer(campaignPath);
-                
-                // Add arrow decorators to show direction of movement
-                const decorator = L.polylineDecorator(campaignPath, {
-                    patterns: [
-                        {
-                            offset: '10%',
-                            repeat: 100,
-                            symbol: L.Symbol.arrowHead({
-                                pixelSize: 12,
-                                polygon: false,
-                                pathOptions: {
-                                    stroke: true,
-                                    weight: 3,
-                                    color: '#c0392b',
-                                    opacity: 0.8
-                                }
-                            })
-                        }
-                    ]
-                });
-                
-                newLayer.addLayer(decorator);
+            // Store the fetched data for future use
+            if (!layerState.allLayerData.campaigns) {
+                layerState.allLayerData.campaigns = {};
             }
+            layerState.allLayerData.campaigns[brigadeId] = data;
             
-            // Track the index to identify the first marker (formation site)
-            let campaignIndex = 0;
-            
-            data.forEach(campaign => {
-                if (!campaign.geo_location) {
-                    console.warn(`Skipping campaign without location: ${campaign.place}`);
-                    return;
-                }
-                
-                // Parse the POINT geometry
-                const coords = parsePoint(campaign.geo_location);
-                if (!coords) {
-                    console.warn(`Skipping campaign with invalid location: ${campaign.place}`);
-                    return;
-                }
-                
-                let marker;
-                
-                // First marker (formation site) - use red star icon
-                if (campaignIndex === 0) {
-                    // Create an icon marker using red-star.png
-                    const starIcon = L.icon({
-                        iconUrl: 'assets/icons/red-star.png',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 12],
-                        popupAnchor: [0, -12]
-                    });
-                    marker = L.marker([coords.lat, coords.lng], {
-                        icon: starIcon
-                    });
-                } else {
-                    // Regular campaign markers - use circle
-                    marker = L.circleMarker([coords.lat, coords.lng], {
-                        radius: 6,
-                        fillColor: '#e74c3c',
-                        color: '#c0392b',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    });
-                }
-                
-                campaignIndex++;
-                
-                // Create tooltip with date and operation
-                let tooltipContent = '';
-                if (campaign.date) {
-                    tooltipContent += `<strong>${formatCampaignDate(campaign.date)}</strong><br>`;
-                }
-                if (campaign.operation) {
-                    tooltipContent += campaign.operation;
-                }
-                
-                if (tooltipContent) {
-                    marker.bindTooltip(tooltipContent, {
-                        permanent: false,
-                        direction: 'right',
-                        className: 'campaign-tooltip'
-                    });
-                }
-                
-                // Add popup with full details
-                let popupContent = `<div class="popup-content">`;
-                if (campaign.place) {
-                    popupContent += `<h3>${campaign.place}</h3>`;
-                }
-                if (campaign.date) {
-                    popupContent += `<p><strong>Date:</strong> ${formatCampaignDate(campaign.date)}</p>`;
-                }
-                if (campaign.operation) {
-                    popupContent += `<p><strong>Operation:</strong> ${campaign.operation}</p>`;
-                }
-                if (campaign.division) {
-                    popupContent += `<p><strong>Division:</strong> ${campaign.division}</p>`;
-                }
-                if (campaign.note) {
-                    popupContent += `<p><strong>Note:</strong> ${campaign.note}</p>`;
-                }
-                popupContent += `</div>`;
-                
-                marker.bindPopup(popupContent);
-                
-                // Add click event to hide brigade markers when campaign marker is clicked
-                marker.on('click', function() {
-                    if (layerState.brigadesLayer && layerState.isBrigadesLayerVisible) {
-                        map.removeLayer(layerState.brigadesLayer);
-                        // Store that brigades were hidden by campaign click (not removed completely)
-                        layerState.brigadesLayerTemporarilyHidden = true;
-                    }
-                });
-                
-                newLayer.addLayer(marker);
-            });
-            
-            layerState.campaignsLayer = newLayer;
-            layerState.isCampaignsLayerVisible = true;
-            
-            // Update sidebar
-            let sidebarContent = `<h2>Campaign Movement</h2>`;
-            sidebarContent += `<p>Showing ${data.length} campaign location(s)</p>`;
-            sidebarContent += `<ul>`;
-            data.forEach(campaign => {
-                sidebarContent += `<li><strong>${formatCampaignDate(campaign.date)}:</strong> ${campaign.place || 'Unknown location'}`;
-                if (campaign.note) {
-                    sidebarContent += ` - ${campaign.note}`;
-                }
-                sidebarContent += `</li>`;
-            });
-            sidebarContent += `</ul>`;
-            updateSidebar(sidebarContent);
+            // Render the campaigns with filtering
+            renderCampaigns(data, brigadeId);
         })
         .catch(error => {
             console.error('Error fetching campaigns:', error);
             updateSidebar('<p>Error loading campaign data.</p>');
         });
+}
+
+/**
+ * Render campaign markers and path on the map (with optional date filtering)
+ * @param {Array} data - Campaign data
+ * @param {number} brigadeId - Brigade ID
+ */
+function renderCampaigns(data, brigadeId) {
+    // Apply date filter if selected
+    const filteredData = filterCampaignsByDate(data, layerState.selectedYear, layerState.selectedMonth);
+    
+    if (filteredData.length === 0) {
+        updateSidebar('<p>No campaign data available for the selected time period.</p>');
+        return;
+    }
+    
+    const newLayer = L.layerGroup().addTo(map);
+    
+    // Create chronological line connecting campaign markers
+    // Extract coordinates from campaigns with valid locations (data is already sorted by date ASC)
+    const pathCoords = [];
+    filteredData.forEach(campaign => {
+        if (campaign.geo_location) {
+            const coords = parsePoint(campaign.geo_location);
+            if (coords) {
+                pathCoords.push([coords.lat, coords.lng]);
+            }
+        }
+    });
+    
+    // Create polyline if we have at least 2 points
+    if (pathCoords.length >= 2) {
+        // Apply Catmull-Rom spline smoothing for smoother curves
+        const smoothedCoords = catmullRomSpline(pathCoords, 0.85, 5);
+        
+        const campaignPath = L.polyline(smoothedCoords, {
+            color: '#e74c3c',
+            weight: 4,
+            opacity: 0.6,
+            dashArray: '5, 10',
+            lineJoin: 'round',
+            lineCap: 'round'
+        });
+        
+        // Add the line to the layer first (so markers appear on top)
+        newLayer.addLayer(campaignPath);
+        
+        // Add arrow decorators to show direction of movement
+        const decorator = L.polylineDecorator(campaignPath, {
+            patterns: [
+                {
+                    offset: '10%',
+                    repeat: 100,
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 12,
+                        polygon: false,
+                        pathOptions: {
+                            stroke: true,
+                            weight: 3,
+                            color: '#c0392b',
+                            opacity: 0.8
+                        }
+                    })
+                }
+            ]
+        });
+        
+        newLayer.addLayer(decorator);
+    }
+    
+    // Track if first marker has been added (formation site)
+    let firstMarkerAdded = false;
+    
+    filteredData.forEach(campaign => {
+        if (!campaign.geo_location) {
+            console.warn(`Skipping campaign without location: ${campaign.place}`);
+            return;
+        }
+        
+        // Parse the POINT geometry
+        const coords = parsePoint(campaign.geo_location);
+        if (!coords) {
+            console.warn(`Skipping campaign with invalid location: ${campaign.place}`);
+            return;
+        }
+        
+        let marker;
+        
+        // First marker (formation site) - use red star icon
+        if (!firstMarkerAdded) {
+            // Create an icon marker using red-star.png
+            const starIcon = L.icon({
+                iconUrl: 'assets/icons/red-star.png',
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+                popupAnchor: [0, -12]
+            });
+            marker = L.marker([coords.lat, coords.lng], {
+                icon: starIcon
+            });
+            firstMarkerAdded = true;
+        } else {
+            // Regular campaign markers - use circle
+            marker = L.circleMarker([coords.lat, coords.lng], {
+                radius: 6,
+                fillColor: '#e74c3c',
+                color: '#c0392b',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+        }
+        
+        // Create tooltip with date and operation
+        let tooltipContent = '';
+        if (campaign.date) {
+            tooltipContent += `<strong>${formatCampaignDate(campaign.date)}</strong><br>`;
+        }
+        if (campaign.operation) {
+            tooltipContent += campaign.operation;
+        }
+        
+        if (tooltipContent) {
+            marker.bindTooltip(tooltipContent, {
+                permanent: false,
+                direction: 'right',
+                className: 'campaign-tooltip'
+            });
+        }
+        
+        // Add popup with full details
+        let popupContent = `<div class="popup-content">`;
+        if (campaign.place) {
+            popupContent += `<h3>${campaign.place}</h3>`;
+        }
+        if (campaign.date) {
+            popupContent += `<p><strong>Date:</strong> ${formatCampaignDate(campaign.date)}</p>`;
+        }
+        if (campaign.operation) {
+            popupContent += `<p><strong>Operation:</strong> ${campaign.operation}</p>`;
+        }
+        if (campaign.division) {
+            popupContent += `<p><strong>Division:</strong> ${campaign.division}</p>`;
+        }
+        if (campaign.note) {
+            popupContent += `<p><strong>Note:</strong> ${campaign.note}</p>`;
+        }
+        popupContent += `</div>`;
+        
+        marker.bindPopup(popupContent);
+        
+        // Add click event to hide brigade markers when campaign marker is clicked
+        marker.on('click', function() {
+            if (layerState.brigadesLayer && layerState.isBrigadesLayerVisible) {
+                map.removeLayer(layerState.brigadesLayer);
+                // Store that brigades were hidden by campaign click (not removed completely)
+                layerState.brigadesLayerTemporarilyHidden = true;
+            }
+        });
+        
+        newLayer.addLayer(marker);
+    });
+    
+    layerState.campaignsLayer = newLayer;
+    layerState.isCampaignsLayerVisible = true;
+    
+    // Update sidebar
+    let sidebarContent = `<h2>Campaign Movement</h2>`;
+    if (layerState.selectedYear) {
+        sidebarContent += `<p><em>Filtered to ${layerState.selectedMonth ? 
+            `${getMonthName(layerState.selectedMonth)} ` : ''}${layerState.selectedYear} and earlier</em></p>`;
+    }
+    sidebarContent += `<p>Showing ${filteredData.length} campaign location(s)</p>`;
+    sidebarContent += `<ul>`;
+    filteredData.forEach(campaign => {
+        sidebarContent += `<li><strong>${formatCampaignDate(campaign.date)}:</strong> ${campaign.place || 'Unknown location'}`;
+        if (campaign.operation) {
+            sidebarContent += ` - ${campaign.operation}`;
+        }
+        sidebarContent += `</li>`;
+    });
+    sidebarContent += `</ul>`;
+    updateSidebar(sidebarContent);
+}
+
+/**
+ * Get month name from month number
+ * @param {number} month - Month number (1-12)
+ * @returns {string} Month name
+ */
+function getMonthName(month) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[month - 1] || '';
 }
 
 /**
