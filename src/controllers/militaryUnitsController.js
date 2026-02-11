@@ -46,6 +46,14 @@ async function getMilitaryUnits(tableName, assetFolder) {
                     const filePath = path.join(__dirname, '../../public', 'assets', assetFolder, unit.description);
                     unit.description = await getMarkdownContent(filePath);
                 }
+                
+                // For brigades, check if they have campaign data
+                if (tableName === 'brigades') {
+                    const campaignQuery = `SELECT COUNT(*) as campaign_count FROM campaigns WHERE brigade_id = ?`;
+                    const [campaignResults] = await pool.query(campaignQuery, [unit.id]);
+                    unit.has_campaigns = campaignResults[0].campaign_count > 0;
+                }
+                
                 return unit;
             })
         );

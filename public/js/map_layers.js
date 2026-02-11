@@ -294,13 +294,17 @@ export function handleBrigadeMarkerClick(marker, item) {
     // Store the selected brigade ID
     layerState.selectedBrigadeId = item.id;
     
-    // Show the Campaign button
+    // Show the Campaign button only if this brigade has campaign data
     const campaignButton = document.getElementById('toggleCampaign');
     if (campaignButton) {
-        campaignButton.style.display = 'block';
+        if (item.has_campaigns) {
+            campaignButton.style.display = 'block';
+        } else {
+            campaignButton.style.display = 'none';
+        }
     }
     
-    // Remove campaign layer if visible (but keep the button visible)
+    // Remove campaign layer if visible (but keep the button visible if has_campaigns)
     if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
         map.removeLayer(layerState.campaignsLayer);
         layerState.campaignsLayer = null;
