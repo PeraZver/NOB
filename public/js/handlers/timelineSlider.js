@@ -15,6 +15,9 @@ import { refreshAllVisibleLayers } from '../map_layers.js';
 // Timeline data structure: April 1941 to May 1945 (50 months)
 const TIMELINE_DATA = [];
 
+// Tooltip timeout handle
+let tooltipTimeout = null;
+
 // Populate timeline data
 for (let year = 1941; year <= 1945; year++) {
     const startMonth = (year === 1941) ? 4 : 1;
@@ -40,9 +43,12 @@ export function initializeTimeline() {
     // Generate ticks
     generateTicks(ticksContainer);
     
-    // Set up slider event handler
+    // Set up slider event handlers
     slider.addEventListener('input', handleSliderChange);
     slider.addEventListener('change', handleSliderChange); // For when user releases the slider
+    slider.addEventListener('mousemove', handleSliderHover);
+    slider.addEventListener('mouseenter', handleSliderHover);
+    slider.addEventListener('mouseleave', hideTooltip);
 }
 
 /**
@@ -77,6 +83,9 @@ function generateTicks(container) {
 function handleSliderChange(event) {
     const sliderValue = parseInt(event.target.value);
     
+    // Show tooltip when slider is being dragged
+    showTooltip(sliderValue);
+    
     // Check if any unit layer is currently visible
     const hasActiveLayer = layerState.isBrigadesLayerVisible || 
                            layerState.isDetachmentLayerVisible || 
@@ -98,6 +107,69 @@ function handleSliderChange(event) {
         
         // Refresh all visible layers with the new filter
         refreshAllVisibleLayers();
+    }
+}
+
+/**
+ * Handle slider hover to show tooltip
+ * @param {Event} event - Mouse event from slider
+ */
+function handleSliderHover(event) {
+    const slider = event.target;
+    const sliderValue = parseInt(slider.value);
+    showTooltip(sliderValue);
+}
+
+/**
+ * Show tooltip with month and year
+ * @param {number} sliderValue - Current slider value (0-49)
+ */
+function showTooltip(sliderValue) {
+    const tooltip = document.getElementById('timelineTooltip');
+    const slider = document.getElementById('timelineSlider');
+    
+    if (!tooltip || !slider) return;
+    
+    const timelineData = TIMELINE_DATA[sliderValue];
+    if (!timelineData) return;
+    
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    // Update tooltip text
+    tooltip.textContent = `${monthNames[timelineData.month - 1]} ${timelineData.year}`;
+    
+    // Calculate tooltip position based on slider value
+    const percentage = (sliderValue / 49) * 100;
+    tooltip.style.left = `${percentage}%`;
+    
+    // Show tooltip
+    tooltip.classList.add('visible');
+    
+    // Clear any existing timeout
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+    }
+    
+    // Set timeout to hide tooltip after 1 second
+    tooltipTimeout = setTimeout(() => {
+        hideTooltip();
+    }, 1000);
+}
+
+/**
+ * Hide the tooltip
+ */
+function hideTooltip() {
+    const tooltip = document.getElementById('timelineTooltip');
+    if (tooltip) {
+        tooltip.classList.remove('visible');
+    }
+    
+    // Clear the timeout
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
     }
 }
 
