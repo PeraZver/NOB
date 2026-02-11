@@ -203,7 +203,7 @@ body {
 /* Timeline Tooltip */
 .timeline-tooltip {
     position: absolute;
-    top: -35px;
+    top: 0px;
     left: 50%;
     transform: translateX(-50%);
     background-color: rgba(33, 150, 243, 0.95);
