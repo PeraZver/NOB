@@ -19,6 +19,9 @@ const TIMELINE_DATA = [];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
                      'July', 'August', 'September', 'October', 'November', 'December'];
 
+// Tooltip hide delay in milliseconds
+const TOOLTIP_HIDE_DELAY = 1000;
+
 // Tooltip timeout handle
 let tooltipTimeout = null;
 
@@ -118,6 +121,12 @@ function handleSliderChange(event) {
  * @param {Event} event - Mouse event from slider
  */
 function handleSliderHover(event) {
+    // Clear any existing timeout to prevent premature hiding
+    if (tooltipTimeout) {
+        clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
+    }
+    
     const slider = event.target;
     const sliderValue = parseInt(slider.value);
     showTooltip(sliderValue, false); // Don't set timeout on hover
@@ -127,10 +136,10 @@ function handleSliderHover(event) {
  * Handle mouse leave to start hide timeout
  */
 function handleMouseLeave() {
-    // Set timeout to hide tooltip after 1 second
+    // Set timeout to hide tooltip after delay
     tooltipTimeout = setTimeout(() => {
         hideTooltip();
-    }, 1000);
+    }, TOOLTIP_HIDE_DELAY);
 }
 
 /**
@@ -167,7 +176,7 @@ function showTooltip(sliderValue, setHideTimeout = true) {
     if (setHideTimeout) {
         tooltipTimeout = setTimeout(() => {
             hideTooltip();
-        }, 1000);
+        }, TOOLTIP_HIDE_DELAY);
     }
 }
 
