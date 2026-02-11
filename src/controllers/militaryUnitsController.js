@@ -39,6 +39,23 @@ async function getMilitaryUnits(tableName, assetFolder) {
     try {
         const [results] = await pool.query(query);
 
+        // For brigades, fetch all campaign counts in a single query to avoid N+1 problem
+        let campaignCounts = {};
+        if (tableName === 'brigades' && results.length > 0) {
+            const brigadeIds = results.map(unit => unit.id);
+            const campaignQuery = `
+                SELECT brigade_id, COUNT(*) as campaign_count 
+                FROM campaigns 
+                WHERE brigade_id IN (?)
+                GROUP BY brigade_id
+            `;
+            const [campaignResults] = await pool.query(campaignQuery, [brigadeIds]);
+            campaignCounts = campaignResults.reduce((acc, row) => {
+                acc[row.brigade_id] = row.campaign_count > 0;
+                return acc;
+            }, {});
+        }
+
         // Fetch Markdown content dynamically
         const units = await Promise.all(
             results.map(async (unit) => {
@@ -46,6 +63,12 @@ async function getMilitaryUnits(tableName, assetFolder) {
                     const filePath = path.join(__dirname, '../../public', 'assets', assetFolder, unit.description);
                     unit.description = await getMarkdownContent(filePath);
                 }
+                
+                // For brigades, add the has_campaigns flag
+                if (tableName === 'brigades') {
+                    unit.has_campaigns = campaignCounts[unit.id] || false;
+                }
+                
                 return unit;
             })
         );

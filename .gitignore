@@ -1,5 +1,7 @@
 node_modules
-src/db
+src/db/*.sql
+src/db/*.db
+src/db/data/
 public/img
 *.json
 .env
