@@ -15,40 +15,45 @@ import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from 
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
-export const map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
+export let map = null;
 
-// Load a basic tile layer
-L.tileLayer(MAP_CONFIG.tileLayerUrl, {
-    attribution: MAP_CONFIG.tileLayerAttribution
-}).addTo(map);
+// Initialize map if Leaflet is available
+if (typeof L !== 'undefined') {
+    map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
 
-map.on('click', function (e) {
-    console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
-});
+    // Load a basic tile layer
+    L.tileLayer(MAP_CONFIG.tileLayerUrl, {
+        attribution: MAP_CONFIG.tileLayerAttribution
+    }).addTo(map);
 
-// Add a map click event to reset the sidebar to default text
-map.on('click', function () {
-    const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
-    if (markdownFile) {
-        loadDefaultText(markdownFile);
-    }
-    
-    // Restore brigade markers if they were temporarily hidden by campaign marker click
-    if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
-        map.addLayer(layerState.brigadesLayer);
-        layerState.brigadesLayerTemporarilyHidden = false;
-    }
-    
-    // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
-    if (!layerState.isCampaignsLayerVisible) {
-        const campaignButton = document.getElementById('toggleCampaign');
-        if (campaignButton) {
-            campaignButton.style.display = 'none';
+    map.on('click', function (e) {
+        console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
+    });
+
+    // Add a map click event to reset the sidebar to default text
+    map.on('click', function () {
+        const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
+        if (markdownFile) {
+            loadDefaultText(markdownFile);
         }
-        layerState.selectedBrigadeId = null;
-    }
-    // If campaign markers ARE visible, clicking on map has no effect on them
-});
+        
+        // Restore brigade markers if they were temporarily hidden by campaign marker click
+        if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
+            map.addLayer(layerState.brigadesLayer);
+            layerState.brigadesLayerTemporarilyHidden = false;
+        }
+        
+        // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+        if (!layerState.isCampaignsLayerVisible) {
+            const campaignButton = document.getElementById('toggleCampaign');
+            if (campaignButton) {
+                campaignButton.style.display = 'none';
+            }
+            layerState.selectedBrigadeId = null;
+        }
+        // If campaign markers ARE visible, clicking on map has no effect on them
+    });
+}
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const sidebar = document.getElementById('sidebar');
