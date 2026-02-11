@@ -4,12 +4,12 @@
  - **Date of formation**: December 21, 1941
  - **Place of formation**: Rudo
  - **Constituent battalions**: 
-   - First (Montenegrin) Battalion
-   - Second (Montenegrin) Battalion
-   - Third (Kragujevac) Battalion
-   - Fourth (Kraljevo) Battalion
-   - Fifth (Šumadija) Battalion
-   - Sixth (Belgrade) Battalion
+   - 1st (Montenegrin) Battalion
+   - 2nd (Montenegrin) Battalion
+   - 3rd (Kragujevac) Battalion
+   - 4th (Kraljevo) Battalion
+   - 5th (Šumadija) Battalion
+   - 6th (Belgrade) Battalion
  - **Strength at the time**: 1,200 fighters
  - **Commander**: Koča Popović
  - **Commissar**: Filip Kljajić Fića

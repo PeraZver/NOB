@@ -1,13 +1,12 @@
-```markdown
 # 2nd Proletarian Assault Brigade
 
 ## Formation
  - **Date of formation**: March 1, 1942
  - **Place of formation**: Čajniče
  - **Constituent battalions**: 
-   - Užički Partisan Detachment
-   - Čačanski Partisan Detachment
-   - Second Šumadijski Partisan Detachment
+   - Užice Partisan Detachment
+   - Čačak Partisan Detachment
+   - 2nd Šumadijski Partisan Detachment
  - **Strength at the time**: Approximately 1,000 fighters
  - **Commander**: Ratko Sofijanić
  - **Commissar**: Milinko Kušić
@@ -32,4 +31,3 @@ The brigade moved into Serbia, liberating several towns including Foča, Pljevlj
 In mid-1944, the brigade participated in the Andrijevica operation and fought on the Pešter plateau and the Ibar River. It was active in Kopaonik, Župa, Rasina, and around Kuršumlija, where it excelled in defeating Chetnik forces. The brigade played a notable role in the Belgrade Operation and subsequently operated on the Srem Front until the end of 1944. In early 1945, it participated in battles on the Drina and contributed to the liberation of parts of eastern Bosnia and Slavonia.
 
 The 2nd Proletarian Assault Brigade was highly decorated, receiving the Order of the People's Liberation, the Order of the Partisan Star, the Order of Brotherhood and Unity, and the Order of Bravery. In 1958, it was also awarded the Order of the People's Hero on the fifteenth anniversary of the Battle of Sutjeska.
-```

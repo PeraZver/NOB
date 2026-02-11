@@ -15,17 +15,25 @@ const { hideBin } = require('yargs/helpers');
 const OpenAI = require('openai');
 
 // Parse command-line arguments
-const argv = yargs(hideBin(process.argv))
-    .option('w', {
-        alias: 'web',
-        describe: 'URL of the website to fetch brigade campaign data from',
-        type: 'string',
-        demandOption: true
-    })
-    .help()
-    .argv;
+const argv = require('yargs/yargs')(process.argv.slice(2))
+  .option('website', {
+    alias: 'w',
+    description: 'URL of the brigade campaign page',
+    type: 'string',
+    demandOption: true
+  })
+  .option('model', {
+    alias: 'm',
+    description: 'OpenAI model to use (e.g., gpt-4o, gpt-3.5-turbo, gpt-4)',
+    type: 'string',
+    default: 'gpt-4o'
+  })
+  .help()
+  .argv;
 
-const websiteUrl = argv.web;
+const MODEL = argv.model;
+
+const websiteUrl = argv.website;
 const openaiApiKey = process.env.OPENAI_API_KEY;
 
 if (!openaiApiKey) {
@@ -80,15 +88,15 @@ function extractTextFromHtml(html) {
  * Convert brigade name to filename format
  * Example: "7th Banija Brigade" -> "7th_banija.json"
  */
-function brigadeNameToFilename(brigadeNameFull, brigadeId) {
+function brigadeNameToFilename(name, model) {
     // Extract the core brigade name (remove "Brigade" suffix)
-    let brigadeNameCore = brigadeNameFull.replace(/\s+Brigade\s*$/i, '').trim();
+    let brigadeNameCore = name.replace(/\s+Brigade\s*$/i, '').trim();
     
     // Convert to lowercase and replace spaces with underscores
     let filename = brigadeNameCore.toLowerCase().replace(/\s+/g, '_');
     
     // Add .json extension
-    return `${filename}.json`;
+    return `${filename}_campaign_${model}.json`;
 }
 
 /**
@@ -106,7 +114,7 @@ function extractBrigadeId(brigadeNameFull) {
 /**
  * Query OpenAI to extract brigade campaign data from webpage content
  */
-async function extractBrigadeCampaignData(websiteContent) {
+async function extractBrigadeCampaignData(text) {
     const prompt = `You are an expert military historian analyzing historical documentation about WWII Yugoslav partisan brigades. The content may be in Serbian/Croatian/Bosnian.
 
 Extract brigade campaign and movement data from the following webpage content. Return a JSON object in this exact format:
@@ -140,24 +148,24 @@ IMPORTANT REQUIREMENTS:
 9. Translate brigade/division names to English
 
 Webpage Content:
-${websiteContent}
+${text}
 
 Return ONLY the valid JSON object, nothing else.`;
 
     try {
-        const message = await client.chat.completions.create({
-            model: 'gpt-4o-mini',
-            max_tokens: 4096,
+        const completion = await client.chat.completions.create({
+            model: MODEL,
             messages: [
                 {
                     role: 'user',
                     content: prompt
                 }
-            ]
+            ],
+            max_tokens: 4096,
         });
 
         // Extract the text response
-        const responseText = message.choices[0].message.content;
+        const responseText = completion.choices[0].message.content;
         
         // Parse JSON from response - handle cases where JSON might be wrapped in markdown
         let jsonMatch = responseText.match(/```json\n?([\s\S]*?)\n?```/);
@@ -207,7 +215,7 @@ async function generateBrigadeCampaignJSON() {
         brigadeData.source = websiteUrl;
 
         // Generate filename from brigade name
-        const filename = brigadeNameToFilename(brigadeData.brigade_name, brigadeData.brigade_id);
+        const filename = brigadeNameToFilename(brigadeData.brigade_name, MODEL);
         const outputPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', filename);
 
         // Create directory if it doesn't exist
