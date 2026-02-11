@@ -547,10 +547,11 @@ body {
     }
 
     /* Timeline slider on mobile - positioned above map */
+    /* Position at 60vh from bottom to place timeline above the 60vh-height map */
     .timeline-container {
         position: fixed;
         top: auto;
-        bottom: 60vh; /* Position above the map */
+        bottom: 60vh; /* Matches map height to position timeline just above it */
         left: 0;
         right: 0;
         width: 100%;
