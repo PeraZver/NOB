@@ -76,10 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', function() {
             if (!isMobile()) return; // Only work on mobile
             
-            // Don't close if clicking calendar button or year/month buttons
-            if (item.classList.contains('calendar-button') || 
-                item.classList.contains('year-button') || 
-                item.classList.contains('month-button')) {
+            // Don't close if clicking calendar button
+            if (item.classList.contains('calendar-button')) {
                 return;
             }
             

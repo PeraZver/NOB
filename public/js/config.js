@@ -22,7 +22,7 @@ export const MAP_CONFIG = {
 };
 
 // Icon definitions for different military unit types
-export const icons = {
+export const icons = typeof L !== 'undefined' ? {
     brigades: L.icon({
         iconUrl: 'assets/icons/brigades-icon.png',
         iconSize: [32, 32],
@@ -59,7 +59,7 @@ export const icons = {
         iconAnchor: [12, 24],
         popupAnchor: [0, -24]
     })
-};
+} : {};
 
 // Occupied territory overlay configuration
 export const OCCUPIED_TERRITORY_CONFIG = {

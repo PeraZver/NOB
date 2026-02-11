@@ -44,27 +44,20 @@
 				<li id="toggleBattles">Battles</li>
 				<li id="toggleCampaign" style="display:none;">Campaign</li>
 			</ul>
-			<ul class="menu years-menu" id="yearsMenu">
-				<li id="year1941" class="year-button">1941</li>
-				<li id="year1942" class="year-button">1942</li>
-				<li id="year1943" class="year-button">1943</li>
-				<li id="year1944" class="year-button">1944</li>
-				<li id="year1945" class="year-button">1945</li>
-			</ul>
-			<ul class="menu months-menu" id="monthsMenu">
-				<li id="month1" class="month-button" data-month="1">Jan</li>
-				<li id="month2" class="month-button" data-month="2">Feb</li>
-				<li id="month3" class="month-button" data-month="3">Mar</li>
-				<li id="month4" class="month-button" data-month="4">Apr</li>
-				<li id="month5" class="month-button" data-month="5">May</li>
-				<li id="month6" class="month-button" data-month="6">Jun</li>
-				<li id="month7" class="month-button" data-month="7">Jul</li>
-				<li id="month8" class="month-button" data-month="8">Aug</li>
-				<li id="month9" class="month-button" data-month="9">Sep</li>
-				<li id="month10" class="month-button" data-month="10">Oct</li>
-				<li id="month11" class="month-button" data-month="11">Nov</li>
-				<li id="month12" class="month-button" data-month="12">Dec</li>
-			</ul>
+			<!-- Timeline Slider -->
+			<div class="timeline-container" id="timelineContainer">
+				<div class="timeline-slider-wrapper">
+					<div class="timeline-ticks" id="timelineTicks"></div>
+					<input type="range" min="0" max="49" value="49" class="timeline-slider" id="timelineSlider">
+					<div class="timeline-labels">
+						<span class="timeline-label" style="left: 0%;">1941</span>
+						<span class="timeline-label" style="left: 18%;">1942</span>
+						<span class="timeline-label" style="left: 42.5%;">1943</span>
+						<span class="timeline-label" style="left: 67%;">1944</span>
+						<span class="timeline-label" style="left: 91%;">1945</span>
+					</div>
+				</div>
+			</div>
 		</div>
 		</div>
 		<!-- Map and Sidebar Container -->

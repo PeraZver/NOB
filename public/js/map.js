@@ -11,44 +11,49 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
-import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers, positionCalendarMenus } from './handlers/filterHandlers.js';
+import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
-export const map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
+export let map = null;
 
-// Load a basic tile layer
-L.tileLayer(MAP_CONFIG.tileLayerUrl, {
-    attribution: MAP_CONFIG.tileLayerAttribution
-}).addTo(map);
+// Initialize map if Leaflet is available
+if (typeof L !== 'undefined') {
+    map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
 
-map.on('click', function (e) {
-    console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
-});
+    // Load a basic tile layer
+    L.tileLayer(MAP_CONFIG.tileLayerUrl, {
+        attribution: MAP_CONFIG.tileLayerAttribution
+    }).addTo(map);
 
-// Add a map click event to reset the sidebar to default text
-map.on('click', function () {
-    const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
-    if (markdownFile) {
-        loadDefaultText(markdownFile);
-    }
-    
-    // Restore brigade markers if they were temporarily hidden by campaign marker click
-    if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
-        map.addLayer(layerState.brigadesLayer);
-        layerState.brigadesLayerTemporarilyHidden = false;
-    }
-    
-    // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
-    if (!layerState.isCampaignsLayerVisible) {
-        const campaignButton = document.getElementById('toggleCampaign');
-        if (campaignButton) {
-            campaignButton.style.display = 'none';
+    map.on('click', function (e) {
+        console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
+    });
+
+    // Add a map click event to reset the sidebar to default text
+    map.on('click', function () {
+        const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
+        if (markdownFile) {
+            loadDefaultText(markdownFile);
         }
-        layerState.selectedBrigadeId = null;
-    }
-    // If campaign markers ARE visible, clicking on map has no effect on them
-});
+        
+        // Restore brigade markers if they were temporarily hidden by campaign marker click
+        if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
+            map.addLayer(layerState.brigadesLayer);
+            layerState.brigadesLayerTemporarilyHidden = false;
+        }
+        
+        // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+        if (!layerState.isCampaignsLayerVisible) {
+            const campaignButton = document.getElementById('toggleCampaign');
+            if (campaignButton) {
+                campaignButton.style.display = 'none';
+            }
+            layerState.selectedBrigadeId = null;
+        }
+        // If campaign markers ARE visible, clicking on map has no effect on them
+    });
+}
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const sidebar = document.getElementById('sidebar');
@@ -168,27 +173,11 @@ document.getElementById('toggleCampaign').addEventListener('click', () => {
     showCampaigns();
 });
 
-// Calendar button to toggle years menu
+// Calendar button to toggle timeline slider
 document.getElementById('toggleYearsMenu').addEventListener('click', handleCalendarToggle);
 
-// Year filter button handlers
-document.getElementById('year1941').addEventListener('click', () => handleYearFilter(1941));
-document.getElementById('year1942').addEventListener('click', () => handleYearFilter(1942));
-document.getElementById('year1943').addEventListener('click', () => handleYearFilter(1943));
-document.getElementById('year1944').addEventListener('click', () => handleYearFilter(1944));
-document.getElementById('year1945').addEventListener('click', () => handleYearFilter(1945));
-
-// Month filter button handlers
-for (let month = 1; month <= 12; month++) {
-    document.getElementById(`month${month}`).addEventListener('click', () => handleMonthFilter(month));
-}
-
-// Setup calendar hover handlers for auto-hide functionality
-setupCalendarHoverHandlers();
-
-// Ensure calendar dropdowns align under the calendar button on load and resize (mobile only)
-positionCalendarMenus();
-window.addEventListener('resize', positionCalendarMenus);
+// Initialize the timeline slider and filter handlers
+initializeFilterHandlers();
 
 // Initialize test mode if URL contains testBrigade parameter
 initTestMode();
