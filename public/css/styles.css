@@ -546,15 +546,29 @@ body {
         text-align: center;
     }
 
-    /* Timeline slider on mobile */
+    /* Timeline slider on mobile - positioned above map */
+    .timeline-container {
+        position: fixed;
+        top: auto;
+        bottom: 60vh; /* Position above the map */
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 999;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
     .timeline-container.visible {
         max-height: 100px;
-        margin-top: 15px;
-        margin-bottom: 10px;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 0;
     }
 
     .timeline-slider-wrapper {
         padding: 15px 5px;
+        max-width: 100%;
     }
 
     .timeline-label {
