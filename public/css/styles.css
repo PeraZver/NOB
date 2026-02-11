@@ -546,16 +546,15 @@ body {
         text-align: center;
     }
 
-    /* Timeline slider on mobile - positioned above map */
-    /* Position at 60vh from bottom to place timeline above the 60vh-height map */
+    /* Timeline slider on mobile - pushes content down instead of overlaying */
     .timeline-container {
-        position: fixed;
+        position: relative; /* Changed from fixed to allow natural document flow */
         top: auto;
-        bottom: 60vh; /* Matches map height to position timeline just above it */
-        left: 0;
-        right: 0;
+        bottom: auto;
+        left: auto;
+        right: auto;
         width: 100%;
-        z-index: 999;
+        z-index: 1; /* Behind menu buttons (menu has z-index 1000+) */
         background: white;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -582,6 +581,7 @@ body {
         flex-direction: column;
         width: 100%;
         height: auto;
+        transition: margin-top 0.4s ease-out; /* Smooth transition when timeline appears/disappears */
     }
 
     #map {
