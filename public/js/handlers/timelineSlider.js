@@ -15,6 +15,10 @@ import { refreshAllVisibleLayers } from '../map_layers.js';
 // Timeline data structure: April 1941 to May 1945 (50 months)
 const TIMELINE_DATA = [];
 
+// Month names constant
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+                     'July', 'August', 'September', 'October', 'November', 'December'];
+
 // Tooltip timeout handle
 let tooltipTimeout = null;
 
@@ -46,9 +50,8 @@ export function initializeTimeline() {
     // Set up slider event handlers
     slider.addEventListener('input', handleSliderChange);
     slider.addEventListener('change', handleSliderChange); // For when user releases the slider
-    slider.addEventListener('mousemove', handleSliderHover);
     slider.addEventListener('mouseenter', handleSliderHover);
-    slider.addEventListener('mouseleave', hideTooltip);
+    slider.addEventListener('mouseleave', handleMouseLeave);
 }
 
 /**
@@ -83,8 +86,8 @@ function generateTicks(container) {
 function handleSliderChange(event) {
     const sliderValue = parseInt(event.target.value);
     
-    // Show tooltip when slider is being dragged
-    showTooltip(sliderValue);
+    // Show tooltip when slider is being dragged (with auto-hide timeout)
+    showTooltip(sliderValue, true);
     
     // Check if any unit layer is currently visible
     const hasActiveLayer = layerState.isBrigadesLayerVisible || 
@@ -117,14 +120,25 @@ function handleSliderChange(event) {
 function handleSliderHover(event) {
     const slider = event.target;
     const sliderValue = parseInt(slider.value);
-    showTooltip(sliderValue);
+    showTooltip(sliderValue, false); // Don't set timeout on hover
+}
+
+/**
+ * Handle mouse leave to start hide timeout
+ */
+function handleMouseLeave() {
+    // Set timeout to hide tooltip after 1 second
+    tooltipTimeout = setTimeout(() => {
+        hideTooltip();
+    }, 1000);
 }
 
 /**
  * Show tooltip with month and year
  * @param {number} sliderValue - Current slider value (0-49)
+ * @param {boolean} setHideTimeout - Whether to set timeout to hide tooltip
  */
-function showTooltip(sliderValue) {
+function showTooltip(sliderValue, setHideTimeout = true) {
     const tooltip = document.getElementById('timelineTooltip');
     const slider = document.getElementById('timelineSlider');
     
@@ -133,11 +147,8 @@ function showTooltip(sliderValue) {
     const timelineData = TIMELINE_DATA[sliderValue];
     if (!timelineData) return;
     
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                       'July', 'August', 'September', 'October', 'November', 'December'];
-    
     // Update tooltip text
-    tooltip.textContent = `${monthNames[timelineData.month - 1]} ${timelineData.year}`;
+    tooltip.textContent = `${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
     
     // Calculate tooltip position based on slider value
     const percentage = (sliderValue / 49) * 100;
@@ -149,12 +160,15 @@ function showTooltip(sliderValue) {
     // Clear any existing timeout
     if (tooltipTimeout) {
         clearTimeout(tooltipTimeout);
+        tooltipTimeout = null;
     }
     
-    // Set timeout to hide tooltip after 1 second
-    tooltipTimeout = setTimeout(() => {
-        hideTooltip();
-    }, 1000);
+    // Set timeout to hide tooltip after 1 second only if requested
+    if (setHideTimeout) {
+        tooltipTimeout = setTimeout(() => {
+            hideTooltip();
+        }, 1000);
+    }
 }
 
 /**
@@ -227,8 +241,5 @@ export function getCurrentTimelineDate() {
     
     if (!timelineData) return '';
     
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                       'July', 'August', 'September', 'October', 'November', 'December'];
-    
-    return `${monthNames[timelineData.month - 1]} ${timelineData.year}`;
+    return `${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
 }
