@@ -11,7 +11,7 @@
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
-import { handleYearFilter, handleMonthFilter, handleCalendarToggle, clearYearFilter, setupCalendarHoverHandlers, positionCalendarMenus } from './handlers/filterHandlers.js';
+import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 
 // Declare the map variable globally
@@ -168,27 +168,11 @@ document.getElementById('toggleCampaign').addEventListener('click', () => {
     showCampaigns();
 });
 
-// Calendar button to toggle years menu
+// Calendar button to toggle timeline slider
 document.getElementById('toggleYearsMenu').addEventListener('click', handleCalendarToggle);
 
-// Year filter button handlers
-document.getElementById('year1941').addEventListener('click', () => handleYearFilter(1941));
-document.getElementById('year1942').addEventListener('click', () => handleYearFilter(1942));
-document.getElementById('year1943').addEventListener('click', () => handleYearFilter(1943));
-document.getElementById('year1944').addEventListener('click', () => handleYearFilter(1944));
-document.getElementById('year1945').addEventListener('click', () => handleYearFilter(1945));
-
-// Month filter button handlers
-for (let month = 1; month <= 12; month++) {
-    document.getElementById(`month${month}`).addEventListener('click', () => handleMonthFilter(month));
-}
-
-// Setup calendar hover handlers for auto-hide functionality
-setupCalendarHoverHandlers();
-
-// Ensure calendar dropdowns align under the calendar button on load and resize (mobile only)
-positionCalendarMenus();
-window.addEventListener('resize', positionCalendarMenus);
+// Initialize the timeline slider and filter handlers
+initializeFilterHandlers();
 
 // Initialize test mode if URL contains testBrigade parameter
 initTestMode();
