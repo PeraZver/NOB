@@ -2,6 +2,8 @@ node_modules
 src/db/*.sql
 src/db/*.db
 src/db/data/
+src/db/backups/
+src/db/backup_test/
 public/img
 *.json
 .env

@@ -125,6 +125,7 @@ Extract brigade campaign and movement data from the following webpage content. R
     }
   ],
   "notes": "<any general notes about the data>"
+  "source": "<URL of the webpage>"
 }
 
 IMPORTANT REQUIREMENTS:
