@@ -25,12 +25,14 @@ const militaryUnitsRoutes = require('./routes/militaryUnitsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const battlesRoutes = require('./routes/battlesRoutes');
 const campaignsRoutes = require('./routes/campaignsRoutes');
+const crimesRoutes = require('./routes/crimesRoutes');
 
 // Register routes
 app.use('/api', militaryUnitsRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api', battlesRoutes);
 app.use('/api', campaignsRoutes);
+app.use('/api', crimesRoutes);
 
 // Start server
 app.listen(port, () => {
