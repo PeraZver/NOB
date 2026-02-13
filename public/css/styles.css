@@ -205,11 +205,11 @@ body {
     background: transparent;
     cursor: pointer;
     pointer-events: auto;
-    margin-top: -4px;
+    margin-top: -12px; /* Increased from -4px to expand clickable area */
     z-index: 3;
     /* Create triangle pointing right for after slider */
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased from 8px for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased from 8px for larger clickable area */
     border-left: 12px solid #1565C0; /* Dark blue */
 }
 
@@ -222,37 +222,37 @@ body {
     z-index: 3;
     border: none;
     /* Create triangle pointing right for after slider */
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased from 8px for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased from 8px for larger clickable area */
     border-left: 12px solid #1565C0; /* Dark blue */
 }
 
 /* After slider (left) - points right */
 .timeline-slider-after::-webkit-slider-thumb {
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased for larger clickable area */
     border-left: 12px solid #1565C0; /* Triangle pointing right */
     border-right: 0;
 }
 
 .timeline-slider-after::-moz-range-thumb {
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased for larger clickable area */
     border-left: 12px solid #1565C0; /* Triangle pointing right */
     border-right: 0;
 }
 
 /* Before slider (right) - points left */
 .timeline-slider-before::-webkit-slider-thumb {
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased for larger clickable area */
     border-right: 12px solid #1565C0; /* Triangle pointing left */
     border-left: 0;
 }
 
 .timeline-slider-before::-moz-range-thumb {
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
+    border-top: 16px solid transparent; /* Increased for larger clickable area */
+    border-bottom: 16px solid transparent; /* Increased for larger clickable area */
     border-right: 12px solid #1565C0; /* Triangle pointing left */
     border-left: 0;
 }
@@ -276,9 +276,11 @@ body {
 .timeline-labels {
     display: flex;
     justify-content: space-between;
-    position: relative;
-    margin-top: 18px; /* Increased spacing to prevent overlap with ticks */
-    padding: 0 10px;
+    position: absolute;
+    top: 8px; /* Position labels above timeline track (track is at top: 29px) */
+    left: 10px;
+    right: 10px;
+    pointer-events: none;
 }
 
 .timeline-label {
