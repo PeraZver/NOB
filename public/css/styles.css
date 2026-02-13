@@ -654,7 +654,7 @@ body {
     .timeline-container.visible {
         max-height: 100px;
         margin-top: 0;
-        margin-bottom: 0;
+        margin-bottom: 20px; /* Add spacing between timeline and map on mobile */
         padding: 0;
     }
 
