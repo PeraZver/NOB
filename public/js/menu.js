@@ -71,13 +71,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Close menu when menu item is clicked (on mobile only)
-    const mainMenuItems = document.querySelectorAll('.menu li');
+    const mainMenuItems = document.querySelectorAll('.menu li, .submenu li');
     mainMenuItems.forEach(item => {
         item.addEventListener('click', function() {
             if (!isMobile()) return; // Only work on mobile
             
-            // Don't close if clicking calendar button
-            if (item.classList.contains('calendar-button')) {
+            // Don't close if clicking calendar button or main menu buttons with submenus
+            if (item.classList.contains('calendar-button') || 
+                item.classList.contains('menu-item-with-submenu') ||
+                item.querySelector('.menu-button')) {
                 return;
             }
             

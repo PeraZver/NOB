@@ -35,14 +35,35 @@
 		<!-- Menu Section -->
 		<div class="menu-section">
 			<ul class="menu">
+				<!-- Calendar Button -->
 				<li id="toggleYearsMenu" class="calendar-button" title="Toggle year filter">📅</li>
-				<li id="toggleOccupiedTerritory">Occupation</li>
-				<li id="toggleDetachments">Detachments</li>
-				<li id="toggleBrigades">Brigades</li>
-				<li id="toggleDivisions">Divisions</li>
-				<li id="toggleCorps">Corps</li>
-				<li id="toggleBattles">Battles</li>
-				<li id="toggleCampaign" style="display:none;">Campaign</li>
+				
+				<!-- Formations Button with Submenu -->
+				<li class="menu-item-with-submenu">
+					<button id="toggleFormations" class="menu-button">Formations</button>
+					<ul class="submenu" id="formationsSubmenu">
+						<li id="toggleDetachments">Detachments</li>
+						<li id="toggleBrigades">Brigades</li>
+						<li id="toggleDivisions">Divisions</li>
+						<li id="toggleCorps">Corps</li>
+					</ul>
+				</li>
+				
+				<!-- Campaigns Button with Submenu -->
+				<li class="menu-item-with-submenu">
+					<button id="toggleCampaigns" class="menu-button">Campaigns</button>
+					<ul class="submenu" id="campaignsSubmenu">
+						<li id="toggleMovement">Movement</li>
+						<li id="toggleBattles">Battles</li>
+						<li id="toggleCrimes">Crimes</li>
+					</ul>
+				</li>
+				
+				<!-- About Button -->
+				<li id="toggleAbout" class="menu-button-item">About</li>
+				
+				<!-- Campaign Trail Button (hidden by default, shown when brigade with campaigns is selected) -->
+				<li id="toggleCampaign" style="display:none;" title="Show campaign trail">🛤️</li>
 			</ul>
 		</div>
 		</div>

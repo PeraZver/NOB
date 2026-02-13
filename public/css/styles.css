@@ -92,6 +92,194 @@ body {
     color: white;
 }
 
+/* Menu items with submenus */
+.menu-item-with-submenu {
+    position: relative;
+    margin: 0 15px;
+    list-style: none;
+}
+
+.menu-button {
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    outline: none;
+}
+
+.menu-button:hover {
+    background-color: #e0e0e0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.menu-button.active {
+    background-color: #d0d0d0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.menu-button-item {
+    cursor: pointer;
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    list-style: none;
+}
+
+.menu-button-item:hover {
+    background-color: #e0e0e0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Submenu styles */
+.submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 5px 0;
+    margin-top: 5px;
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.submenu.active {
+    display: block;
+}
+
+.submenu li {
+    margin: 0;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+}
+
+.submenu li:hover {
+    background-color: #f0f0f0;
+    box-shadow: none;
+}
+
+.submenu li:first-child {
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.submenu li:last-child {
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+/* About Modal Styles */
+.about-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.about-modal-dialog {
+    background-color: white;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.about-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.about-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.about-modal-close {
+    background: none;
+    border: none;
+    font-size: 32px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.about-modal-close:hover {
+    color: #000;
+}
+
+.about-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.about-modal-content {
+    text-align: left;
+    line-height: 1.6;
+}
+
+.about-modal-content h1,
+.about-modal-content h2,
+.about-modal-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.about-modal-content h1 {
+    font-size: 28px;
+}
+
+.about-modal-content h2 {
+    font-size: 24px;
+}
+
+.about-modal-content h3 {
+    font-size: 20px;
+}
+
+.about-modal-content p {
+    margin: 10px 0;
+}
+
+.about-modal-content ul {
+    margin: 10px 0;
+    padding-left: 30px;
+}
+
+
 /* Timeline Slider Styles */
 .timeline-container {
     width: 100%;
@@ -636,6 +824,68 @@ body {
         margin: 5px 0;
         width: 70%;
         text-align: center;
+    }
+    
+    /* Mobile menu adjustments for new structure */
+    .menu-item-with-submenu {
+        width: 70%;
+        margin: 5px 0;
+    }
+    
+    .menu-button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .menu-button-item {
+        width: 70%;
+        margin: 5px 0;
+        text-align: center;
+    }
+    
+    .submenu {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        width: 100%;
+        box-shadow: none;
+        border: none;
+        background-color: #f8f8f8;
+    }
+    
+    .submenu li {
+        width: 100%;
+        margin: 0;
+        padding: 8px 15px;
+        text-align: center;
+    }
+    
+    /* About modal adjustments for mobile */
+    .about-modal-dialog {
+        max-width: 95%;
+        max-height: 85vh;
+    }
+    
+    .about-modal-header h2 {
+        font-size: 20px;
+    }
+    
+    .about-modal-body {
+        padding: 15px;
+    }
+    
+    .about-modal-content h1 {
+        font-size: 22px;
+    }
+    
+    .about-modal-content h2 {
+        font-size: 20px;
+    }
+    
+    .about-modal-content h3 {
+        font-size: 18px;
     }
 
     /* Timeline slider on mobile - pushes content down instead of overlaying */

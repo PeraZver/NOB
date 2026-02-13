@@ -9,10 +9,11 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
+import { initializeMenuHandlers } from './menuHandlers.js';
 
 // Declare the map variable globally
 export let map = null;
@@ -131,6 +132,13 @@ function showLayerByName(layerName) {
             `;
             showBattles();
             break;
+        case 'Crimes':
+            content.innerHTML = `
+                <h1>War Crimes</h1>
+                <p>Information about war crimes will be displayed here.</p>
+            `;
+            showCrimes();
+            break;
     }
 
     if (markdownFile) {
@@ -144,10 +152,7 @@ function showLayerByName(layerName) {
 }
 
 
-document.getElementById('toggleOccupiedTerritory').addEventListener('click', () => {
-    toggleSidebar('Occupied Territory');
-});
-
+// Formations submenu handlers
 document.getElementById('toggleDetachments').addEventListener('click', () => {
     toggleSidebar('Detachments');
 });
@@ -164,8 +169,18 @@ document.getElementById('toggleCorps').addEventListener('click', () => {
     toggleSidebar('Corps');
 });
 
+// Campaigns submenu handlers
+document.getElementById('toggleMovement').addEventListener('click', () => {
+    // Show only brigades that have campaign data
+    showBrigadesWithCampaigns();
+});
+
 document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
+});
+
+document.getElementById('toggleCrimes').addEventListener('click', () => {
+    toggleSidebar('Crimes');
 });
 
 // Campaign button to show campaigns for selected brigade
@@ -175,6 +190,9 @@ document.getElementById('toggleCampaign').addEventListener('click', () => {
 
 // Calendar button to toggle timeline slider
 document.getElementById('toggleYearsMenu').addEventListener('click', handleCalendarToggle);
+
+// Initialize the menu handlers (submenus and About modal)
+initializeMenuHandlers();
 
 // Initialize the timeline slider and filter handlers
 initializeFilterHandlers();
