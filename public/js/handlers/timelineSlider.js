@@ -181,16 +181,13 @@ function handleSliderChange(event, sliderType) {
  * @param {string} sliderType - Either 'after' or 'before'
  */
 function handleSliderHover(event, sliderType) {
-    const tooltipTimeout = sliderType === 'after' ? tooltipTimeoutAfter : tooltipTimeoutBefore;
-    
     // Clear any existing timeout to prevent premature hiding
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        if (sliderType === 'after') {
-            tooltipTimeoutAfter = null;
-        } else {
-            tooltipTimeoutBefore = null;
-        }
+    if (sliderType === 'after' && tooltipTimeoutAfter) {
+        clearTimeout(tooltipTimeoutAfter);
+        tooltipTimeoutAfter = null;
+    } else if (sliderType === 'before' && tooltipTimeoutBefore) {
+        clearTimeout(tooltipTimeoutBefore);
+        tooltipTimeoutBefore = null;
     }
     
     const slider = event.target;
