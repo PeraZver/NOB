@@ -205,12 +205,12 @@ body {
     background: transparent;
     cursor: pointer;
     pointer-events: auto;
-    margin-top: -14px; /* Adjusted for larger triangle */
+    margin-top: -18px; /* Adjusted for larger triangle (track 8px, total thumb 44px: (44-8)/2 = 18) */
     z-index: 3;
     /* Create triangle pointing right for after slider */
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-left: 16px solid #1565C0; /* Larger visible triangle - Dark blue */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-left: 20px solid #1565C0; /* Increased visible triangle - Dark blue */
 }
 
 .timeline-slider::-moz-range-thumb {
@@ -222,38 +222,38 @@ body {
     z-index: 3;
     border: none;
     /* Create triangle pointing right for after slider */
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-left: 16px solid #1565C0; /* Larger visible triangle - Dark blue */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-left: 20px solid #1565C0; /* Increased visible triangle - Dark blue */
 }
 
 /* After slider (left) - points right */
 .timeline-slider-after::-webkit-slider-thumb {
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-left: 16px solid #1565C0; /* Larger visible triangle pointing right */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-left: 20px solid #1565C0; /* Increased visible triangle pointing right */
     border-right: 0;
 }
 
 .timeline-slider-after::-moz-range-thumb {
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-left: 16px solid #1565C0; /* Larger visible triangle pointing right */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-left: 20px solid #1565C0; /* Increased visible triangle pointing right */
     border-right: 0;
 }
 
 /* Before slider (right) - points left */
 .timeline-slider-before::-webkit-slider-thumb {
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-right: 16px solid #1565C0; /* Larger visible triangle pointing left */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-right: 20px solid #1565C0; /* Increased visible triangle pointing left */
     border-left: 0;
 }
 
 .timeline-slider-before::-moz-range-thumb {
-    border-top: 18px solid transparent; /* Larger clickable area */
-    border-bottom: 18px solid transparent; /* Larger clickable area */
-    border-right: 16px solid #1565C0; /* Larger visible triangle pointing left */
+    border-top: 22px solid transparent; /* Increased clickable area */
+    border-bottom: 22px solid transparent; /* Increased clickable area */
+    border-right: 20px solid #1565C0; /* Increased visible triangle pointing left */
     border-left: 0;
 }
 
@@ -652,19 +652,73 @@ body {
     }
     
     .timeline-container.visible {
-        max-height: 100px;
+        max-height: 140px; /* Increased from 100px for better visibility */
         margin-top: 0;
-        margin-bottom: 20px; /* Add spacing between timeline and map on mobile */
+        margin-bottom: 30px; /* Increased from 20px for more spacing from map */
         padding: 0;
     }
 
     .timeline-slider-wrapper {
-        padding: 15px 5px;
+        padding: 20px 8px; /* Increased padding for more breathing room */
         max-width: 100%;
     }
 
     .timeline-label {
-        font-size: 11px;
+        font-size: 12px; /* Increased from 11px for better readability */
+        font-weight: bold;
+    }
+    
+    /* Larger ticks on mobile for better visibility */
+    .timeline-tick {
+        height: 16px; /* Increased from 12px */
+    }
+    
+    .timeline-tick.first,
+    .timeline-tick.last,
+    .timeline-tick.january {
+        height: 24px; /* Increased from 18px - 50% taller than regular */
+    }
+    
+    /* Larger triangular sliders on mobile */
+    .timeline-slider::-webkit-slider-thumb {
+        margin-top: -20px; /* Adjusted for mobile (track 8px, total thumb 48px: (48-8)/2 = 20) */
+        border-top: 24px solid transparent; /* Even larger clickable area on mobile */
+        border-bottom: 24px solid transparent;
+        border-left: 22px solid #1565C0; /* Larger visible triangle on mobile */
+    }
+    
+    .timeline-slider::-moz-range-thumb {
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-left: 22px solid #1565C0;
+    }
+    
+    .timeline-slider-after::-webkit-slider-thumb {
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-left: 22px solid #1565C0;
+        border-right: 0;
+    }
+    
+    .timeline-slider-after::-moz-range-thumb {
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-left: 22px solid #1565C0;
+        border-right: 0;
+    }
+    
+    .timeline-slider-before::-webkit-slider-thumb {
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-right: 22px solid #1565C0;
+        border-left: 0;
+    }
+    
+    .timeline-slider-before::-moz-range-thumb {
+        border-top: 24px solid transparent;
+        border-bottom: 24px solid transparent;
+        border-right: 22px solid #1565C0;
+        border-left: 0;
     }
 
     /* Map and sidebar adjustments for mobile */
