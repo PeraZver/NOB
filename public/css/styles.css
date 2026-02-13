@@ -257,14 +257,6 @@ body {
     border-left: 0;
 }
 
-.timeline-slider::-webkit-slider-thumb:hover {
-    border-left-color: #0D47A1; /* Darker blue on hover */
-}
-
-.timeline-slider::-moz-range-thumb:hover {
-    border-left-color: #0D47A1; /* Darker blue on hover */
-}
-
 .timeline-slider-after::-webkit-slider-thumb:hover {
     border-left-color: #0D47A1;
 }
@@ -285,7 +277,7 @@ body {
     display: flex;
     justify-content: space-between;
     position: relative;
-    margin-top: 18px; /* Increased spacing to push labels above ticks */
+    margin-top: 18px; /* Increased spacing to prevent overlap with ticks */
     padding: 0 10px;
 }
 
