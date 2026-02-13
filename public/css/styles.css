@@ -153,7 +153,7 @@ body {
     z-index: 1;
 }
 
-/* Background track - gray line showing the timeline */
+/* Background track - gradient showing the timeline */
 .timeline-slider-wrapper::before {
     content: '';
     position: absolute;
@@ -161,7 +161,7 @@ body {
     left: 10px;
     right: 10px;
     height: 8px;
-    background: #e0e0e0;
+    background: linear-gradient(to right, #e0e0e0 0%, #2196F3 100%);
     border-radius: 5px;
     z-index: 0;
 }
@@ -202,6 +202,7 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
+    background: #2196F3;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -214,6 +215,7 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
+    background: #2196F3;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -221,37 +223,11 @@ body {
     z-index: 2;
 }
 
-/* After slider (left/green) */
-.timeline-slider-after::-webkit-slider-thumb {
-    background: #4CAF50;
-}
-
-.timeline-slider-after::-moz-range-thumb {
-    background: #4CAF50;
-}
-
-.timeline-slider-after::-webkit-slider-thumb:hover {
-    background: #45a049;
-}
-
-.timeline-slider-after::-moz-range-thumb:hover {
-    background: #45a049;
-}
-
-/* Before slider (right/blue) */
-.timeline-slider-before::-webkit-slider-thumb {
-    background: #2196F3;
-}
-
-.timeline-slider-before::-moz-range-thumb {
-    background: #2196F3;
-}
-
-.timeline-slider-before::-webkit-slider-thumb:hover {
+.timeline-slider::-webkit-slider-thumb:hover {
     background: #1976D2;
 }
 
-.timeline-slider-before::-moz-range-thumb:hover {
+.timeline-slider::-moz-range-thumb:hover {
     background: #1976D2;
 }
 

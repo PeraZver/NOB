@@ -229,9 +229,8 @@ function showTooltip(sliderValue, sliderType, setHideTimeout = true) {
     const timelineData = TIMELINE_DATA[sliderValue];
     if (!timelineData) return;
     
-    // Update tooltip text
-    const label = sliderType === 'after' ? 'After: ' : 'Before: ';
-    tooltip.textContent = `${label}${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
+    // Update tooltip text - just show the date without "After:" or "Before:" label
+    tooltip.textContent = `${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
     
     // Calculate tooltip position based on slider value
     const percentage = (sliderValue / 49) * 100;
