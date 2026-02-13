@@ -125,6 +125,7 @@ body {
     display: flex;
     justify-content: space-between;
     pointer-events: none;
+    z-index: 2; /* Place ticks above timeline track */
 }
 
 .timeline-tick {
@@ -153,7 +154,7 @@ body {
     z-index: 1;
 }
 
-/* Background track - gradient showing the timeline */
+/* Background track - translucent gray */
 .timeline-slider-wrapper::before {
     content: '';
     position: absolute;
@@ -161,7 +162,7 @@ body {
     left: 10px;
     right: 10px;
     height: 8px;
-    background: linear-gradient(to right, #e0e0e0 0%, #2196F3 100%);
+    background: rgba(224, 224, 224, 0.6); /* Translucent gray */
     border-radius: 5px;
     z-index: 0;
 }
@@ -199,43 +200,84 @@ body {
 .timeline-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #2196F3;
+    width: 0;
+    height: 0;
+    background: transparent;
     cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
-    margin-top: -6px;
-    z-index: 2;
+    margin-top: -4px;
+    z-index: 3;
+    /* Create triangle pointing right for after slider */
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #1565C0; /* Dark blue */
 }
 
 .timeline-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #2196F3;
+    width: 0;
+    height: 0;
+    background: transparent;
     cursor: pointer;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
-    z-index: 2;
+    z-index: 3;
+    border: none;
+    /* Create triangle pointing right for after slider */
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #1565C0; /* Dark blue */
 }
 
-.timeline-slider::-webkit-slider-thumb:hover {
-    background: #1976D2;
+/* After slider (left) - points right */
+.timeline-slider-after::-webkit-slider-thumb {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #1565C0; /* Triangle pointing right */
+    border-right: 0;
 }
 
-.timeline-slider::-moz-range-thumb:hover {
-    background: #1976D2;
+.timeline-slider-after::-moz-range-thumb {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #1565C0; /* Triangle pointing right */
+    border-right: 0;
+}
+
+/* Before slider (right) - points left */
+.timeline-slider-before::-webkit-slider-thumb {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 12px solid #1565C0; /* Triangle pointing left */
+    border-left: 0;
+}
+
+.timeline-slider-before::-moz-range-thumb {
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 12px solid #1565C0; /* Triangle pointing left */
+    border-left: 0;
+}
+
+.timeline-slider-after::-webkit-slider-thumb:hover {
+    border-left-color: #0D47A1;
+}
+
+.timeline-slider-after::-moz-range-thumb:hover {
+    border-left-color: #0D47A1;
+}
+
+.timeline-slider-before::-webkit-slider-thumb:hover {
+    border-right-color: #0D47A1;
+}
+
+.timeline-slider-before::-moz-range-thumb:hover {
+    border-right-color: #0D47A1;
 }
 
 .timeline-labels {
     display: flex;
     justify-content: space-between;
     position: relative;
-    margin-top: 10px;
+    margin-top: 18px; /* Increased spacing to prevent overlap with ticks */
     padding: 0 10px;
 }
 
