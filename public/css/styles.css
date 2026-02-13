@@ -113,7 +113,7 @@ body {
     width: 100%;
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px 10px 30px 10px; /* Increased bottom padding to prevent tick clipping */
+    padding: 5px 10px 60px 10px; /* User-specified: compact top, generous bottom for full visibility */
 }
 
 .timeline-ticks {
@@ -131,14 +131,14 @@ body {
 .timeline-tick {
     width: 1px;
     background-color: #666;
-    height: 9px; /* Reduced by 25% from 12px for better proportions */
+    height: 10px; /* User-specified: standard height for all devices */
     position: relative;
 }
 
 .timeline-tick.first,
 .timeline-tick.last,
 .timeline-tick.january {
-    height: 14px; /* Reduced by ~22% from 18px, now 56% taller than regular ticks */
+    height: 20px; /* User-specified: 2× regular ticks (100% larger) */
     background-color: #333;
 }
 
@@ -659,7 +659,7 @@ body {
     }
 
     .timeline-slider-wrapper {
-        padding: 20px 8px 35px 8px; /* Increased bottom padding to prevent tick clipping on mobile */
+        padding: 5px 10px 60px 10px; /* User-specified: same as desktop for consistency */
         max-width: 100%;
     }
 
@@ -668,15 +668,15 @@ body {
         font-weight: bold;
     }
     
-    /* Larger ticks on mobile for better visibility */
+    /* Standard tick heights on mobile - same as desktop */
     .timeline-tick {
-        height: 16px; /* Increased from 12px */
+        height: 10px; /* User-specified: same as desktop */
     }
     
     .timeline-tick.first,
     .timeline-tick.last,
     .timeline-tick.january {
-        height: 24px; /* Increased from 18px - 50% taller than regular */
+        height: 20px; /* User-specified: 2× regular, same as desktop */
     }
     
     /* Larger triangular sliders on mobile */
