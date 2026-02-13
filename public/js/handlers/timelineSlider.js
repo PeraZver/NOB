@@ -110,9 +110,9 @@ function updateTrackFill() {
     const endPercent = (beforeValue / 49) * 100;
     
     // Calculate position within the timeline-slider-wrapper (accounting for 10px padding)
-    // The sliders now have width: calc(100% - 20px) and left: 10px
-    trackFill.style.left = `calc(10px + ${startPercent}% * (100% - 20px) / 100%)`;
-    trackFill.style.width = `calc((${endPercent - startPercent}%) * (100% - 20px) / 100%)`;
+    // The sliders have width: calc(100% - 20px) and left: 10px
+    trackFill.style.left = `calc(10px + (100% - 20px) * ${startPercent} / 100)`;
+    trackFill.style.width = `calc((100% - 20px) * ${endPercent - startPercent} / 100)`;
 }
 
 /**
