@@ -58,8 +58,16 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
                 // Store all data for filtering
                 layerState.allLayerData[layerName] = data;
                 
-                // Filter data based on selected year and month
-                const filteredData = filterDataByYear(data, layerState.selectedYear, layerState.selectedMonth);
+                // Filter data based on selected year/month range
+                const filteredData = filterDataByYear(
+                    data, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
                 
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
@@ -121,9 +129,25 @@ export function refreshAllVisibleLayers() {
             // Filter based on layer type - battles use date range filtering
             let filteredData;
             if (layerInfo.filterType === 'dateRange') {
-                filteredData = filterBattlesByDateRange(storedData, layerState.selectedYear, layerState.selectedMonth);
+                filteredData = filterBattlesByDateRange(
+                    storedData, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
             } else {
-                filteredData = filterDataByYear(storedData, layerState.selectedYear, layerState.selectedMonth);
+                filteredData = filterDataByYear(
+                    storedData, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
             }
             
             const newLayer = L.layerGroup().addTo(map);
@@ -168,8 +192,16 @@ export function showBattles() {
                 // Store all data for filtering
                 layerState.allLayerData['battlesLayer'] = data;
 
-                // Filter data based on selected year and month using battle-specific filter
-                const filteredData = filterBattlesByDateRange(data, layerState.selectedYear, layerState.selectedMonth);
+                // Filter data based on selected year/month range using battle-specific filter
+                const filteredData = filterBattlesByDateRange(
+                    data, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
 
                 const newLayer = L.layerGroup().addTo(map);
                 filteredData.forEach(item => {
@@ -410,7 +442,15 @@ export function showCampaigns() {
  */
 function renderCampaigns(data, brigadeId) {
     // Apply date filter if selected
-    const filteredData = filterCampaignsByDate(data, layerState.selectedYear, layerState.selectedMonth);
+    const filteredData = filterCampaignsByDate(
+        data, 
+        layerState.selectedYear, 
+        layerState.selectedMonth,
+        layerState.selectedYearStart,
+        layerState.selectedMonthStart,
+        layerState.selectedYearEnd,
+        layerState.selectedMonthEnd
+    );
     
     if (filteredData.length === 0) {
         updateSidebar('<p>No campaign data available for the selected time period.</p>');
