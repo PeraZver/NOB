@@ -7,6 +7,9 @@
  * Authors: Pero & Github Copilot
  */
 
+// Track if modal escape listener has been added
+let modalEscapeListenerAdded = false;
+
 /**
  * Initialize menu handlers for submenus and modals
  */
@@ -60,6 +63,19 @@ export function initializeMenuHandlers() {
             closeAllSubmenus();
         }
     });
+    
+    // Add global Escape key listener for About modal (only once)
+    if (!modalEscapeListenerAdded) {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('aboutModal');
+                if (modal && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                }
+            }
+        });
+        modalEscapeListenerAdded = true;
+    }
 }
 
 /**
@@ -152,13 +168,6 @@ function createAboutModal() {
     // Close on outside click
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
-    
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
             modal.style.display = 'none';
         }
     });
