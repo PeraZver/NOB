@@ -1,8 +1,8 @@
 /**
  * timelineSlider.js - Timeline slider functionality for NOB project
  * 
- * Handles the timeline slider UI component that allows users to filter events
- * by date from April 1941 to May 1945. The slider has 50 discrete positions
+ * Handles the dual timeline slider UI component that allows users to filter events
+ * by date range from April 1941 to May 1945. The sliders have 50 discrete positions
  * representing each month in this time period.
  * 
  * Created: 02/2026
@@ -22,8 +22,9 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 // Tooltip hide delay in milliseconds
 const TOOLTIP_HIDE_DELAY = 1000;
 
-// Tooltip timeout handle
-let tooltipTimeout = null;
+// Tooltip timeout handles
+let tooltipTimeoutAfter = null;
+let tooltipTimeoutBefore = null;
 
 // Populate timeline data
 for (let year = 1941; year <= 1945; year++) {
@@ -40,9 +41,10 @@ for (let year = 1941; year <= 1945; year++) {
  */
 export function initializeTimeline() {
     const ticksContainer = document.getElementById('timelineTicks');
-    const slider = document.getElementById('timelineSlider');
+    const sliderAfter = document.getElementById('timelineSliderAfter');
+    const sliderBefore = document.getElementById('timelineSliderBefore');
     
-    if (!ticksContainer || !slider) {
+    if (!ticksContainer || !sliderAfter || !sliderBefore) {
         console.error('Timeline elements not found');
         return;
     }
@@ -50,11 +52,20 @@ export function initializeTimeline() {
     // Generate ticks
     generateTicks(ticksContainer);
     
-    // Set up slider event handlers
-    slider.addEventListener('input', handleSliderChange);
-    slider.addEventListener('change', handleSliderChange); // For when user releases the slider
-    slider.addEventListener('mouseenter', handleSliderHover);
-    slider.addEventListener('mouseleave', handleMouseLeave);
+    // Set up slider event handlers for "after" slider
+    sliderAfter.addEventListener('input', (e) => handleSliderChange(e, 'after'));
+    sliderAfter.addEventListener('change', (e) => handleSliderChange(e, 'after'));
+    sliderAfter.addEventListener('mouseenter', (e) => handleSliderHover(e, 'after'));
+    sliderAfter.addEventListener('mouseleave', () => handleMouseLeave('after'));
+    
+    // Set up slider event handlers for "before" slider
+    sliderBefore.addEventListener('input', (e) => handleSliderChange(e, 'before'));
+    sliderBefore.addEventListener('change', (e) => handleSliderChange(e, 'before'));
+    sliderBefore.addEventListener('mouseenter', (e) => handleSliderHover(e, 'before'));
+    sliderBefore.addEventListener('mouseleave', () => handleMouseLeave('before'));
+    
+    // Update track fill initially
+    updateTrackFill();
 }
 
 /**
@@ -83,14 +94,55 @@ function generateTicks(container) {
 }
 
 /**
+ * Update the visual track fill between sliders
+ */
+function updateTrackFill() {
+    const sliderAfter = document.getElementById('timelineSliderAfter');
+    const sliderBefore = document.getElementById('timelineSliderBefore');
+    const trackFill = document.getElementById('timelineTrackFill');
+    
+    if (!sliderAfter || !sliderBefore || !trackFill) return;
+    
+    const afterValue = parseInt(sliderAfter.value);
+    const beforeValue = parseInt(sliderBefore.value);
+    
+    const startPercent = (afterValue / 49) * 100;
+    const endPercent = (beforeValue / 49) * 100;
+    
+    trackFill.style.left = `calc(${startPercent}% + 10px)`;
+    trackFill.style.width = `calc(${endPercent - startPercent}%)`;
+}
+
+/**
  * Handle slider value change
  * @param {Event} event - Input event from slider
+ * @param {string} sliderType - Either 'after' or 'before'
  */
-function handleSliderChange(event) {
+function handleSliderChange(event, sliderType) {
     const sliderValue = parseInt(event.target.value);
+    const sliderAfter = document.getElementById('timelineSliderAfter');
+    const sliderBefore = document.getElementById('timelineSliderBefore');
+    
+    if (!sliderAfter || !sliderBefore) return;
+    
+    const afterValue = parseInt(sliderAfter.value);
+    const beforeValue = parseInt(sliderBefore.value);
+    
+    // Prevent sliders from crossing
+    if (sliderType === 'after' && sliderValue > beforeValue) {
+        sliderAfter.value = beforeValue;
+        return;
+    }
+    if (sliderType === 'before' && sliderValue < afterValue) {
+        sliderBefore.value = afterValue;
+        return;
+    }
+    
+    // Update track fill
+    updateTrackFill();
     
     // Show tooltip when slider is being dragged (with auto-hide timeout)
-    showTooltip(sliderValue, true);
+    showTooltip(sliderValue, sliderType, true);
     
     // Check if any unit layer is currently visible
     const hasActiveLayer = layerState.isBrigadesLayerVisible || 
@@ -103,13 +155,20 @@ function handleSliderChange(event) {
         return; // Do nothing if no unit layer is visible
     }
     
-    // Get the corresponding year and month from the slider value
-    const timelineData = TIMELINE_DATA[sliderValue];
+    // Get the corresponding year and month from both slider values
+    const afterData = TIMELINE_DATA[parseInt(sliderAfter.value)];
+    const beforeData = TIMELINE_DATA[parseInt(sliderBefore.value)];
     
-    if (timelineData) {
+    if (afterData && beforeData) {
         // Update the layer state with the new filter values
-        layerState.selectedYear = timelineData.year;
-        layerState.selectedMonth = timelineData.month;
+        layerState.selectedYearStart = afterData.year;
+        layerState.selectedMonthStart = afterData.month;
+        layerState.selectedYearEnd = beforeData.year;
+        layerState.selectedMonthEnd = beforeData.month;
+        
+        // For backward compatibility, keep the old properties too
+        layerState.selectedYear = beforeData.year;
+        layerState.selectedMonth = beforeData.month;
         
         // Refresh all visible layers with the new filter
         refreshAllVisibleLayers();
@@ -119,45 +178,58 @@ function handleSliderChange(event) {
 /**
  * Handle slider hover to show tooltip
  * @param {Event} event - Mouse event from slider
+ * @param {string} sliderType - Either 'after' or 'before'
  */
-function handleSliderHover(event) {
+function handleSliderHover(event, sliderType) {
     // Clear any existing timeout to prevent premature hiding
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = null;
+    if (sliderType === 'after' && tooltipTimeoutAfter) {
+        clearTimeout(tooltipTimeoutAfter);
+        tooltipTimeoutAfter = null;
+    } else if (sliderType === 'before' && tooltipTimeoutBefore) {
+        clearTimeout(tooltipTimeoutBefore);
+        tooltipTimeoutBefore = null;
     }
     
     const slider = event.target;
     const sliderValue = parseInt(slider.value);
-    showTooltip(sliderValue, false); // Don't set timeout on hover
+    showTooltip(sliderValue, sliderType, false); // Don't set timeout on hover
 }
 
 /**
  * Handle mouse leave to start hide timeout
+ * @param {string} sliderType - Either 'after' or 'before'
  */
-function handleMouseLeave() {
+function handleMouseLeave(sliderType) {
     // Set timeout to hide tooltip after delay
-    tooltipTimeout = setTimeout(() => {
-        hideTooltip();
+    const timeout = setTimeout(() => {
+        hideTooltip(sliderType);
     }, TOOLTIP_HIDE_DELAY);
+    
+    if (sliderType === 'after') {
+        tooltipTimeoutAfter = timeout;
+    } else {
+        tooltipTimeoutBefore = timeout;
+    }
 }
 
 /**
  * Show tooltip with month and year
  * @param {number} sliderValue - Current slider value (0-49)
+ * @param {string} sliderType - Either 'after' or 'before'
  * @param {boolean} setHideTimeout - Whether to set timeout to hide tooltip
  */
-function showTooltip(sliderValue, setHideTimeout = true) {
-    const tooltip = document.getElementById('timelineTooltip');
-    const slider = document.getElementById('timelineSlider');
+function showTooltip(sliderValue, sliderType, setHideTimeout = true) {
+    const tooltipId = sliderType === 'after' ? 'timelineTooltipAfter' : 'timelineTooltipBefore';
+    const tooltip = document.getElementById(tooltipId);
     
-    if (!tooltip || !slider) return;
+    if (!tooltip) return;
     
     const timelineData = TIMELINE_DATA[sliderValue];
     if (!timelineData) return;
     
     // Update tooltip text
-    tooltip.textContent = `${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
+    const label = sliderType === 'after' ? 'After: ' : 'Before: ';
+    tooltip.textContent = `${label}${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
     
     // Calculate tooltip position based on slider value
     const percentage = (sliderValue / 49) * 100;
@@ -167,32 +239,46 @@ function showTooltip(sliderValue, setHideTimeout = true) {
     tooltip.classList.add('visible');
     
     // Clear any existing timeout
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = null;
+    if (sliderType === 'after' && tooltipTimeoutAfter) {
+        clearTimeout(tooltipTimeoutAfter);
+        tooltipTimeoutAfter = null;
+    } else if (sliderType === 'before' && tooltipTimeoutBefore) {
+        clearTimeout(tooltipTimeoutBefore);
+        tooltipTimeoutBefore = null;
     }
     
     // Set timeout to hide tooltip after 1 second only if requested
     if (setHideTimeout) {
-        tooltipTimeout = setTimeout(() => {
-            hideTooltip();
+        const timeout = setTimeout(() => {
+            hideTooltip(sliderType);
         }, TOOLTIP_HIDE_DELAY);
+        
+        if (sliderType === 'after') {
+            tooltipTimeoutAfter = timeout;
+        } else {
+            tooltipTimeoutBefore = timeout;
+        }
     }
 }
 
 /**
  * Hide the tooltip
+ * @param {string} sliderType - Either 'after' or 'before'
  */
-function hideTooltip() {
-    const tooltip = document.getElementById('timelineTooltip');
+function hideTooltip(sliderType) {
+    const tooltipId = sliderType === 'after' ? 'timelineTooltipAfter' : 'timelineTooltipBefore';
+    const tooltip = document.getElementById(tooltipId);
     if (tooltip) {
         tooltip.classList.remove('visible');
     }
     
     // Clear the timeout
-    if (tooltipTimeout) {
-        clearTimeout(tooltipTimeout);
-        tooltipTimeout = null;
+    if (sliderType === 'after' && tooltipTimeoutAfter) {
+        clearTimeout(tooltipTimeoutAfter);
+        tooltipTimeoutAfter = null;
+    } else if (sliderType === 'before' && tooltipTimeoutBefore) {
+        clearTimeout(tooltipTimeoutBefore);
+        tooltipTimeoutBefore = null;
     }
 }
 
@@ -215,40 +301,55 @@ export function toggleTimeline(show) {
         timelineContainer.classList.remove('visible');
         calendarButton.classList.remove('active');
         
-        // Reset the slider to the end (May 1945 - show all events)
-        const slider = document.getElementById('timelineSlider');
-        if (slider) {
-            slider.value = TIMELINE_DATA.length - 1;
+        // Reset the sliders to default positions (full range)
+        const sliderAfter = document.getElementById('timelineSliderAfter');
+        const sliderBefore = document.getElementById('timelineSliderBefore');
+        if (sliderAfter && sliderBefore) {
+            sliderAfter.value = 0;
+            sliderBefore.value = TIMELINE_DATA.length - 1;
+            updateTrackFill();
         }
     }
 }
 
 /**
- * Reset timeline to default state (May 1945 - show all events)
+ * Reset timeline to default state (show all events)
  */
 export function resetTimeline() {
-    const slider = document.getElementById('timelineSlider');
-    if (slider) {
-        slider.value = TIMELINE_DATA.length - 1;
+    const sliderAfter = document.getElementById('timelineSliderAfter');
+    const sliderBefore = document.getElementById('timelineSliderBefore');
+    
+    if (sliderAfter && sliderBefore) {
+        sliderAfter.value = 0;
+        sliderBefore.value = TIMELINE_DATA.length - 1;
+        updateTrackFill();
     }
     
-    // Clear the filter
+    // Clear the filters
+    layerState.selectedYearStart = null;
+    layerState.selectedMonthStart = null;
+    layerState.selectedYearEnd = null;
+    layerState.selectedMonthEnd = null;
     layerState.selectedYear = null;
     layerState.selectedMonth = null;
 }
 
 /**
  * Get current timeline position as human-readable string
- * @returns {string} - Formatted date string (e.g., "June 1943")
+ * @returns {string} - Formatted date range string
  */
 export function getCurrentTimelineDate() {
-    const slider = document.getElementById('timelineSlider');
-    if (!slider) return '';
+    const sliderAfter = document.getElementById('timelineSliderAfter');
+    const sliderBefore = document.getElementById('timelineSliderBefore');
     
-    const sliderValue = parseInt(slider.value);
-    const timelineData = TIMELINE_DATA[sliderValue];
+    if (!sliderAfter || !sliderBefore) return '';
     
-    if (!timelineData) return '';
+    const afterValue = parseInt(sliderAfter.value);
+    const beforeValue = parseInt(sliderBefore.value);
+    const afterData = TIMELINE_DATA[afterValue];
+    const beforeData = TIMELINE_DATA[beforeValue];
     
-    return `${MONTH_NAMES[timelineData.month - 1]} ${timelineData.year}`;
+    if (!afterData || !beforeData) return '';
+    
+    return `${MONTH_NAMES[afterData.month - 1]} ${afterData.year} - ${MONTH_NAMES[beforeData.month - 1]} ${beforeData.year}`;
 }

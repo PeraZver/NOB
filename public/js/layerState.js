@@ -25,8 +25,12 @@ const layerState = {
     campaignsLayer: null,
     isCampaignsLayerVisible: false,
     currentLayerName: null,
-    selectedYear: null, // Track selected year filter
-    selectedMonth: null, // Track selected month filter (1-12)
+    selectedYear: null, // Track selected year filter (for backward compatibility)
+    selectedMonth: null, // Track selected month filter (1-12) (for backward compatibility)
+    selectedYearStart: null, // Track start year for date range filter
+    selectedMonthStart: null, // Track start month for date range filter (1-12)
+    selectedYearEnd: null, // Track end year for date range filter
+    selectedMonthEnd: null, // Track end month for date range filter (1-12)
     selectedBrigadeId: null, // Track selected brigade ID
     allLayerData: {}, // Store all fetched data before filtering
 };

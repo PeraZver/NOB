@@ -51,8 +51,11 @@
 		<div class="timeline-container" id="timelineContainer">
 			<div class="timeline-slider-wrapper">
 				<div class="timeline-ticks" id="timelineTicks"></div>
-				<input type="range" min="0" max="49" value="49" class="timeline-slider" id="timelineSlider">
-				<div class="timeline-tooltip" id="timelineTooltip"></div>
+				<div class="timeline-track-fill" id="timelineTrackFill"></div>
+				<input type="range" min="0" max="49" value="0" class="timeline-slider timeline-slider-after" id="timelineSliderAfter">
+				<input type="range" min="0" max="49" value="49" class="timeline-slider timeline-slider-before" id="timelineSliderBefore">
+				<div class="timeline-tooltip" id="timelineTooltipAfter"></div>
+				<div class="timeline-tooltip" id="timelineTooltipBefore"></div>
 				<div class="timeline-labels">
 					<span class="timeline-label" style="left: 0%;">1941</span>
 					<span class="timeline-label" style="left: 18%;">1942</span>

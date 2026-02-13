@@ -141,16 +141,44 @@ body {
     background-color: #333;
 }
 
+/* Track fill between sliders */
+.timeline-track-fill {
+    position: absolute;
+    top: 29px;
+    left: 10px;
+    height: 8px;
+    background: #2196F3;
+    pointer-events: none;
+    border-radius: 5px;
+    z-index: 1;
+}
+
 .timeline-slider {
+    position: absolute;
     width: 100%;
     height: 8px;
     border-radius: 5px;
-    background: linear-gradient(to right, #e0e0e0 0%, #2196F3 100%);
+    background: transparent;
     outline: none;
     -webkit-appearance: none;
     appearance: none;
     margin: 25px 0 10px 0;
     cursor: pointer;
+    pointer-events: none;
+}
+
+.timeline-slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    background: transparent;
+    border-radius: 5px;
+}
+
+.timeline-slider::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    background: transparent;
+    border-radius: 5px;
 }
 
 .timeline-slider::-webkit-slider-thumb {
@@ -159,27 +187,56 @@ body {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #2196F3;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    margin-top: -6px;
+    z-index: 2;
 }
 
 .timeline-slider::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: #2196F3;
     cursor: pointer;
     border: 2px solid white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    z-index: 2;
 }
 
-.timeline-slider::-webkit-slider-thumb:hover {
+/* After slider (left/green) */
+.timeline-slider-after::-webkit-slider-thumb {
+    background: #4CAF50;
+}
+
+.timeline-slider-after::-moz-range-thumb {
+    background: #4CAF50;
+}
+
+.timeline-slider-after::-webkit-slider-thumb:hover {
+    background: #45a049;
+}
+
+.timeline-slider-after::-moz-range-thumb:hover {
+    background: #45a049;
+}
+
+/* Before slider (right/blue) */
+.timeline-slider-before::-webkit-slider-thumb {
+    background: #2196F3;
+}
+
+.timeline-slider-before::-moz-range-thumb {
+    background: #2196F3;
+}
+
+.timeline-slider-before::-webkit-slider-thumb:hover {
     background: #1976D2;
 }
 
-.timeline-slider::-moz-range-thumb:hover {
+.timeline-slider-before::-moz-range-thumb:hover {
     background: #1976D2;
 }
 
