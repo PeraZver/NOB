@@ -131,14 +131,14 @@ body {
 .timeline-tick {
     width: 1px;
     background-color: #666;
-    height: 12px; /* Increased from 8px for better visibility */
+    height: 9px; /* Reduced by 25% from 12px for better proportions */
     position: relative;
 }
 
 .timeline-tick.first,
 .timeline-tick.last,
 .timeline-tick.january {
-    height: 18px; /* Increased from 12px, now 50% taller than regular ticks */
+    height: 14px; /* Reduced by ~22% from 18px, now 56% taller than regular ticks */
     background-color: #333;
 }
 
@@ -205,12 +205,12 @@ body {
     background: transparent;
     cursor: pointer;
     pointer-events: auto;
-    margin-top: -18px; /* Adjusted for larger triangle (track 8px, total thumb 44px: (44-8)/2 = 18) */
+    margin-top: -13px; /* Adjusted for reduced triangle (track 8px, total thumb 34px: (34-8)/2 = 13) */
     z-index: 3;
     /* Create triangle pointing right for after slider */
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-left: 20px solid #1565C0; /* Increased visible triangle - Dark blue */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-left: 15px solid #1565C0; /* Reduced by 25% from 20px - Dark blue */
 }
 
 .timeline-slider::-moz-range-thumb {
@@ -222,38 +222,38 @@ body {
     z-index: 3;
     border: none;
     /* Create triangle pointing right for after slider */
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-left: 20px solid #1565C0; /* Increased visible triangle - Dark blue */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-left: 15px solid #1565C0; /* Reduced by 25% from 20px - Dark blue */
 }
 
 /* After slider (left) - points right */
 .timeline-slider-after::-webkit-slider-thumb {
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-left: 20px solid #1565C0; /* Increased visible triangle pointing right */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-left: 15px solid #1565C0; /* Reduced by 25% - points right */
     border-right: 0;
 }
 
 .timeline-slider-after::-moz-range-thumb {
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-left: 20px solid #1565C0; /* Increased visible triangle pointing right */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-left: 15px solid #1565C0; /* Reduced by 25% - points right */
     border-right: 0;
 }
 
 /* Before slider (right) - points left */
 .timeline-slider-before::-webkit-slider-thumb {
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-right: 20px solid #1565C0; /* Increased visible triangle pointing left */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-right: 15px solid #1565C0; /* Reduced by 25% - points left */
     border-left: 0;
 }
 
 .timeline-slider-before::-moz-range-thumb {
-    border-top: 22px solid transparent; /* Increased clickable area */
-    border-bottom: 22px solid transparent; /* Increased clickable area */
-    border-right: 20px solid #1565C0; /* Increased visible triangle pointing left */
+    border-top: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-bottom: 17px solid transparent; /* Reduced by ~23% for better proportions */
+    border-right: 15px solid #1565C0; /* Reduced by 25% - points left */
     border-left: 0;
 }
 
