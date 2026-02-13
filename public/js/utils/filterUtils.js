@@ -41,7 +41,11 @@ export function filterDataByYear(data, selectedYear, selectedMonth, startYear = 
             // Create start and end comparison dates
             const formationDate = new Date(formationYear, formationMonth - 1, 1);
             const rangeStart = new Date(startYear, startMonth ? startMonth - 1 : 0, 1);
-            const rangeEnd = new Date(endYear, (endMonth || 12), 0); // Last day of month (or December if null)
+            // For endMonth: if provided, use next month with day 0 to get last day of endMonth
+            // If null, use month 12 (Jan next year) with day 0 to get Dec 31
+            const rangeEnd = endMonth 
+                ? new Date(endYear, endMonth, 0)  // Last day of endMonth
+                : new Date(endYear, 11, 31);      // December 31 when null
 
             // Check if formation date is within range
             return formationDate >= rangeStart && formationDate <= rangeEnd;
@@ -108,7 +112,11 @@ export function filterBattlesByDateRange(data, selectedYear, selectedMonth, star
 
             // Create filter range dates
             const rangeStart = new Date(startYear, startMonth ? startMonth - 1 : 0, 1);
-            const rangeEnd = new Date(endYear, (endMonth || 12), 0); // Last day of month (or December if null)
+            // For endMonth: if provided, use next month with day 0 to get last day of endMonth
+            // If null, use December 31
+            const rangeEnd = endMonth 
+                ? new Date(endYear, endMonth, 0)  // Last day of endMonth
+                : new Date(endYear, 11, 31);      // December 31 when null
             
             // Battle overlaps with range if:
             // - Battle started before or during range END AND
@@ -176,7 +184,11 @@ export function filterCampaignsByDate(data, selectedYear, selectedMonth, startYe
 
             // Create filter range dates
             const rangeStart = new Date(startYear, startMonth ? startMonth - 1 : 0, 1);
-            const rangeEnd = new Date(endYear, (endMonth || 12), 0); // Last day of month (or December if null)
+            // For endMonth: if provided, use next month with day 0 to get last day of endMonth
+            // If null, use December 31
+            const rangeEnd = endMonth 
+                ? new Date(endYear, endMonth, 0)  // Last day of endMonth
+                : new Date(endYear, 11, 31);      // December 31 when null
             
             // Campaign is in range if it occurred between start and end dates
             return campaignDate >= rangeStart && campaignDate <= rangeEnd;
