@@ -43,6 +43,11 @@ if (!openaiApiKey) {
 
 const client = new OpenAI({ apiKey: openaiApiKey });
 
+const getTimestamp = () => {
+  const now = new Date();
+  return now.toISOString().replace(/[:.]/g, '-');
+};
+
 /**
  * Fetch webpage content
  */
@@ -89,14 +94,12 @@ function extractTextFromHtml(html) {
  * Example: "7th Banija Brigade" -> "7th_banija.json"
  */
 function brigadeNameToFilename(name, model) {
-    // Extract the core brigade name (remove "Brigade" suffix)
-    let brigadeNameCore = name.replace(/\s+Brigade\s*$/i, '').trim();
-    
+    // Extract the area part (e.g., "1st Dalmatian Brigade" or "1st Dalmatian Proletarian Shock Brigade" -> "1st Dalmatian Brigade")
+    let areaMatch = name.match(/^(\d+\w*)\s+([A-Za-z]+)(?:\s+Brigade)?/i);
+    let area = areaMatch ? `${areaMatch[1]} ${areaMatch[2]}` : name;
     // Convert to lowercase and replace spaces with underscores
-    let filename = brigadeNameCore.toLowerCase().replace(/\s+/g, '_');
-    
-    // Add .json extension
-    return `${filename}_campaign_${model}.json`;
+    let filename = area.toLowerCase().replace(/\s+/g, '_');
+    return `${filename}_${model}.json`;
 }
 
 /**
@@ -121,7 +124,7 @@ Extract brigade campaign and movement data from the following webpage content. R
 
 {
   "brigade_id": <number or null>,
-  "brigade_name": "<full brigade name in English>",
+  "brigade_name": "<area name only, e.g., '1st Dalmatian Brigade'>",
   "movements": [
     {
       "date": "<YYYY-MM-DD format>",
@@ -132,7 +135,7 @@ Extract brigade campaign and movement data from the following webpage content. R
       "notes": "<detailed notes about the operation>"
     }
   ],
-  "notes": "<any general notes about the data>"
+  "notes": "<any general notes about the data>",
   "source": "<URL of the webpage>"
 }
 
@@ -146,6 +149,7 @@ IMPORTANT REQUIREMENTS:
 7. Preserve division names as mentioned in the text
 8. Include full context in notes for each operation
 9. Translate brigade/division names to English
+10. For 'brigade_name', use only the area name (e.g., '1st Dalmatian Brigade'), not the full official or honorific name.
 
 Webpage Content:
 ${text}
@@ -153,41 +157,79 @@ ${text}
 Return ONLY the valid JSON object, nothing else.`;
 
     try {
-        const completion = await client.chat.completions.create({
+        // Determine correct token parameter for model version
+        const isGpt5 = /^gpt-5/i.test(MODEL);
+        const completionParams = {
             model: MODEL,
             messages: [
                 {
                     role: 'user',
                     content: prompt
                 }
-            ],
-            max_tokens: 4096,
-        });
+            ]
+        };
+        if (isGpt5) {
+            completionParams.max_completion_tokens = 8192;
+        } else {
+            completionParams.max_tokens = 8192;
+        }
+        const completion = await client.chat.completions.create(completionParams);
 
         // Extract the text response
         const responseText = completion.choices[0].message.content;
-        
+
         // Parse JSON from response - handle cases where JSON might be wrapped in markdown
         let jsonMatch = responseText.match(/```json\n?([\s\S]*?)\n?```/);
         if (!jsonMatch) {
             jsonMatch = responseText.match(/\{[\s\S]*\}/);
         }
-        
+
         if (!jsonMatch) {
+            // Only create log file if error
+            const logFilename = `openai_response_${getTimestamp()}.log`;
+            const logPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', 'model_test', logFilename);
+            fs.writeFileSync(logPath, 'Error: Could not extract JSON from OpenAI response.\n' + responseText, 'utf8');
             console.error('Raw response:', responseText);
             throw new Error('Could not extract JSON from OpenAI response');
         }
 
         const jsonStr = jsonMatch[1] || jsonMatch[0];
-        const brigadeData = JSON.parse(jsonStr);
-        return brigadeData;
+        try {
+            const brigadeData = JSON.parse(jsonStr);
+            return brigadeData;
+        } catch (parseError) {
+            // Only create log file if error
+            const jsonLogFilename = `openai_json_error_${getTimestamp()}.log`;
+            const jsonLogPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', 'model_test', jsonLogFilename);
+            fs.writeFileSync(jsonLogPath, 'Error: ' + parseError.message + '\n' + jsonStr, 'utf8');
+            console.error('JSON parse error:', parseError.message);
+            console.error('Raw JSON string:', jsonStr);
+            throw parseError;
+        }
     } catch (error) {
+        // Only create log file if error
+        const errLogFilename = `openai_fatal_error_${getTimestamp()}.log`;
+        const errLogPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', 'model_test', errLogFilename);
+        fs.writeFileSync(errLogPath, 'Error: ' + error.message, 'utf8');
         console.error('Error querying OpenAI:', error.message);
         if (error.response) {
             console.error('API Response:', error.response.data);
         }
         throw error;
     }
+}
+
+/**
+ * Helper to split text into chunks of max length
+ */
+function splitTextIntoChunks(text, maxLen) {
+    const chunks = [];
+    let i = 0;
+    while (i < text.length) {
+        chunks.push(text.substring(i, i + maxLen));
+        i += maxLen;
+    }
+    return chunks;
 }
 
 /**
@@ -201,22 +243,38 @@ async function generateBrigadeCampaignJSON() {
         console.log('Extracting text content from webpage...');
         const textContent = extractTextFromHtml(html);
 
-        // Limit content to avoid token limits (use first 15000 characters for better coverage)
-        const limitedContent = textContent.substring(0, 15000);
-        console.log(`Processing ${limitedContent.length} characters of webpage content...`);
+        // Split content into chunks (e.g., 24000 chars for 8k token models)
+        const CHUNK_SIZE = 24000;
+        const chunks = splitTextIntoChunks(textContent, CHUNK_SIZE);
+        console.log(`Processing ${chunks.length} chunk(s) of up to ${CHUNK_SIZE} characters each...`);
 
-        console.log('Querying OpenAI API for brigade campaign data...');
-        const brigadeData = await extractBrigadeCampaignData(limitedContent);
-
-        console.log(`\nExtracted Brigade: ${brigadeData.brigade_name}`);
-        console.log(`Campaign Records: ${brigadeData.movements.length}`);
+        let allMovements = [];
+        let brigadeId = null;
+        let brigadeName = null;
+        let notes = [];
+        for (let idx = 0; idx < chunks.length; idx++) {
+            console.log(`Querying OpenAI API for chunk ${idx + 1} of ${chunks.length}...`);
+            const brigadeData = await extractBrigadeCampaignData(chunks[idx]);
+            if (brigadeData.movements && Array.isArray(brigadeData.movements)) {
+                allMovements = allMovements.concat(brigadeData.movements);
+            }
+            if (!brigadeId && brigadeData.brigade_id) brigadeId = brigadeData.brigade_id;
+            if (!brigadeName && brigadeData.brigade_name) brigadeName = brigadeData.brigade_name;
+            if (brigadeData.notes) notes.push(brigadeData.notes);
+        }
 
         // Attach source URL to the output JSON
-        brigadeData.source = websiteUrl;
+        const output = {
+            brigade_id: brigadeId,
+            brigade_name: brigadeName,
+            movements: allMovements,
+            notes: notes.join(' | '),
+            source: websiteUrl
+        };
 
         // Generate filename from brigade name
-        const filename = brigadeNameToFilename(brigadeData.brigade_name, MODEL);
-        const outputPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', filename);
+        const filename = brigadeNameToFilename(brigadeName, MODEL);
+        const outputPath = path.resolve(__dirname, '..', 'public', 'assets', 'brigades', 'model_test', filename);
 
         // Create directory if it doesn't exist
         const outputDir = path.dirname(outputPath);
@@ -225,11 +283,11 @@ async function generateBrigadeCampaignJSON() {
         }
 
         // Write JSON to file
-        fs.writeFileSync(outputPath, JSON.stringify(brigadeData, null, 2), 'utf8');
+        fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
         console.log(`\nJSON file saved: ${outputPath}`);
         console.log(`Filename: ${filename}`);
 
-        return brigadeData;
+        return output;
     } catch (error) {
         console.error('Error during campaign data generation:', error.message);
         process.exit(1);

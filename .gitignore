@@ -5,6 +5,9 @@ src/db/data/
 src/db/backups/
 src/db/backup_test/
 public/img
+public/assets/brigades/model_test/
+public/assets/brigades/json/
+*.log
 *.json
 .env
 .github
