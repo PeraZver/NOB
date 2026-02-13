@@ -97,6 +97,7 @@ body {
     position: relative;
     margin: 0 15px;
     list-style: none;
+    padding: 0;
 }
 
 .menu-button {
@@ -150,7 +151,7 @@ body {
     padding: 5px 0;
     margin-top: 5px;
     min-width: 150px;
-    z-index: 1000;
+    z-index: 10001;
 }
 
 .submenu.active {
@@ -162,7 +163,7 @@ body {
     padding: 10px 20px;
     cursor: pointer;
     transition: background-color 0.2s;
-    border: none;
+    border: 1px solid #ddd;
     border-radius: 0;
     background-color: transparent;
 }
