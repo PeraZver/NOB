@@ -14,6 +14,19 @@ let modalEscapeListenerAdded = false;
  * Initialize menu handlers for submenus and modals
  */
 export function initializeMenuHandlers() {
+    // Territories submenu toggle
+    const territoriesButton = document.getElementById('toggleTerritories');
+    const territoriesSubmenu = document.getElementById('territoriesSubmenu');
+    
+    if (territoriesButton && territoriesSubmenu) {
+        territoriesButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSubmenu(territoriesSubmenu, territoriesButton);
+            // Close other submenus
+            closeOtherSubmenus('territoriesSubmenu');
+        });
+    }
+    
     // Formations submenu toggle
     const formationsButton = document.getElementById('toggleFormations');
     const formationsSubmenu = document.getElementById('formationsSubmenu');
@@ -23,11 +36,7 @@ export function initializeMenuHandlers() {
             e.stopPropagation();
             toggleSubmenu(formationsSubmenu, formationsButton);
             // Close other submenus
-            const campaignsSubmenu = document.getElementById('campaignsSubmenu');
-            if (campaignsSubmenu) {
-                campaignsSubmenu.classList.remove('active');
-                document.getElementById('toggleCampaigns')?.classList.remove('active');
-            }
+            closeOtherSubmenus('formationsSubmenu');
         });
     }
     
@@ -40,11 +49,7 @@ export function initializeMenuHandlers() {
             e.stopPropagation();
             toggleSubmenu(campaignsSubmenu, campaignsButton);
             // Close other submenus
-            const formationsSubmenu = document.getElementById('formationsSubmenu');
-            if (formationsSubmenu) {
-                formationsSubmenu.classList.remove('active');
-                document.getElementById('toggleFormations')?.classList.remove('active');
-            }
+            closeOtherSubmenus('campaignsSubmenu');
         });
     }
     
@@ -91,6 +96,27 @@ function toggleSubmenu(submenu, button) {
         submenu.classList.add('active');
         button.classList.add('active');
     }
+}
+
+/**
+ * Close all submenus except the specified one
+ */
+function closeOtherSubmenus(exceptSubmenuId) {
+    const submenuIds = ['territoriesSubmenu', 'formationsSubmenu', 'campaignsSubmenu'];
+    submenuIds.forEach(id => {
+        if (id !== exceptSubmenuId) {
+            const submenu = document.getElementById(id);
+            if (submenu) {
+                submenu.classList.remove('active');
+            }
+            // Also remove active class from corresponding button
+            const buttonId = id.replace('Submenu', '').replace(/^(.)/, (match) => 'toggle' + match.toUpperCase());
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.classList.remove('active');
+            }
+        }
+    });
 }
 
 /**
