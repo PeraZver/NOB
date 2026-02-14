@@ -348,6 +348,8 @@ export function showBrigadesWithCampaigns() {
                 <p>Click on a brigade marker to see details. If the brigade has campaign data, a campaign trail button will appear.</p>
                 <p><strong>Showing ${filteredData.length} brigade(s) with movement data.</strong></p>
             `;
+                // Load default markdown for brigades layer
+                loadDefaultText('assets/brigades/brigades.md');
         })
         .catch(error => console.error('Error fetching brigades with campaigns:', error));
 }

@@ -1,5 +1,3 @@
-# About NOB Map Project
-
 ## Purpose
 
 The NOB (Narodnooslobodilački rat - People's Liberation War) Map Project is an interactive historical visualization tool designed to document and display the military formations, movements, battles, and events during the Yugoslav People's Liberation War (1941-1945).

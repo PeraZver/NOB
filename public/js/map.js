@@ -33,17 +33,27 @@ if (typeof L !== 'undefined') {
 
     // Add a map click event to reset the sidebar to default text
     map.on('click', function () {
-        const markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
+        // Dynamically construct markdown file path using currentLayerName as folder
+        let folder = layerState.currentLayerName ? layerState.currentLayerName.toLowerCase().replace(/\s+/g, '_') : '';
+        let markdownFile = null;
+        if (folder && ['brigades','divisions','detachments','crimes','territory'].includes(folder)) {
+            // Special case for Occupied Territory
+            if (folder === 'occupied_territory') {
+                markdownFile = 'assets/territory/occupied-territory.md';
+            } else {
+                markdownFile = `assets/${folder}/${folder}.md`;
+            }
+        } else {
+            markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
+        }
         if (markdownFile) {
             loadDefaultText(markdownFile);
         }
-        
         // Restore brigade markers if they were temporarily hidden by campaign marker click
         if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
             map.addLayer(layerState.brigadesLayer);
             layerState.brigadesLayerTemporarilyHidden = false;
         }
-        
         // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
         if (!layerState.isCampaignsLayerVisible) {
             const campaignButton = document.getElementById('toggleCampaign');
