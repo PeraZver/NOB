@@ -153,6 +153,10 @@ function showLayerByName(layerName) {
 
 
 // Formations submenu handlers
+document.getElementById('toggleOccupation').addEventListener('click', () => {
+    toggleSidebar('Occupied Territory');
+});
+
 document.getElementById('toggleDetachments').addEventListener('click', () => {
     toggleSidebar('Detachments');
 });
