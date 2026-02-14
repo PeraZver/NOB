@@ -68,15 +68,46 @@ async function fetchWebpage(url) {
 /**
  * Extract text content from HTML (basic implementation)
  */
-function extractTextFromHtml(html) {
-    // Remove script and style elements
+function extractTextFromHtml(html, url) {
+    // Only for znaci.org URLs: extract all <p> tags within <div id="hronologija-sadrzaj">
+    if (/https?:\/\/(www\.)?znaci\.org\//.test(url)) {
+        console.log('[extractTextFromHtml] Matched znaci.org domain.');
+        const divMatch = html.match(/<div[^>]+id=["']hronologija-sadrzaj["'][^>]*>([\s\S]*?)<\/div>/i);
+        if (divMatch) {
+            console.log('[extractTextFromHtml] Found hronologija-sadrzaj div.');
+            const divContent = divMatch[1];
+            // Extract all <p>...</p> blocks
+            const pMatches = divContent.match(/<p[\s\S]*?<\/p>/gi);
+            if (pMatches && pMatches.length > 0) {
+                console.log(`[extractTextFromHtml] Found ${pMatches.length} <p> tags in hronologija-sadrzaj div.`);
+                // Clean each <p> block
+                let allText = pMatches.map(p => {
+                    let t = p.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+                    t = t.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+                    t = t.replace(/<br\s*\/?>(?![^<]*<)/gi, '\n');
+                    t = t.replace(/<[^>]+>/g, ' ');
+                    t = t.replace(/&nbsp;/g, ' ');
+                    t = t.replace(/&amp;/g, '&');
+                    t = t.replace(/&lt;/g, '<');
+                    t = t.replace(/&gt;/g, '>');
+                    t = t.replace(/&quot;/g, '"');
+                    t = t.replace(/&#x27;/g, "'");
+                    t = t.replace(/&apos;/g, "'");
+                    t = t.replace(/\s+/g, ' ').trim();
+                    return t;
+                }).join('\n');
+                return allText;
+            }
+        }
+        // If not found, fallback to empty string
+        return '';
+    }
+    // Fallback: old extraction for other domains
     let text = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     text = text.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-    // Remove HTML tags but preserve some structure
-    text = text.replace(/<br\s*\/?>/gi, '\n');
+    text = text.replace(/<br\s*\/>/gi, '\n');
     text = text.replace(/<\/p>/gi, '\n');
     text = text.replace(/<[^>]+>/g, ' ');
-    // Decode HTML entities
     text = text.replace(/&nbsp;/g, ' ');
     text = text.replace(/&amp;/g, '&');
     text = text.replace(/&lt;/g, '<');
@@ -84,7 +115,6 @@ function extractTextFromHtml(html) {
     text = text.replace(/&quot;/g, '"');
     text = text.replace(/&#x27;/g, "'");
     text = text.replace(/&apos;/g, "'");
-    // Remove extra whitespace
     text = text.replace(/\s+/g, ' ').trim();
     return text;
 }
@@ -241,7 +271,7 @@ async function generateBrigadeCampaignJSON() {
         const html = await fetchWebpage(websiteUrl);
 
         console.log('Extracting text content from webpage...');
-        const textContent = extractTextFromHtml(html);
+        const textContent = extractTextFromHtml(html, websiteUrl);
 
         // Split content into chunks (e.g., 24000 chars for 8k token models)
         const CHUNK_SIZE = 24000;
