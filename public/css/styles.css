@@ -919,15 +919,15 @@ body {
         font-weight: bold;
     }
     
-    /* Standard tick heights on mobile - same as desktop */
+    /* Timeline tick heights on mobile - smaller than desktop */
     .timeline-tick {
-        height: 10px; /* User-specified: same as desktop */
+        height: 6px; /* Smaller ticks for mobile */
     }
     
     .timeline-tick.first,
     .timeline-tick.last,
     .timeline-tick.january {
-        height: 20px; /* User-specified: 2× regular, same as desktop */
+        height: 10px; /* Major ticks for mobile */
     }
     
     /* Larger triangular sliders on mobile */
