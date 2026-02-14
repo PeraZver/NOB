@@ -224,6 +224,135 @@ export function showBattles() {
     }
 }
 
+// Function to show/hide crimes on the map
+export function showCrimes() {
+    if (layerState.isCrimesLayerVisible && layerState.crimesLayer) {
+        map.removeLayer(layerState.crimesLayer);
+        layerState.crimesLayer = null;
+        layerState.isCrimesLayerVisible = false;
+    } else {
+        fetch(API_ENDPOINTS.crimes)
+            .then(response => response.json())
+            .then(data => {
+                // Store all data for filtering
+                layerState.allLayerData['crimesLayer'] = data;
+
+                // Filter data based on selected year/month range using date range filter
+                const filteredData = filterBattlesByDateRange(
+                    data, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
+
+                const newLayer = L.layerGroup().addTo(map);
+                filteredData.forEach(item => {
+                    const icon = icons.crimes || L.Icon.Default;
+                    const marker = createMarker(item, icon, handleCrimeMarkerClick);
+                    if (marker) {
+                        newLayer.addLayer(marker);
+                    } else {
+                        console.warn(`Skipping null marker for crime: ${item.name}`);
+                    }
+                });
+
+                layerState.crimesLayer = newLayer;
+                layerState.isCrimesLayerVisible = true;
+
+                // Update the sidebar with default text
+                loadDefaultText('assets/crimes/crimes.md');
+            })
+            .catch(error => console.error('Error fetching crimes:', error));
+    }
+}
+
+// Function to show only brigades that have campaign data (Movement button)
+export function showBrigadesWithCampaigns() {
+    // Close sidebar if it was showing something else
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    const mapElement = document.getElementById('map');
+    
+    // If brigades with campaigns are already visible, toggle them off
+    if (layerState.isBrigadesLayerVisible && layerState.brigadesLayer) {
+        map.removeLayer(layerState.brigadesLayer);
+        layerState.brigadesLayer = null;
+        layerState.isBrigadesLayerVisible = false;
+        
+        // Hide sidebar
+        sidebar.classList.remove('visible');
+        if (window.innerWidth > 768) {
+            mapElement.style.transform = 'translateX(0)';
+        }
+        content.classList.remove('visible');
+        
+        // Hide Campaign button
+        const campaignButton = document.getElementById('toggleCampaign');
+        if (campaignButton) {
+            campaignButton.style.display = 'none';
+        }
+        layerState.selectedBrigadeId = null;
+        return;
+    }
+    
+    // Fetch brigades data
+    fetch(API_ENDPOINTS.brigades)
+        .then(response => response.json())
+        .then(data => {
+            // Filter to only brigades with campaigns
+            const brigadesWithCampaigns = data.filter(brigade => brigade.has_campaigns);
+            
+            // Store all data for filtering
+            layerState.allLayerData['brigadesLayer'] = brigadesWithCampaigns;
+            
+            // Filter data based on selected year/month range
+            const filteredData = filterDataByYear(
+                brigadesWithCampaigns, 
+                layerState.selectedYear, 
+                layerState.selectedMonth,
+                layerState.selectedYearStart,
+                layerState.selectedMonthStart,
+                layerState.selectedYearEnd,
+                layerState.selectedMonthEnd
+            );
+            
+            const newLayer = L.layerGroup().addTo(map);
+            filteredData.forEach(item => {
+                const icon = icons.brigades || L.Icon.Default;
+                const marker = createMarker(item, icon, handleBrigadeMarkerClick);
+                if (marker) {
+                    newLayer.addLayer(marker);
+                } else {
+                    console.warn(`Skipping null marker for brigade: ${item.name}`);
+                }
+            });
+
+            layerState.brigadesLayer = newLayer;
+            layerState.isBrigadesLayerVisible = true;
+            layerState.currentLayerName = 'Brigades';
+
+            // Show sidebar
+            sidebar.classList.add('visible');
+            if (window.innerWidth > 768) {
+                mapElement.style.transform = 'translateX(50%)';
+            }
+            content.classList.add('visible');
+            
+            // Update the sidebar with info about Movement layer
+            content.innerHTML = `
+                <h1>Brigade Movements</h1>
+                <p>This layer shows brigades that have documented campaign movements.</p>
+                <p>Click on a brigade marker to see details. If the brigade has campaign data, a campaign trail button will appear.</p>
+                <p><strong>Showing ${filteredData.length} brigade(s) with movement data.</strong></p>
+            `;
+        })
+        .catch(error => console.error('Error fetching brigades with campaigns:', error));
+}
+
+
 // Function to remove a layer from the map
 export function removeLayer(layerName) {
     switch (layerName) {
@@ -278,6 +407,13 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
+            }
+            break;
+        case 'Crimes':
+            if (layerState.isCrimesLayerVisible) {
+                map.removeLayer(layerState.crimesLayer);
+                layerState.isCrimesLayerVisible = false;
+                layerState.crimesLayer = null;
             }
             break;
         default:
@@ -386,6 +522,30 @@ export function handleBattleMarkerClick(marker, item) {
         updateSidebar('<p>No additional details available.</p>');
     }
 }
+
+// Handle crime marker click
+export function handleCrimeMarkerClick(marker, item) {
+    console.log('Crime marker clicked:', marker);
+    const popupContent = generateBattlePopupContent({
+        name: item.name,
+        place: item.location_name,
+        start_date: item.crime_date,
+        end_date: null,
+        wikipedia_url: item.wikipedia_url
+    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the crime's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description));
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
+}
+
 
 // Function to show campaign markers for the selected brigade
 export function showCampaigns() {

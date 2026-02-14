@@ -58,6 +58,12 @@ export const icons = typeof L !== 'undefined' ? {
         iconSize: [24, 24],
         iconAnchor: [12, 24],
         popupAnchor: [0, -24]
+    }),
+    crimes: L.icon({
+        iconUrl: 'assets/icons/battles-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
     })
 } : {};
 
@@ -76,7 +82,8 @@ export const LAYER_NAMES = {
     BRIGADES: 'Brigades',
     DIVISIONS: 'Divisions',
     CORPS: 'Corps',
-    BATTLES: 'Battles'
+    BATTLES: 'Battles',
+    CRIMES: 'Crimes'
 };
 
 // Markdown file paths
@@ -86,7 +93,8 @@ export const MARKDOWN_PATHS = {
     'Brigades': 'assets/brigades.md',
     'Divisions': 'assets/divizije.md',
     'Corps': 'assets/korpusi.md',
-    'Battles': 'assets/battles.md'
+    'Battles': 'assets/battles.md',
+    'Crimes': 'assets/crimes/crimes.md'
 };
 
 // API endpoints
@@ -97,7 +105,8 @@ export const API_ENDPOINTS = {
     corps: '/api/corps',
     battles: '/api/battles',
     search: '/api/search',
-    campaigns: '/api/campaigns'
+    campaigns: '/api/campaigns',
+    crimes: '/api/crimes'
 };
 
 // Layer mapping for filtering
@@ -128,5 +137,11 @@ export const LAYER_MAPPING = {
         group: 'battles', 
         visibleFlag: 'isBattlesLayerVisible',
         filterType: 'dateRange'  // Different filter type for battles
+    },
+    'crimesLayer': { 
+        layerName: 'crimesLayer', 
+        group: 'crimes', 
+        visibleFlag: 'isCrimesLayerVisible',
+        filterType: 'dateRange'  // Use date range filter for crimes
     }
 };
