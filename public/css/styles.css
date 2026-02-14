@@ -910,8 +910,34 @@ body {
     }
 
     .timeline-slider-wrapper {
-        padding: 5px 10px 60px 10px; /* User-specified: same as desktop for consistency */
+        padding: 5px 5px 60px 5px; /* Reduced horizontal padding for mobile to prevent overflow */
         max-width: 100%;
+    }
+    
+    /* Adjust timeline element positioning for reduced padding */
+    .timeline-ticks {
+        left: 5px;
+        right: 5px;
+    }
+    
+    .timeline-slider {
+        left: 5px;
+        right: 5px;
+        width: calc(100% - 10px);
+    }
+    
+    .timeline-track-fill {
+        left: 5px;
+    }
+    
+    .timeline-slider-wrapper::before {
+        left: 5px;
+        right: 5px;
+    }
+    
+    .timeline-labels {
+        left: 5px;
+        right: 5px;
     }
 
     .timeline-label {
