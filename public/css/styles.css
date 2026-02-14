@@ -50,7 +50,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 10002;
+    z-index: 100;
 }
 
 .menu {
@@ -73,9 +73,10 @@ body {
 
 .calendar-button {
     font-size: 20px;
-    padding: 10px 15px;
-    background-color: #e3f2fd;
-    border-color: #2196F3;
+    padding: 7px 15px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .calendar-button:hover {
@@ -135,7 +136,7 @@ body {
 /* Campaign Trail Button - styled like other menu buttons */
 #toggleCampaign {
     cursor: pointer;
-    padding: 10px 15px;
+    padding: 7px 15px;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -165,7 +166,7 @@ body {
     padding: 5px 0;
     margin-top: 5px;
     min-width: 150px;
-    z-index: 10001;
+    z-index: 101;
 }
 
 .submenu.active {
@@ -647,6 +648,7 @@ body {
     max-height: 200px;
     overflow-y: auto;
     display: none;
+    z-index: 1000;
 }
 
 .suggestions div {
