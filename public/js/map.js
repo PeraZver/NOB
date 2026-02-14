@@ -152,11 +152,18 @@ function showLayerByName(layerName) {
 }
 
 
-// Formations submenu handlers
+// Territories submenu handlers
 document.getElementById('toggleOccupation').addEventListener('click', () => {
     toggleSidebar('Occupied Territory');
 });
 
+document.getElementById('toggleFreeTerritories').addEventListener('click', () => {
+    // Placeholder for future Free territories functionality
+    console.log('Free territories feature coming soon');
+    // TODO: Implement free territories layer showing liberated territories over time
+});
+
+// Formations submenu handlers
 document.getElementById('toggleDetachments').addEventListener('click', () => {
     toggleSidebar('Detachments');
 });
