@@ -64,16 +64,11 @@ body {
 .menu li {
     margin: 0 15px;
     cursor: pointer;
-    padding: 10px 20px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    /* Removed padding, background, and border - these are now only on the button/direct content */
 }
 
 .menu li:hover {
-    background-color: #e0e0e0;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* Removed hover styles - these are now only on the button/direct content */
 }
 
 .calendar-button {
@@ -900,6 +895,8 @@ body {
         z-index: 1; /* Behind menu buttons (menu has z-index 1000+) */
         background: white;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+        overflow: hidden; /* Prevent content from overflowing */
     }
     
     .timeline-container.visible {
@@ -912,6 +909,7 @@ body {
     .timeline-slider-wrapper {
         padding: 5px 5px 60px 5px; /* Reduced horizontal padding for mobile to prevent overflow */
         max-width: 100%;
+        box-sizing: border-box; /* Ensure padding is included in width calculation */
     }
     
     /* Adjust timeline element positioning for reduced padding */
