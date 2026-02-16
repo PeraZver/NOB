@@ -14,7 +14,7 @@ import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange, filterCampaignsByDate } from './utils/filterUtils.js';
-import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
+import { generatePopupContent, generateBattlePopupContent, generateCrimePopupContent } from './utils/popupUtils.js';
 import { formatCampaignDate } from './utils/dateUtils.js';
 import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
@@ -224,6 +224,51 @@ export function showBattles() {
     }
 }
 
+// Function to show/hide crimes on the map
+export function showCrimes() {
+    if (layerState.isCrimesLayerVisible && layerState.crimesLayer) {
+        map.removeLayer(layerState.crimesLayer);
+        layerState.crimesLayer = null;
+        layerState.isCrimesLayerVisible = false;
+    } else {
+        fetch(API_ENDPOINTS.crimes)
+            .then(response => response.json())
+            .then(data => {
+                // Store all data for filtering
+                layerState.allLayerData['crimesLayer'] = data;
+
+                // Filter data based on selected year/month range using date range filter
+                const filteredData = filterBattlesByDateRange(
+                    data, 
+                    layerState.selectedYear, 
+                    layerState.selectedMonth,
+                    layerState.selectedYearStart,
+                    layerState.selectedMonthStart,
+                    layerState.selectedYearEnd,
+                    layerState.selectedMonthEnd
+                );
+
+                const newLayer = L.layerGroup().addTo(map);
+                filteredData.forEach(item => {
+                    const icon = icons.crimes || L.Icon.Default;
+                    const marker = createMarker(item, icon, handleCrimeMarkerClick);
+                    if (marker) {
+                        newLayer.addLayer(marker);
+                    } else {
+                        console.warn(`Skipping null marker for crime: ${item.name}`);
+                    }
+                });
+
+                layerState.crimesLayer = newLayer;
+                layerState.isCrimesLayerVisible = true;
+
+                // Update the sidebar with default text
+                loadDefaultText('assets/crimes.md');
+            })
+            .catch(error => console.error('Error fetching crimes:', error));
+    }
+}
+
 // Function to remove a layer from the map
 export function removeLayer(layerName) {
     switch (layerName) {
@@ -278,6 +323,13 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
+            }
+            break;
+        case 'Crimes':
+            if (layerState.isCrimesLayerVisible) {
+                map.removeLayer(layerState.crimesLayer);
+                layerState.isCrimesLayerVisible = false;
+                layerState.crimesLayer = null;
             }
             break;
         default:
@@ -380,6 +432,30 @@ export function handleBattleMarkerClick(marker, item) {
     marker.bindPopup(popupContent).openPopup();
 
     // Update the sidebar with the battle's description
+    if (item.description) {
+        updateSidebar(marked.parse(item.description));
+    } else {
+        updateSidebar('<p>No additional details available.</p>');
+    }
+}
+
+// Function to handle crime marker clicks
+export function handleCrimeMarkerClick(marker, item) {
+    console.log('Crime marker clicked:', marker);
+    const popupContent = generateCrimePopupContent({
+        name: item.name,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        note: item.note,
+        deaths: item.deaths,
+        wikipedia_url: item.wikipedia_url
+    });
+
+    // Bind and open the popup
+    marker.unbindPopup();
+    marker.bindPopup(popupContent).openPopup();
+
+    // Update the sidebar with the crime's description
     if (item.description) {
         updateSidebar(marked.parse(item.description));
     } else {

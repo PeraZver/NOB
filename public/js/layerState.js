@@ -22,6 +22,8 @@ const layerState = {
     isOccupiedTerritoryLayerVisible: false,
     battlesLayer: null,
     isBattlesLayerVisible: false,
+    crimesLayer: null,
+    isCrimesLayerVisible: false,
     campaignsLayer: null,
     isCampaignsLayerVisible: false,
     currentLayerName: null,

@@ -9,7 +9,7 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode } from './map_layers.js';
 import { loadDefaultText } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
@@ -131,6 +131,13 @@ function showLayerByName(layerName) {
             `;
             showBattles();
             break;
+        case 'Crimes':
+            content.innerHTML = `
+                <h1>Crimes</h1>
+                <p>Information about war crimes will be displayed here.</p>
+            `;
+            showCrimes();
+            break;
     }
 
     if (markdownFile) {
@@ -166,6 +173,10 @@ document.getElementById('toggleCorps').addEventListener('click', () => {
 
 document.getElementById('toggleBattles').addEventListener('click', () => {
     toggleSidebar('Battles');
+});
+
+document.getElementById('toggleCrimes').addEventListener('click', () => {
+    toggleSidebar('Crimes');
 });
 
 // Campaign button to show campaigns for selected brigade

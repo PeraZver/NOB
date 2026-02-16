@@ -49,3 +49,26 @@ export function generateBattlePopupContent(properties) {
         </div>
     `;
 }
+
+/**
+ * Generate popup content for crime markers
+ * @param {Object} properties - Properties of the crime
+ * @returns {string} HTML content for popup
+ */
+export function generateCrimePopupContent(properties) {
+    const formattedStartDate = properties.start_date ? formatDate(properties.start_date) : 'Unknown';
+    const formattedEndDate = properties.end_date ? formatDate(properties.end_date) : 'Unknown';
+    const siteName = properties.name || 'Unknown Site';
+    const note = properties.note || '';
+    const deaths = properties.deaths || 'Unknown';
+
+    return `
+        <div class="popup-content">
+            <h3>${siteName}</h3>
+            <p><strong>Date:</strong> ${formattedStartDate} to ${formattedEndDate}</p>
+            ${note ? `<p><strong>Note:</strong> ${note}</p>` : ''}
+            <p><strong>Deaths:</strong> ${deaths}</p>
+            ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
+        </div>
+    `;
+}
