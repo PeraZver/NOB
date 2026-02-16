@@ -62,10 +62,22 @@ export function generateCrimePopupContent(properties) {
     const note = properties.note || '';
     const deaths = properties.deaths || 'Unknown';
 
+    // Format date range with proper separator
+    let dateRangeText;
+    if (formattedStartDate !== 'Unknown' && formattedEndDate !== 'Unknown') {
+        dateRangeText = `${formattedStartDate} - ${formattedEndDate}`;
+    } else if (formattedStartDate !== 'Unknown') {
+        dateRangeText = formattedStartDate;
+    } else if (formattedEndDate !== 'Unknown') {
+        dateRangeText = formattedEndDate;
+    } else {
+        dateRangeText = 'Unknown';
+    }
+
     return `
         <div class="popup-content">
             <h3>${siteName}</h3>
-            <p><strong>Date:</strong> ${formattedStartDate} to ${formattedEndDate}</p>
+            <p><strong>Date:</strong> ${dateRangeText}</p>
             ${note ? `<p><strong>Note:</strong> ${note}</p>` : ''}
             <p><strong>Deaths:</strong> ${deaths}</p>
             ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
