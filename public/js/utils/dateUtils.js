@@ -54,6 +54,8 @@ function getLastDayOfMonth(year, month) {
 
 /**
  * Format a date range intelligently for crime popups
+ * - If dates are the same, show only one date
+ * - If dates span a few days within the same month, show "12. - 14. April 1943"
  * - If dates span the full month (1st to last day), show "Month, Year"
  * - If dates span multiple months, show "Month - Month Year"
  * - Otherwise use default formatting
@@ -88,12 +90,19 @@ export function formatDateRange(startDateString, endDateString) {
     const startMonthName = startDate.toLocaleDateString('en-US', { month: 'long' });
     const endMonthName = endDate.toLocaleDateString('en-US', { month: 'long' });
     
+    // Check if start and end dates are the same
+    if (startYear === endYear && startMonth === endMonth && startDay === endDay) {
+        return formatCampaignDate(startDateString);
+    }
+    
     // Check if dates span the full month (1st to last day of same month)
     if (startYear === endYear && startMonth === endMonth) {
         const lastDay = getLastDayOfMonth(startYear, startMonth);
         if (startDay === 1 && endDay === lastDay) {
             return `${startMonthName}, ${startYear}`;
         }
+        // Dates span a few days within the same month: "12. - 14. April 1943"
+        return `${startDay}. - ${endDay}. ${startMonthName} ${startYear}`;
     }
     
     // Check if dates span multiple months in the same year
