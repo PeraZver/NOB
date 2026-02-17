@@ -8,32 +8,18 @@
  * Authors: Pero & Github Copilot
  */
 
-const path = require('path');
 const pool = require('../db/pool');
-const { getMarkdownContent } = require('../utils/markdownLoader');
 
 /**
  * Get all crimes from database
  * @returns {Promise<Array>} Array of crime objects
  */
 async function getCrimes() {
-    const query = `SELECT id, name, ST_AsText(location) AS location, start_date, end_date, note, deaths, wikipedia_url, description FROM crimes`;
+    const query = `SELECT id, site, ST_AsText(location) AS location, start_date, end_date, note, deaths, perpetrator, wikipedia_url FROM crimes`;
     
     try {
         const [results] = await pool.query(query);
-
-        // Fetch Markdown content dynamically
-        const crimes = await Promise.all(
-            results.map(async (crime) => {
-                if (crime.description && crime.description.endsWith('.md')) {
-                    const filePath = path.join(__dirname, '../../public', 'assets', 'crimes', crime.description);
-                    crime.description = await getMarkdownContent(filePath);
-                }
-                return crime;
-            })
-        );
-
-        return crimes;
+        return results;
     } catch (error) {
         console.error('Error fetching crimes:', error);
         throw error;
@@ -46,7 +32,7 @@ async function getCrimes() {
  * @returns {Promise<Object|null>} Crime object or null
  */
 async function getCrimeById(crimeId) {
-    const query = `SELECT id, name, ST_AsText(location) AS location, start_date, end_date, note, deaths, wikipedia_url, description FROM crimes WHERE id = ?`;
+    const query = `SELECT id, site, ST_AsText(location) AS location, start_date, end_date, note, deaths, perpetrator, wikipedia_url FROM crimes WHERE id = ?`;
     
     try {
         const [results] = await pool.query(query, [crimeId]);
@@ -54,14 +40,7 @@ async function getCrimeById(crimeId) {
             return null;
         }
         
-        const crime = results[0];
-        // Fetch Markdown content if description is a .md file
-        if (crime.description && crime.description.endsWith('.md')) {
-            const filePath = path.join(__dirname, '../../public', 'assets', 'crimes', crime.description);
-            crime.description = await getMarkdownContent(filePath);
-        }
-        
-        return crime;
+        return results[0];
     } catch (error) {
         console.error('Error fetching crime:', error);
         throw error;

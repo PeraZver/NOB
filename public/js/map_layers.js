@@ -443,11 +443,12 @@ export function handleBattleMarkerClick(marker, item) {
 export function handleCrimeMarkerClick(marker, item) {
     console.log('Crime marker clicked:', marker);
     const popupContent = generateCrimePopupContent({
-        name: item.name,
+        site: item.site,
         start_date: item.start_date,
         end_date: item.end_date,
         note: item.note,
         deaths: item.deaths,
+        perpetrator: item.perpetrator,
         wikipedia_url: item.wikipedia_url
     });
 
@@ -455,9 +456,9 @@ export function handleCrimeMarkerClick(marker, item) {
     marker.unbindPopup();
     marker.bindPopup(popupContent).openPopup();
 
-    // Update the sidebar with the crime's description
-    if (item.description) {
-        updateSidebar(marked.parse(item.description));
+    // Update the sidebar with crime information
+    if (item.note) {
+        updateSidebar(`<div class="popup-content"><h2>${item.site}</h2><p>${item.note}</p></div>`);
     } else {
         updateSidebar('<p>No additional details available.</p>');
     }

@@ -58,9 +58,10 @@ export function generateBattlePopupContent(properties) {
 export function generateCrimePopupContent(properties) {
     const formattedStartDate = properties.start_date ? formatDate(properties.start_date) : 'Unknown';
     const formattedEndDate = properties.end_date ? formatDate(properties.end_date) : 'Unknown';
-    const siteName = properties.name || 'Unknown Site';
+    const siteName = properties.site || 'Unknown Site';
     const note = properties.note || '';
     const deaths = properties.deaths || 'Unknown';
+    const perpetrator = properties.perpetrator || '';
 
     // Format date range with proper separator
     let dateRangeText;
@@ -78,6 +79,7 @@ export function generateCrimePopupContent(properties) {
         <div class="popup-content">
             <h3>${siteName}</h3>
             <p><strong>Date:</strong> ${dateRangeText}</p>
+            ${perpetrator ? `<p><strong>Perpetrator:</strong> ${perpetrator}</p>` : ''}
             ${note ? `<p><strong>Note:</strong> ${note}</p>` : ''}
             <p><strong>Deaths:</strong> ${deaths}</p>
             ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
