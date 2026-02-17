@@ -9,7 +9,7 @@ The NOB (Narodnooslobodilački rat - People's Liberation War) Map Project is an 
 - **Campaign Movements**: Trace the movement paths of brigades throughout the war
 - **Battles**: Explore major battles and military engagements
 - **War Crimes**: Document locations of war crimes during the conflict
-- **Occupied Territory**: Visualize the territorial control during the occupation
+- **Occupied and Free Territories**: Visualize the territorial control during the occupation
 
 ### Timeline Filtering
 The timeline slider allows you to filter all map layers by date range, showing only the formations, battles, and events that existed or occurred during your selected time period.

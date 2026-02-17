@@ -18,7 +18,6 @@ const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const readline = require('readline');
-const stringSimilarity = require('string-similarity');
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
@@ -50,6 +49,21 @@ const promptUser = (question) => {
     });
 };
 
+// Helper function to check if two objects are different
+const areRecordsDifferent = (existing, newData) => {
+    return (
+        existing.site !== newData.site ||
+        existing.start_date !== newData.start_date ||
+        existing.end_date !== newData.end_date ||
+        existing.deaths !== newData.deaths ||
+        existing.perpetrator !== newData.perpetrator ||
+        existing.note !== newData.note ||
+        existing.wikipedia_url !== newData.wikipedia_url ||
+        existing.lat !== newData.lat ||
+        existing.lon !== newData.lon
+    );
+};
+
 // Main function to import crimes
 async function importCrimes() {
     let connection;
@@ -64,58 +78,70 @@ async function importCrimes() {
         console.log('Connected to the database.');
 
         for (const crime of crimesData) {
-            const { name, place, date, location, description, wikipedia_url } = crime;
+            const {
+                id,
+                site,
+                start_date,
+                end_date,
+                location,
+                deaths,
+                perpetrator,
+                note,
+                wikipedia_url
+            } = crime;
 
-            // Fetch all existing crime names and data from the database
+            const lat = location?.lat || null;
+            const lon = location?.lon || null;
+
+            // Check if crime with this ID already exists
             const [existingRows] = await connection.execute(
-                'SELECT * FROM crimes WHERE name = ? AND place = ?',
-                [name, place]
+                'SELECT * FROM crimes WHERE id = ?',
+                [id]
             );
 
             if (existingRows.length > 0) {
                 const existingCrime = existingRows[0];
-                console.log(`Crime "${name}" at "${place}" already exists. Skipping...`);
-                continue;
-            }
+                const newCrimeData = {
+                    site,
+                    start_date,
+                    end_date,
+                    deaths,
+                    perpetrator,
+                    note,
+                    wikipedia_url,
+                    lat,
+                    lon
+                };
 
-            // Fetch all existing crime names for similarity check
-            const [allRows] = await connection.execute('SELECT name FROM crimes');
-            const existingNames = allRows.map(row => row.name);
+                // Check if the record is different
+                if (areRecordsDifferent(existingCrime, newCrimeData)) {
+                    console.log(`Crime ID ${id} ("${site}") exists but has different data. Updating...`);
 
-            // Check for similar names
-            const bestMatch = stringSimilarity.findBestMatch(name, existingNames);
-            if (bestMatch.bestMatch.rating > 0.99) {
-                console.log(`Crime "${name}" is very similar to "${bestMatch.bestMatch.target}". Skipping...`);
-                continue;
-            } else if (bestMatch.bestMatch.rating > 0.8) {
-                const userResponse = await promptUser(
-                    `Crime "${name}" is somewhat similar to "${bestMatch.bestMatch.target}". Do you want to insert it? (yes/no): `
-                );
-                if (userResponse !== 'yes') {
-                    console.log(`Crime "${name}" was not inserted.`);
-                    continue;
+                    // Update the existing record
+                    const point = lat && lon ? `POINT(${lon} ${lat})` : null;
+                    await connection.execute(
+                        `UPDATE crimes 
+                         SET site = ?, start_date = ?, end_date = ?, deaths = ?, perpetrator = ?, note = ?, wikipedia_url = ?, location = ST_GeomFromText(?)
+                         WHERE id = ?`,
+                        [site, start_date, end_date, deaths, perpetrator, note, wikipedia_url, point, id]
+                    );
+                    console.log(`Crime ID ${id} ("${site}") has been updated.`);
+                } else {
+                    console.log(`Crime ID ${id} ("${site}") already exists with identical data. Skipping...`);
                 }
+                continue;
             }
 
-            // Get the next available ID
-            const [idResult] = await connection.execute(
-                'SELECT MAX(id) AS maxId FROM crimes'
-            );
-            const nextId = (idResult[0].maxId || 0) + 1;
+            // Insert new crime
+            const point = lat && lon ? `POINT(${lon} ${lat})` : null;
 
-            // Convert location to WKT format for ST_GeomFromText()
-            const point = location
-                ? `POINT(${location.longitude} ${location.latitude})`
-                : null;
-
-            // Insert the crime into the database
             await connection.execute(
-                `INSERT INTO crimes (id, name, place, date, location, description, wikipedia_url)
-                 VALUES (?, ?, ?, ?, ST_GeomFromText(?), ?, ?)`,
-                [nextId, name, place, date || null, point, description || null, wikipedia_url || null]
+                `INSERT INTO crimes (id, site, start_date, end_date, location, deaths, perpetrator, note, wikipedia_url)
+                 VALUES (?, ?, ?, ?, ST_GeomFromText(?), ?, ?, ?, ?)`,
+                [id, site, start_date, end_date, point, deaths, perpetrator, note, wikipedia_url]
             );
 
-            console.log(`Crime "${name}" at "${place}" has been inserted into the database.`);
+            console.log(`Crime ID ${id} ("${site}") has been inserted into the database.`);
         }
 
         console.log('Import process completed.');

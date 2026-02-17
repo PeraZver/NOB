@@ -36,7 +36,7 @@ if (typeof L !== 'undefined') {
         // Dynamically construct markdown file path using currentLayerName as folder
         let folder = layerState.currentLayerName ? layerState.currentLayerName.toLowerCase().replace(/\s+/g, '_') : '';
         let markdownFile = null;
-        if (folder && ['brigades','divisions','detachments','crimes','territory'].includes(folder)) {
+        if (folder && ['brigades','divisions','detachments', 'battles', 'crimes','territory'].includes(folder)) {
             // Special case for Occupied Territory
             if (folder === 'occupied_territory') {
                 markdownFile = 'assets/territory/occupied-territory.md';
