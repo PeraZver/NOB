@@ -14,7 +14,7 @@ import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
 import { filterDataByYear, filterBattlesByDateRange, filterCampaignsByDate } from './utils/filterUtils.js';
-import { generatePopupContent, generateBattlePopupContent } from './utils/popupUtils.js';
+import { generatePopupContent, generateBattlePopupContent, generateCrimePopupContent } from './utils/popupUtils.js';
 import { formatCampaignDate } from './utils/dateUtils.js';
 import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
@@ -255,7 +255,7 @@ export function showCrimes() {
                     if (marker) {
                         newLayer.addLayer(marker);
                     } else {
-                        console.warn(`Skipping null marker for crime: ${item.name}`);
+                        console.warn(`Skipping null marker for crime: ${item.site}`);
                     }
                 });
 
@@ -528,11 +528,11 @@ export function handleBattleMarkerClick(marker, item) {
 // Handle crime marker click
 export function handleCrimeMarkerClick(marker, item) {
     console.log('Crime marker clicked:', marker);
-    const popupContent = generateBattlePopupContent({
-        name: item.name,
-        place: item.location_name,
-        start_date: item.crime_date,
-        end_date: null,
+    const popupContent = generateCrimePopupContent({
+        site: item.site,
+        start_date: item.start_date,
+        end_date: item.end_date,
+        deaths: item.deaths,
         wikipedia_url: item.wikipedia_url
     });
 
