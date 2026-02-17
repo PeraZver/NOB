@@ -57,6 +57,7 @@ function getLastDayOfMonth(year, month) {
  * - If dates are the same, show only one date
  * - If dates span a few days within the same month, show "12. - 14. April 1943"
  * - If dates span the full month (1st to last day), show "Month, Year"
+ * - If dates span January to December of the same year, show just the year "1943"
  * - If dates span multiple months, show "Month - Month Year"
  * - Otherwise use default formatting
  * @param {string} startDateString - Start date string
@@ -107,6 +108,10 @@ export function formatDateRange(startDateString, endDateString) {
     
     // Check if dates span multiple months in the same year
     if (startYear === endYear && startMonth !== endMonth) {
+        // Check if dates span the entire year (January to December)
+        if (startMonth === 0 && endMonth === 11) {
+            return `${startYear}`;
+        }
         return `${startMonthName} - ${endMonthName} ${startYear}`;
     }
     
