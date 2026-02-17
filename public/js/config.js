@@ -60,7 +60,7 @@ export const icons = typeof L !== 'undefined' ? {
         popupAnchor: [0, -24]
     }),
     crimes: L.icon({
-        iconUrl: 'assets/icons/battles-icon.png',
+        iconUrl: 'assets/icons/skull.png',
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]

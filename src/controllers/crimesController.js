@@ -17,7 +17,7 @@ const { getMarkdownContent } = require('../utils/markdownLoader');
  * @returns {Promise<Array>} Array of crime objects
  */
 async function getCrimes() {
-    const query = `SELECT id, name, location_name, ST_AsText(location) AS location, crime_date, description, wikipedia_url FROM crimes`;
+    const query = `SELECT id, site, start_date, end_date, ST_AsText(location) AS location, deaths, perpetrator, description, wikipedia_url FROM crimes`;
     
     try {
         const [results] = await pool.query(query);
@@ -46,7 +46,7 @@ async function getCrimes() {
  * @returns {Promise<Object|null>} Crime object or null
  */
 async function getCrimeById(crimeId) {
-    const query = `SELECT id, name, location_name, ST_AsText(location) AS location, crime_date, description, wikipedia_url FROM crimes WHERE id = ?`;
+    const query = `SELECT id, site, start_date, end_date, ST_AsText(location) AS location, deaths, perpetrator, description, wikipedia_url FROM crimes WHERE id = ?`;
     
     try {
         const [results] = await pool.query(query, [crimeId]);

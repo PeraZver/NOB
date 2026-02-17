@@ -8,7 +8,7 @@
  * Authors: Pero & Github Copilot
  */
 
-import { formatDate } from './dateUtils.js';
+import { formatDate, formatDateRange } from './dateUtils.js';
 
 /**
  * Generate compact popup content for markers
@@ -45,6 +45,26 @@ export function generateBattlePopupContent(properties) {
             <h3>${properties.name || 'Unknown Battle'}</h3>
             <p><strong>Location:</strong> ${place}</p>
             <p><strong>Date:</strong> ${formattedStartDate} to ${formattedEndDate}</p>
+            ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
+        </div>
+    `;
+}
+
+/**
+ * Generate popup content for crime markers
+ * @param {Object} properties - Properties of the crime
+ * @returns {string} HTML content for popup
+ */
+export function generateCrimePopupContent(properties) {
+    const formattedDateRange = formatDateRange(properties.start_date, properties.end_date);
+    const site = properties.site || 'Unknown site';
+    const deaths = properties.deaths ? properties.deaths.toLocaleString() : 'Unknown';
+
+    return `
+        <div class="popup-content">
+            <h3>${site}</h3>
+            <p><strong>Date:</strong> ${formattedDateRange}</p>
+            <p><strong>Deaths:</strong> ${deaths}</p>
             ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
         </div>
     `;
