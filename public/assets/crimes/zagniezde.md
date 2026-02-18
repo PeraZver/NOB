@@ -1,0 +1,1 @@
+On 11 September 1944, under orders from General Fritz Neidholdt, the 369th \"Devil's Division\" destroyed the Croatian-Muslim villages of Zagniezde (Zagnježđe) and Udora (near Bjelojevići, Burmazi and Stolac), hanging all the men and driving away all the women and children.

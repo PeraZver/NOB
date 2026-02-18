@@ -1,0 +1,3 @@
+# Extraordinary Tribunal for Dalmatia
+
+Established by Italian governor Giuseppe Bastianini on 11 October 1941, it held four trials, against alleged Communists (mostly Croats), suspected of responsibility for recent Partisan attacks. The trials were characterized by a hasty procedure without any guarantee for the accused, imposing forty-eight death sentences, of which thirty-five were executed, as well as thirty-seven prison sentences of different lengths. On 24 October 1941, the Extraordinary Tribunal was replaced with the Special Court for Dalmatia, under these courts, another 500 death sentences were imposed until 13 November 1941.

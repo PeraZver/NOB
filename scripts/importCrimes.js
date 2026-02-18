@@ -57,7 +57,7 @@ const areRecordsDifferent = (existing, newData) => {
         existing.end_date !== newData.end_date ||
         existing.deaths !== newData.deaths ||
         existing.perpetrator !== newData.perpetrator ||
-        existing.note !== newData.note ||
+        existing.description !== newData.description ||
         existing.wikipedia_url !== newData.wikipedia_url ||
         existing.lat !== newData.lat ||
         existing.lon !== newData.lon
@@ -86,7 +86,7 @@ async function importCrimes() {
                 location,
                 deaths,
                 perpetrator,
-                note,
+                description,
                 wikipedia_url
             } = crime;
 
@@ -107,7 +107,7 @@ async function importCrimes() {
                     end_date,
                     deaths,
                     perpetrator,
-                    note,
+                    description,
                     wikipedia_url,
                     lat,
                     lon
@@ -121,9 +121,9 @@ async function importCrimes() {
                     const point = lat && lon ? `POINT(${lon} ${lat})` : null;
                     await connection.execute(
                         `UPDATE crimes 
-                         SET site = ?, start_date = ?, end_date = ?, deaths = ?, perpetrator = ?, note = ?, wikipedia_url = ?, location = ST_GeomFromText(?)
+                         SET site = ?, start_date = ?, end_date = ?, deaths = ?, perpetrator = ?, description = ?, wikipedia_url = ?, location = ST_GeomFromText(?)
                          WHERE id = ?`,
-                        [site, start_date, end_date, deaths, perpetrator, note, wikipedia_url, point, id]
+                        [site, start_date, end_date, deaths, perpetrator, description, wikipedia_url, point, id]
                     );
                     console.log(`Crime ID ${id} ("${site}") has been updated.`);
                 } else {
@@ -136,9 +136,9 @@ async function importCrimes() {
             const point = lat && lon ? `POINT(${lon} ${lat})` : null;
 
             await connection.execute(
-                `INSERT INTO crimes (id, site, start_date, end_date, location, deaths, perpetrator, note, wikipedia_url)
+                `INSERT INTO crimes (id, site, start_date, end_date, location, deaths, perpetrator, description, wikipedia_url)
                  VALUES (?, ?, ?, ?, ST_GeomFromText(?), ?, ?, ?, ?)`,
-                [id, site, start_date, end_date, point, deaths, perpetrator, note, wikipedia_url]
+                [id, site, start_date, end_date, point, deaths, perpetrator, description, wikipedia_url]
             );
 
             console.log(`Crime ID ${id} ("${site}") has been inserted into the database.`);
