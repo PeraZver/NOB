@@ -43,21 +43,11 @@ export function formatCampaignDate(dateString) {
 }
 
 /**
- * Get the last day of a month
- * @param {number} year - Year
- * @param {number} month - Month (0-11)
- * @returns {number} Last day of the month
- */
-function getLastDayOfMonth(year, month) {
-    return new Date(year, month + 1, 0).getDate();
-}
-
-/**
  * Format a date range intelligently for crime popups
  * - If dates are the same, show only one date
  * - If dates span a few days within the same month, show "12. - 14. April 1943"
- * - If dates span the full month (1st to last day), show "Month, Year"
- * - If dates span multiple months, show "Month - Month Year"
+ * - If dates span the full month (1st to last day), show "1. - 30. April 1943"
+ * - If dates span multiple months, show day-inclusive ranges
  * - Otherwise use default formatting
  * @param {string} startDateString - Start date string
  * @param {string} endDateString - End date string (optional)
@@ -95,24 +85,20 @@ export function formatDateRange(startDateString, endDateString) {
         return formatCampaignDate(startDateString);
     }
     
-    // Check if dates span the full month (1st to last day of same month)
+    // Same month in same year
     if (startYear === endYear && startMonth === endMonth) {
-        const lastDay = getLastDayOfMonth(startYear, startMonth);
-        if (startDay === 1 && endDay === lastDay) {
-            return `${startMonthName}, ${startYear}`;
-        }
-        // Dates span a few days within the same month: "12. - 14. April 1943"
+        // Always include days when both dates are known: "12. - 14. April 1943"
         return `${startDay}. - ${endDay}. ${startMonthName} ${startYear}`;
     }
     
     // Check if dates span multiple months in the same year
     if (startYear === endYear && startMonth !== endMonth) {
-        return `${startMonthName} - ${endMonthName} ${startYear}`;
+        return `${startDay}. ${startMonthName} - ${endDay}. ${endMonthName} ${startYear}`;
     }
     
     // Check if dates span multiple months across different years
     if (startYear !== endYear) {
-        return `${startMonthName} ${startYear} - ${endMonthName} ${endYear}`;
+        return `${startDay}. ${startMonthName} ${startYear} - ${endDay}. ${endMonthName} ${endYear}`;
     }
     
     // Default: show both dates

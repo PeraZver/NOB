@@ -36,15 +36,14 @@ export function generatePopupContent(properties) {
  * @returns {string} HTML content for popup
  */
 export function generateBattlePopupContent(properties) {
-    const formattedStartDate = properties.start_date ? formatDate(properties.start_date) : 'Unknown';
-    const formattedEndDate = properties.end_date ? formatDate(properties.end_date) : 'Unknown';
+    const formattedDateRange = formatDateRange(properties.start_date, properties.end_date);
     const place = properties.place || 'Unknown location';
 
     return `
         <div class="popup-content">
             <h3>${properties.name || 'Unknown Battle'}</h3>
             <p><strong>Location:</strong> ${place}</p>
-            <p><strong>Date:</strong> ${formattedStartDate} to ${formattedEndDate}</p>
+            <p><strong>Date:</strong> ${formattedDateRange}</p>
             ${properties.wikipedia_url ? `<p><a href="${properties.wikipedia_url}" target="_blank">Wikipedia</a></p>` : ''}
         </div>
     `;

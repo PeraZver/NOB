@@ -150,6 +150,11 @@ export function refreshAllVisibleLayers() {
                 );
             }
             
+            // Apply crimes-specific perpetrator filter
+            if (layerInfo.layerName === 'crimesLayer') {
+                filteredData = filteredData.filter(item => item.perpetrator === 'Partisans');
+            }
+            
             const newLayer = L.layerGroup().addTo(map);
             
             filteredData.forEach(item => {
@@ -248,8 +253,11 @@ export function showCrimes() {
                     layerState.selectedMonthEnd
                 );
 
+                // Filter to only show crimes where perpetrator is Partisans
+                const partisanCrimes = filteredData.filter(item => item.perpetrator === 'Partisans');
+
                 const newLayer = L.layerGroup().addTo(map);
-                filteredData.forEach(item => {
+                partisanCrimes.forEach(item => {
                     const icon = icons.crimes || L.Icon.Default;
                     const marker = createMarker(item, icon, handleCrimeMarkerClick);
                     if (marker) {
