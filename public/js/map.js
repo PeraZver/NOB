@@ -10,7 +10,7 @@
 
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
-import { loadDefaultText } from './sidebar.js';
+import { loadDefaultText, updateSidebar, hideMapInfoOverlay } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 import { initializeMenuHandlers } from './menuHandlers.js';
@@ -69,37 +69,25 @@ if (typeof L !== 'undefined') {
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
-    const mapElement = document.getElementById('map');
 
     if (layerState.currentLayerName === layerName) {
         // If the same button is clicked, toggle the sidebar visibility and remove the layer
         if (sidebar.classList.contains('visible')) {
             if (shouldRemoveLayer) {
                 sidebar.classList.remove('visible');
-                // Only apply transform on desktop (not mobile)
-                if (window.innerWidth > 768) {
-                    mapElement.style.transform = 'translateX(0)';
-                }
                 content.classList.remove('visible');
+                hideMapInfoOverlay();
                 removeLayer(layerName);
                 clearYearFilter();
             }
         } else {
             sidebar.classList.add('visible');
-            // Only apply transform on desktop (not mobile)
-            if (window.innerWidth > 768) {
-                mapElement.style.transform = 'translateX(50%)';
-            }
             content.classList.add('visible');
             showLayerByName(layerName);
         }
     } else {
         // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
-        // Only apply transform on desktop (not mobile)
-        if (window.innerWidth > 768) {
-            mapElement.style.transform = 'translateX(50%)';
-        }
         content.classList.add('visible');
         if (shouldRemoveLayer) {
             removeLayer(layerName);
@@ -155,7 +143,7 @@ function showLayerByName(layerName) {
         fetch(markdownFile)
             .then(response => response.text())
             .then(markdown => {
-                content.innerHTML = marked.parse(markdown);
+                updateSidebar(marked.parse(markdown));
             })
             .catch(error => console.error('Error loading content:', error));
     }

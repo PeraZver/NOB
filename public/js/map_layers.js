@@ -9,7 +9,7 @@
  */
 
 import { map } from './map.js';
-import { updateSidebar, loadDefaultText } from './sidebar.js';
+import { updateSidebar, loadDefaultText, hideMapInfoOverlay } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
@@ -274,7 +274,6 @@ export function showBrigadesWithCampaigns() {
     // Close sidebar if it was showing something else
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
-    const mapElement = document.getElementById('map');
     
     // If brigades with campaigns are already visible, toggle them off
     if (layerState.isBrigadesLayerVisible && layerState.brigadesLayer) {
@@ -284,10 +283,8 @@ export function showBrigadesWithCampaigns() {
         
         // Hide sidebar
         sidebar.classList.remove('visible');
-        if (window.innerWidth > 768) {
-            mapElement.style.transform = 'translateX(0)';
-        }
         content.classList.remove('visible');
+        hideMapInfoOverlay();
         
         // Hide Campaign button
         const campaignButton = document.getElementById('toggleCampaign');
@@ -336,18 +333,15 @@ export function showBrigadesWithCampaigns() {
 
             // Show sidebar
             sidebar.classList.add('visible');
-            if (window.innerWidth > 768) {
-                mapElement.style.transform = 'translateX(50%)';
-            }
             content.classList.add('visible');
             
             // Update the sidebar with info about Movement layer
-            content.innerHTML = `
+            updateSidebar(`
                 <h1>Brigade Movements</h1>
                 <p>This layer shows brigades that have documented campaign movements.</p>
                 <p>Click on a brigade marker to see details. If the brigade has campaign data, a campaign trail button will appear.</p>
                 <p><strong>Showing ${filteredData.length} brigade(s) with movement data.</strong></p>
-            `;
+            `);
                 // Load default markdown for brigades layer
                 loadDefaultText('assets/brigades/brigades.md');
         })
