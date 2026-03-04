@@ -539,7 +539,6 @@ body {
 
 #map {
     width: 100%;
-    margin: 0 auto;
     border: 2px solid black;
     margin-top: 20px; /* Push the map below the menu */
 }
