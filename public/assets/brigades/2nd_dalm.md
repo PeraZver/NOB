@@ -15,8 +15,7 @@
 
 
 # Operations
-From its establishment until November 1, 1942, the brigade was subordinated to the Headquarters of the Fourth Operational Zone of Croatia. It was part of the Second Proletarian Division from November 1, 1942 to February 23, 1944, and then part of the Coastal Operational Group of the Second Strike Corps until January 5, 1945, and the Ninth Division of the Eighth Dalmatian Corps until the end of the war.
-
+From its establishment until November 1, 1942, the brigade was subordinated to the Headquarters of the 4th Operational Zone of Croatia. It was part of the 2nd Proletarian Division from November 1, 1942 to February 23, 1944, and then part of the Coastal Operational Group of the 2nd Strike Corps until January 5, 1945, and the 9th Division of the 8th Dalmatian Corps until the end of the war.
 
 The 2nd Dalmatian Brigade participated in the 2nd Proletarian Division's attacks on Bosansko Grahovo in October 1942, Livno and Tomislavgrad in December 1942, and Imotski in February 1943.
 
