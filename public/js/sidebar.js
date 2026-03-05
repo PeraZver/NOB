@@ -40,7 +40,7 @@ export function updateMapInfoOverlay(text) {
         overlay = createMapInfoOverlay();
     }
     const trimmed = (text || '').trim().replace(/\s+/g, ' ');
-    const preview = trimmed.length > 100 ? trimmed.substring(0, 100) + '...' : trimmed;
+    const preview = trimmed.length > 200 ? trimmed.substring(0, 200) + '...' : trimmed;
     const textEl = overlay.querySelector('.map-info-overlay-text');
     if (textEl) {
         textEl.textContent = preview;
@@ -88,11 +88,18 @@ function createMapInfoOverlay() {
         }
     });
 
-    const mapSidebarContainer = document.querySelector('.map-sidebar-container');
-    if (mapSidebarContainer) {
-        mapSidebarContainer.appendChild(overlay);
+    // Append inside the map div so absolute positioning is relative to the map
+    // (Leaflet sets position:relative on the map container)
+    const mapEl = document.getElementById('map');
+    if (mapEl) {
+        mapEl.appendChild(overlay);
     } else {
-        document.body.appendChild(overlay);
+        const mapSidebarContainer = document.querySelector('.map-sidebar-container');
+        if (mapSidebarContainer) {
+            mapSidebarContainer.appendChild(overlay);
+        } else {
+            document.body.appendChild(overlay);
+        }
     }
 
     return overlay;

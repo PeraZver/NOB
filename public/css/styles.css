@@ -538,9 +538,9 @@ body {
 }
 
 #map {
-    width: 100%;
+    width: 80%;
+    margin: 20px auto 0; /* Center horizontally; push below menu */
     border: 2px solid black;
-    margin-top: 20px; /* Push the map below the menu */
 }
 
 .sidebar {
@@ -575,12 +575,12 @@ body {
 .map-info-overlay {
     position: absolute;
     top: 30px;
-    left: 30px;
+    left: 60px; /* Offset right to avoid covering Leaflet zoom buttons */
     z-index: 1002;
     background: rgba(255, 255, 255, 0.85);
     padding: 12px 30px 12px 12px;
     border-radius: 6px;
-    max-width: 280px;
+    max-width: 380px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     display: none;
 }
@@ -609,6 +609,7 @@ body {
     font-size: 13px;
     line-height: 1.4;
     color: #222;
+    text-align: left;
 }
 
 .map-info-overlay-link {
@@ -1067,6 +1068,8 @@ body {
     }
 
     #map {
+        width: 100% !important;
+        margin: 0 !important;
         height: 60vh !important;
     }
 
