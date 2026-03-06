@@ -4,6 +4,8 @@
  * Manages the map legend Leaflet control. Shows every visible layer with
  * its icon, display name, and the number of markers currently rendered
  * (which already reflects any active calendar / date-range filter).
+ * Each row has a small "×" button that removes the layer from the map;
+ * the layer can only be re-activated via the menu buttons.
  * Campaigns are intentionally excluded from the legend.
  *
  * Created: 03/2026
@@ -13,6 +15,9 @@
 import { map } from './map.js';
 import layerState from './layerState.js';
 import { icons } from './config.js';
+// Note: circular import is intentional and safe in ES modules – removeLayer
+// is only called inside an event-handler callback, never at module-eval time.
+import { removeLayer } from './map_layers.js';
 
 // Layers tracked in the legend – campaigns are intentionally excluded
 const LEGEND_LAYERS = [
@@ -30,13 +35,22 @@ function initLegend() {
     if (!map || legendControl) return;
 
     const LegendControl = L.Control.extend({
-        options: { position: 'bottomright' },
+        options: { position: 'topright' },
         onAdd() {
             const div = L.DomUtil.create('div', 'map-legend');
             div.style.display = 'none';
             // Prevent map interactions from passing through the legend panel
             L.DomEvent.disableClickPropagation(div);
             L.DomEvent.disableScrollPropagation(div);
+
+            // Single delegated click listener – survives innerHTML rebuilds
+            div.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-remove-layer]');
+                if (!btn) return;
+                const layerName = btn.getAttribute('data-remove-layer');
+                removeLayer(layerName);
+            });
+
             return div;
         }
     });
@@ -72,6 +86,7 @@ export function updateLegend() {
             <img src="${iconUrl}" class="map-legend-icon" alt="${l.label}">
             <span class="map-legend-label">${l.label}</span>
             <span class="map-legend-count">${count}</span>
+            <button class="map-legend-remove" data-remove-layer="${l.label}" title="Remove layer" aria-label="Remove ${l.label} layer">&times;</button>
         </div>`;
     });
 

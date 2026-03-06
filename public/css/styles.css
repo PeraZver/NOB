@@ -626,7 +626,7 @@ body {
     color: #004499;
 }
 
-/* Map Legend (Leaflet control, bottom-right) */
+/* Map Legend (Leaflet control, top-right) */
 .map-legend {
     background: rgba(255, 255, 255, 0.92);
     padding: 10px 14px;
@@ -675,6 +675,22 @@ body {
     font-weight: bold;
     min-width: 24px;
     text-align: center;
+}
+
+.map-legend-remove {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+    flex-shrink: 0;
+    transition: color 0.15s;
+}
+
+.map-legend-remove:hover {
+    color: #c00;
 }
 
 .leaflet-popup-content {
