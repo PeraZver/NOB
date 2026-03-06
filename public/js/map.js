@@ -10,7 +10,7 @@
 
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
-import { loadDefaultText } from './sidebar.js';
+import { updateSidebar, hideMapInfoOverlay } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 import { initializeMenuHandlers } from './menuHandlers.js';
@@ -20,7 +20,11 @@ export let map = null;
 
 // Initialize map if Leaflet is available
 if (typeof L !== 'undefined') {
-    map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
+    map = L.map('map', {
+        minZoom: MAP_CONFIG.minZoom,
+        maxBounds: MAP_CONFIG.maxBounds,
+        maxBoundsViscosity: MAP_CONFIG.maxBoundsViscosity
+    }).setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
 
     // Load a basic tile layer
     L.tileLayer(MAP_CONFIG.tileLayerUrl, {
@@ -31,30 +35,15 @@ if (typeof L !== 'undefined') {
         console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
     });
 
-    // Add a map click event to reset the sidebar to default text
+    // Map click: restore state that may have been changed by marker/campaign clicks,
+    // but do NOT open the sidebar – that only happens via marker clicks or menu buttons.
     map.on('click', function () {
-        // Dynamically construct markdown file path using currentLayerName as folder
-        let folder = layerState.currentLayerName ? layerState.currentLayerName.toLowerCase().replace(/\s+/g, '_') : '';
-        let markdownFile = null;
-        if (folder && ['brigades','divisions','detachments', 'battles', 'crimes','territory'].includes(folder)) {
-            // Special case for Occupied Territory
-            if (folder === 'occupied_territory') {
-                markdownFile = 'assets/territory/occupied-territory.md';
-            } else {
-                markdownFile = `assets/${folder}/${folder}.md`;
-            }
-        } else {
-            markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
-        }
-        if (markdownFile) {
-            loadDefaultText(markdownFile);
-        }
         // Restore brigade markers if they were temporarily hidden by campaign marker click
         if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
             map.addLayer(layerState.brigadesLayer);
             layerState.brigadesLayerTemporarilyHidden = false;
         }
-        // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+        // Only hide Campaign button and reset selection if campaign markers are NOT visible
         if (!layerState.isCampaignsLayerVisible) {
             const campaignButton = document.getElementById('toggleCampaign');
             if (campaignButton) {
@@ -62,44 +51,31 @@ if (typeof L !== 'undefined') {
             }
             layerState.selectedBrigadeId = null;
         }
-        // If campaign markers ARE visible, clicking on map has no effect on them
     });
 }
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
-    const mapElement = document.getElementById('map');
 
     if (layerState.currentLayerName === layerName) {
         // If the same button is clicked, toggle the sidebar visibility and remove the layer
         if (sidebar.classList.contains('visible')) {
             if (shouldRemoveLayer) {
                 sidebar.classList.remove('visible');
-                // Only apply transform on desktop (not mobile)
-                if (window.innerWidth > 768) {
-                    mapElement.style.transform = 'translateX(0)';
-                }
                 content.classList.remove('visible');
+                hideMapInfoOverlay();
                 removeLayer(layerName);
                 clearYearFilter();
             }
         } else {
             sidebar.classList.add('visible');
-            // Only apply transform on desktop (not mobile)
-            if (window.innerWidth > 768) {
-                mapElement.style.transform = 'translateX(50%)';
-            }
             content.classList.add('visible');
             showLayerByName(layerName);
         }
     } else {
         // If a different button is clicked, change the content and show the sidebar
         sidebar.classList.add('visible');
-        // Only apply transform on desktop (not mobile)
-        if (window.innerWidth > 768) {
-            mapElement.style.transform = 'translateX(50%)';
-        }
         content.classList.add('visible');
         if (shouldRemoveLayer) {
             removeLayer(layerName);
@@ -155,7 +131,7 @@ function showLayerByName(layerName) {
         fetch(markdownFile)
             .then(response => response.text())
             .then(markdown => {
-                content.innerHTML = marked.parse(markdown);
+                updateSidebar(marked.parse(markdown));
             })
             .catch(error => console.error('Error loading content:', error));
     }

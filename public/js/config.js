@@ -16,6 +16,10 @@
 export const MAP_CONFIG = {
     defaultCenter: [44.5, 17.5],
     defaultZoom: 7,
+    minZoom: 6,
+    // Bounding box covering the Balkan peninsula / former Yugoslavia with a comfortable buffer
+    maxBounds: [[38.5, 10.5], [49.5, 26.0]],
+    maxBoundsViscosity: 1.0,
     searchZoom: 13,
     tileLayerUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileLayerAttribution: '&copy; OpenStreetMap contributors'
