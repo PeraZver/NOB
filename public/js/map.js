@@ -20,7 +20,11 @@ export let map = null;
 
 // Initialize map if Leaflet is available
 if (typeof L !== 'undefined') {
-    map = L.map('map').setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
+    map = L.map('map', {
+        minZoom: MAP_CONFIG.minZoom,
+        maxBounds: MAP_CONFIG.maxBounds,
+        maxBoundsViscosity: MAP_CONFIG.maxBoundsViscosity
+    }).setView(MAP_CONFIG.defaultCenter, MAP_CONFIG.defaultZoom);
 
     // Load a basic tile layer
     L.tileLayer(MAP_CONFIG.tileLayerUrl, {
