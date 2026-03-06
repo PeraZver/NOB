@@ -18,6 +18,7 @@ import { generatePopupContent, generateBattlePopupContent, generateCrimePopupCon
 import { formatCampaignDate } from './utils/dateUtils.js';
 import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
+import { updateLegend } from './legend.js';
 
 // Function to show/hide occupied territories on the map
 export function showOccupiedTerritory() {
@@ -51,6 +52,7 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
         map.removeLayer(layer);
         layerState[`${layerName}`] = null;
         layerState[`is${capitalizedLayerName}Visible`] = false;
+        updateLegend();
     } else {
         fetch(apiEndpoint)
             .then(response => response.json())
@@ -83,6 +85,7 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
 
                 layerState[`${layerName}`] = newLayer;
                 layerState[`is${capitalizedLayerName}Visible`] = true;
+                updateLegend();
 
                 // Update the sidebar with default text if a markdown file is provided
                 if (markdownFile) {
@@ -177,6 +180,7 @@ export function refreshAllVisibleLayers() {
             layerState[layerInfo.layerName] = newLayer;
         }
     });
+    updateLegend();
 }
 
 // Function to show/hide battles on the map
@@ -185,6 +189,7 @@ export function showBattles() {
         map.removeLayer(layerState.battlesLayer);
         layerState.battlesLayer = null;
         layerState.isBattlesLayerVisible = false;
+        updateLegend();
     } else {
         fetch(API_ENDPOINTS.battles)
             .then(response => response.json()) // Await the JSON parsing
@@ -216,6 +221,7 @@ export function showBattles() {
 
                 layerState.battlesLayer = newLayer;
                 layerState.isBattlesLayerVisible = true;
+                updateLegend();
 
                 // Update the sidebar with default text
                 loadDefaultText('assets/battles/battles.md');
@@ -230,6 +236,7 @@ export function showCrimes() {
         map.removeLayer(layerState.crimesLayer);
         layerState.crimesLayer = null;
         layerState.isCrimesLayerVisible = false;
+        updateLegend();
     } else {
         fetch(API_ENDPOINTS.crimes)
             .then(response => response.json())
@@ -261,6 +268,7 @@ export function showCrimes() {
 
                 layerState.crimesLayer = newLayer;
                 layerState.isCrimesLayerVisible = true;
+                updateLegend();
 
                 // Update the sidebar with default text
                 loadDefaultText('assets/crimes/crimes.md');
@@ -280,6 +288,7 @@ export function showBrigadesWithCampaigns() {
         map.removeLayer(layerState.brigadesLayer);
         layerState.brigadesLayer = null;
         layerState.isBrigadesLayerVisible = false;
+        updateLegend();
         
         // Hide sidebar
         sidebar.classList.remove('visible');
@@ -330,6 +339,7 @@ export function showBrigadesWithCampaigns() {
             layerState.brigadesLayer = newLayer;
             layerState.isBrigadesLayerVisible = true;
             layerState.currentLayerName = 'Brigades';
+            updateLegend();
 
             // Show sidebar
             sidebar.classList.add('visible');
@@ -368,6 +378,7 @@ export function removeLayer(layerName) {
                     layerState.isCampaignsLayerVisible = false;
                 }
                 layerState.selectedBrigadeId = null;
+                updateLegend();
             }
             break;
         case 'Detachments':
@@ -375,6 +386,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.detachmentLayer);
                 layerState.isDetachmentLayerVisible = false;
                 layerState.detachmentLayer = null;
+                updateLegend();
             }
             break;
         case 'Divisions':
@@ -382,6 +394,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.divisionLayer);
                 layerState.isDivisionLayerVisible = false;
                 layerState.divisionLayer = null;
+                updateLegend();
             }
             break;
         case 'Corps':
@@ -389,6 +402,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.corpsLayer);
                 layerState.isCorpsLayerVisible = false;
                 layerState.corpsLayer = null;
+                updateLegend();
             }
             break;
         case 'Occupied Territory':
@@ -403,6 +417,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
+                updateLegend();
             }
             break;
         case 'Crimes':
@@ -410,6 +425,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.crimesLayer);
                 layerState.isCrimesLayerVisible = false;
                 layerState.crimesLayer = null;
+                updateLegend();
             }
             break;
         default:

@@ -626,6 +626,57 @@ body {
     color: #004499;
 }
 
+/* Map Legend (Leaflet control, bottom-right) */
+.map-legend {
+    background: rgba(255, 255, 255, 0.92);
+    padding: 10px 14px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    min-width: 155px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.map-legend-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #ddd;
+    color: #222;
+}
+
+.map-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+}
+
+.map-legend-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.map-legend-label {
+    flex: 1;
+    color: #333;
+}
+
+.map-legend-count {
+    background: #2196F3;
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 24px;
+    text-align: center;
+}
+
 .leaflet-popup-content {
     font-size: 1.5em; /* Increase font size */
     line-height: 1.5; /* Adjust line height for better readability */
