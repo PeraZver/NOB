@@ -10,7 +10,7 @@
 
 import layerState from './layerState.js';
 import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
-import { loadDefaultText, updateSidebar, hideMapInfoOverlay } from './sidebar.js';
+import { updateSidebar, hideMapInfoOverlay } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
 import { initializeMenuHandlers } from './menuHandlers.js';
@@ -35,30 +35,15 @@ if (typeof L !== 'undefined') {
         console.log(`Clicked at ${e.latlng.lat}, ${e.latlng.lng}`);
     });
 
-    // Add a map click event to reset the sidebar to default text
+    // Map click: restore state that may have been changed by marker/campaign clicks,
+    // but do NOT open the sidebar – that only happens via marker clicks or menu buttons.
     map.on('click', function () {
-        // Dynamically construct markdown file path using currentLayerName as folder
-        let folder = layerState.currentLayerName ? layerState.currentLayerName.toLowerCase().replace(/\s+/g, '_') : '';
-        let markdownFile = null;
-        if (folder && ['brigades','divisions','detachments', 'battles', 'crimes','territory'].includes(folder)) {
-            // Special case for Occupied Territory
-            if (folder === 'occupied_territory') {
-                markdownFile = 'assets/territory/occupied-territory.md';
-            } else {
-                markdownFile = `assets/${folder}/${folder}.md`;
-            }
-        } else {
-            markdownFile = MARKDOWN_PATHS[layerState.currentLayerName];
-        }
-        if (markdownFile) {
-            loadDefaultText(markdownFile);
-        }
         // Restore brigade markers if they were temporarily hidden by campaign marker click
         if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
             map.addLayer(layerState.brigadesLayer);
             layerState.brigadesLayerTemporarilyHidden = false;
         }
-        // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
+        // Only hide Campaign button and reset selection if campaign markers are NOT visible
         if (!layerState.isCampaignsLayerVisible) {
             const campaignButton = document.getElementById('toggleCampaign');
             if (campaignButton) {
@@ -66,7 +51,6 @@ if (typeof L !== 'undefined') {
             }
             layerState.selectedBrigadeId = null;
         }
-        // If campaign markers ARE visible, clicking on map has no effect on them
     });
 }
 
