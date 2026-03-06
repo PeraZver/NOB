@@ -75,13 +75,15 @@ function createMapInfoOverlay() {
     `;
 
     const closeBtn = overlay.querySelector('.map-info-overlay-close');
-    closeBtn.addEventListener('click', () => {
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent the click from bubbling to Leaflet's map click handler
         overlay.classList.remove('visible');
     });
 
     const moreLink = overlay.querySelector('.map-info-overlay-link');
     moreLink.addEventListener('click', (e) => {
         e.preventDefault();
+        e.stopPropagation(); // Prevent the click from bubbling to Leaflet's map click handler
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
             sidebar.scrollIntoView({ behavior: 'smooth', block: 'center' });
