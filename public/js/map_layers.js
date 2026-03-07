@@ -798,8 +798,10 @@ function renderCampaigns(data, brigadeId) {
             place: campaign.place || 'Unknown location',
             operation: campaign.operation || '',
             onSelect() {
-                map.panTo(L.latLng(itemCoords[0], itemCoords[1]), { animate: true });
+                const popup = itemMarker.getPopup();
+                if (popup) { popup.options.autoPan = false; }
                 itemMarker.openPopup();
+                map.panTo(L.latLng(itemCoords[0], itemCoords[1]), { animate: true });
             }
         });
     });
