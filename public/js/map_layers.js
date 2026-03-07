@@ -801,7 +801,8 @@ function renderCampaigns(data, brigadeId) {
                 const popup = itemMarker.getPopup();
                 if (popup) { popup.options.autoPan = false; }
                 itemMarker.openPopup();
-                map.panTo(L.latLng(itemCoords[0], itemCoords[1]), { animate: true });
+                const targetZoom = Math.max(map.getZoom(), 9);
+                map.flyTo(L.latLng(itemCoords[0], itemCoords[1]), targetZoom, { animate: true });
             }
         });
     });
