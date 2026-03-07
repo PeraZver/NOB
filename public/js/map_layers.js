@@ -798,7 +798,7 @@ function renderCampaigns(data, brigadeId) {
             place: campaign.place || 'Unknown location',
             operation: campaign.operation || '',
             onSelect() {
-                map.setView(itemCoords, Math.max(map.getZoom(), 10), { animate: true });
+                map.setView(itemCoords, 13, { animate: true });
                 itemMarker.openPopup();
             }
         });
