@@ -104,6 +104,7 @@ export function showCampaignListPanel(items, title) {
     });
 
     panel.classList.remove('hidden');
+    document.dispatchEvent(new CustomEvent('campaignListPanelShown'));
 }
 
 /**
@@ -113,6 +114,7 @@ export function hideCampaignListPanel() {
     const panel = document.getElementById('campaignListPanel');
     if (panel) {
         panel.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
     }
 }
 
@@ -136,6 +138,7 @@ function createCampaignListPanel() {
     closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         panel.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
     });
 
     const mapEl = document.getElementById('map');
@@ -143,6 +146,11 @@ function createCampaignListPanel() {
         mapEl.appendChild(panel);
     } else {
         document.body.appendChild(panel);
+    }
+
+    // Prevent wheel events on the panel from bubbling to the Leaflet map
+    if (typeof L !== 'undefined' && L.DomEvent) {
+        L.DomEvent.disableScrollPropagation(panel);
     }
 
     return panel;
