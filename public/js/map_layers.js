@@ -798,16 +798,7 @@ function renderCampaigns(data, brigadeId) {
             place: campaign.place || 'Unknown location',
             operation: campaign.operation || '',
             onSelect() {
-                const targetZoom = 10;
-                const panel = document.querySelector('.campaign-list-panel');
-                const panelWidth = (panel && !panel.classList.contains('hidden'))
-                    ? panel.offsetWidth : 0;
-                // Offset the center leftward by half the panel width so the marker
-                // lands in the middle of the visible (non-overlapped) map area
-                const targetPx = map.project(L.latLng(itemCoords), targetZoom);
-                const adjustedPx = targetPx.subtract([panelWidth / 2, 0]);
-                const adjustedCenter = map.unproject(adjustedPx, targetZoom);
-                map.setView(adjustedCenter, targetZoom, { animate: true });
+                map.panTo(L.latLng(itemCoords[0], itemCoords[1]), { animate: true });
                 itemMarker.openPopup();
             }
         });
