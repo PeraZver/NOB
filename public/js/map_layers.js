@@ -9,7 +9,7 @@
  */
 
 import { map } from './map.js';
-import { updateSidebar, loadDefaultText, hideMapInfoOverlay } from './sidebar.js';
+import { updateSidebar, loadDefaultText, hideMapInfoOverlay, showCampaignListPanel, hideCampaignListPanel } from './sidebar.js';
 import layerState from './layerState.js';
 import { createMarker } from './utils/markerUtils.js';
 import { parsePoint } from './utils/geometryUtils.js';
@@ -384,6 +384,7 @@ export function removeLayer(layerName) {
                     map.removeLayer(layerState.campaignsLayer);
                     layerState.campaignsLayer = null;
                     layerState.isCampaignsLayerVisible = false;
+                    hideCampaignListPanel();
                 }
                 layerState.selectedBrigadeId = null;
                 updateLegend();
@@ -497,6 +498,7 @@ export function handleBrigadeMarkerClick(marker, item) {
         map.removeLayer(layerState.campaignsLayer);
         layerState.campaignsLayer = null;
         layerState.isCampaignsLayerVisible = false;
+        hideCampaignListPanel();
     }
     
     // Show popup and update sidebar (same as handleMarkerClick but without hiding the button)
@@ -581,6 +583,7 @@ export function showCampaigns() {
         map.removeLayer(layerState.campaignsLayer);
         layerState.campaignsLayer = null;
         layerState.isCampaignsLayerVisible = false;
+        hideCampaignListPanel();
         return;
     }
     
@@ -633,6 +636,7 @@ function renderCampaigns(data, brigadeId) {
     );
     
     if (filteredData.length === 0) {
+        hideCampaignListPanel();
         updateSidebar('<p>No campaign data available for the selected time period.</p>');
         return;
     }
@@ -693,6 +697,9 @@ function renderCampaigns(data, brigadeId) {
     
     // Track if first marker has been added (formation site)
     let firstMarkerAdded = false;
+    
+    // Collect list items for the campaign panel
+    const campaignListItems = [];
     
     filteredData.forEach(campaign => {
         if (!campaign.geo_location) {
@@ -782,28 +789,33 @@ function renderCampaigns(data, brigadeId) {
         });
         
         newLayer.addLayer(marker);
+
+        // Collect item for the right-side campaign list panel
+        const itemCoords = [coords.lat, coords.lng];
+        const itemMarker = marker;
+        campaignListItems.push({
+            dateStr: campaign.date ? formatCampaignDate(campaign.date) : '',
+            place: campaign.place || 'Unknown location',
+            operation: campaign.operation || '',
+            onSelect() {
+                map.setView(itemCoords, Math.max(map.getZoom(), 10), { animate: true });
+                itemMarker.openPopup();
+            }
+        });
     });
     
     layerState.campaignsLayer = newLayer;
     layerState.isCampaignsLayerVisible = true;
     
-    // Update sidebar
-    let sidebarContent = `<h2>Campaign Movement</h2>`;
+    // Build panel title with optional date filter note
+    let panelTitle = 'Campaign Movement';
     if (layerState.selectedYear) {
-        sidebarContent += `<p><em>Filtered to ${layerState.selectedMonth ? 
-            `${getMonthName(layerState.selectedMonth)} ` : ''}${layerState.selectedYear} and earlier</em></p>`;
+        panelTitle += ` · up to ${layerState.selectedMonth ?
+            `${getMonthName(layerState.selectedMonth)} ` : ''}${layerState.selectedYear}`;
     }
-    sidebarContent += `<p>Showing ${filteredData.length} campaign location(s)</p>`;
-    sidebarContent += `<ul>`;
-    filteredData.forEach(campaign => {
-        sidebarContent += `<li><strong>${formatCampaignDate(campaign.date)}:</strong> ${campaign.place || 'Unknown location'}`;
-        if (campaign.operation) {
-            sidebarContent += ` - ${campaign.operation}`;
-        }
-        sidebarContent += `</li>`;
-    });
-    sidebarContent += `</ul>`;
-    updateSidebar(sidebarContent);
+
+    // Show the campaign list panel on the right edge of the map
+    showCampaignListPanel(campaignListItems, panelTitle);
 }
 
 /**
