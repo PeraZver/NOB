@@ -493,14 +493,19 @@ export function handleBrigadeMarkerClick(marker, item) {
         }
     }
     
-    // Remove campaign layer if visible (but keep the button visible if has_campaigns)
+    // Remove campaign layer if visible before (re-)loading the new one
     if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
         map.removeLayer(layerState.campaignsLayer);
         layerState.campaignsLayer = null;
         layerState.isCampaignsLayerVisible = false;
         hideCampaignListPanel();
     }
-    
+
+    // If this brigade has campaign data, load the trail + list immediately
+    if (item.has_campaigns) {
+        showCampaigns();
+    }
+
     // Show popup and update sidebar (same as handleMarkerClick but without hiding the button)
     const popupContent = generatePopupContent({
         name: item.name,
