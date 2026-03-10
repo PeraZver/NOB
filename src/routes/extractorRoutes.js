@@ -16,11 +16,22 @@ const { extractCampaign } = require('../utils/campaignExtractor');
 // ── Available model catalogue ─────────────────────────────────────────────────
 
 const AVAILABLE_MODELS = [
-    { id: 'claude-sonnet-4-5-20251015', provider: 'anthropic', label: 'Claude Sonnet 4.5' },
+    // ── Anthropic ─────────────────────────────────────────────────────────────
+    { id: 'claude-opus-4-6',            provider: 'anthropic', label: 'Claude Opus 4.6 ★' },
+    { id: 'claude-sonnet-4-6',          provider: 'anthropic', label: 'Claude Sonnet 4.6 ★' },
     { id: 'claude-opus-4-5-20251101',   provider: 'anthropic', label: 'Claude Opus 4.5' },
-    { id: 'gpt-4o',                     provider: 'openai',    label: 'GPT-4o' },
-    { id: 'gpt-4.1',                    provider: 'openai',    label: 'GPT-4.1' },
+    { id: 'claude-sonnet-4-5',          provider: 'anthropic', label: 'Claude Sonnet 4.5 ★' },
+    { id: 'claude-sonnet-4-5-20251015', provider: 'anthropic', label: 'Claude Sonnet 4.5 (dated)' },
+    { id: 'claude-3-7-sonnet-20250219', provider: 'anthropic', label: 'Claude 3.7 Sonnet' },
+    { id: 'claude-3-5-sonnet-20241022', provider: 'anthropic', label: 'Claude 3.5 Sonnet' },
+    // ── OpenAI ────────────────────────────────────────────────────────────────
+    { id: 'gpt-5.1',                    provider: 'openai',    label: 'GPT-5.1 ★' },
+    { id: 'gpt-5.2',                    provider: 'openai',    label: 'GPT-5.2 ★' },
+    { id: 'gpt-4.1',                    provider: 'openai',    label: 'GPT-4.1 ★' },
+    { id: 'gpt-4o',                     provider: 'openai',    label: 'GPT-4o ★' },
     { id: 'gpt-4.1-mini',               provider: 'openai',    label: 'GPT-4.1 mini' },
+    { id: 'o3',                         provider: 'openai',    label: 'o3' },
+    { id: 'o4-mini',                    provider: 'openai',    label: 'o4-mini' },
 ];
 
 // ── GET /api/extractor/models ─────────────────────────────────────────────────

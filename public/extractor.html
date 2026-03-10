@@ -547,14 +547,29 @@ async function loadModels() {
     const resp = await fetch('/api/extractor/models');
     const data = await resp.json();
     sel.innerHTML = '';
+
+    // Group models by provider
+    const groups = {};
     data.models.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.id;
-      const hasKey = data.availableKeys[m.provider];
-      opt.textContent = `${m.label}${hasKey ? '' : ' (no key)'}`;
-      opt.disabled = !hasKey;
-      sel.appendChild(opt);
+      if (!groups[m.provider]) groups[m.provider] = [];
+      groups[m.provider].push(m);
     });
+
+    const providerLabels = { anthropic: 'Anthropic', openai: 'OpenAI' };
+    Object.entries(groups).forEach(([provider, models]) => {
+      const hasKey = data.availableKeys[provider];
+      const grp = document.createElement('optgroup');
+      grp.label = `${providerLabels[provider] || provider}${hasKey ? '' : ' (no API key)'}`;
+      models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label;
+        opt.disabled = !hasKey;
+        grp.appendChild(opt);
+      });
+      sel.appendChild(grp);
+    });
+
     // Pick first enabled option
     const first = Array.from(sel.options).find(o => !o.disabled);
     if (first) first.selected = true;
