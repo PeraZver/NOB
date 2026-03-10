@@ -57,35 +57,36 @@ router.get('/extractor/stream', async (req, res) => {
 
     // SSE headers
     res.writeHead(200, {
-        'Content-Type':  'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection':    'keep-alive',
-        'X-Accel-Buffering': 'no'  // disable nginx buffering if behind a proxy
+        'Content-Type':      'text/event-stream',
+        'Cache-Control':     'no-cache',
+        'Connection':        'keep-alive',
+        'X-Accel-Buffering': 'no'
     });
 
     // Helper: write a named SSE event
     const sendEvent = (type, data) => {
         try {
             res.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`);
-            // Express + Node will buffer; flush if available (e.g. compression middleware)
             if (typeof res.flush === 'function') res.flush();
         } catch {
             // Client disconnected — ignore write errors
         }
     };
 
-    // Track whether client disconnected early
+    // Resolve when client disconnects so we can end the response cleanly
+    let resolveClose;
+    const clientClosed = new Promise(resolve => { resolveClose = resolve; });
     let closed = false;
-    req.on('close', () => { closed = true; });
+    req.on('close', () => { closed = true; resolveClose(); });
 
     try {
-        await extractCampaign({
+        const result = await extractCampaign({
             url,
-            model:    model  || 'gpt-4o',
+            model:    model    || 'gpt-4o',
             provider: provider || 'auto',
 
             onLog: (message, level = 'info') => {
-                if (!closed) sendEvent('log', { message, level, ts: Date.now() });
+                if (!closed) sendEvent('log', { message, level });
             },
 
             onChunkResult: (movements) => {
@@ -93,19 +94,19 @@ router.get('/extractor/stream', async (req, res) => {
             },
 
             saveToFile: true
-        }).then(result => {
-            if (!closed) {
-                sendEvent('result', {
-                    brigade_name: result.brigade_name,
-                    brigade_id:   result.brigade_id,
-                    movements:    result.movements,
-                    notes:        result.notes,
-                    source:       result.source,
-                    filename:     result._filename || null
-                });
-                sendEvent('done', { total: result.movements.length });
-            }
         });
+
+        if (!closed) {
+            sendEvent('result', {
+                brigade_name: result.brigade_name,
+                brigade_id:   result.brigade_id,
+                movements:    result.movements,
+                notes:        result.notes,
+                source:       result.source,
+                filename:     result._filename || null
+            });
+            sendEvent('done', { total: result.movements.length });
+        }
     } catch (err) {
         if (!closed) {
             sendEvent('error', { message: err.message });
@@ -113,6 +114,13 @@ router.get('/extractor/stream', async (req, res) => {
         }
     }
 
+    // Wait for the client to close the EventSource (triggered by the 'done' handler),
+    // then end the response. This prevents the race condition where res.end() fires
+    // before the browser has processed the last SSE event.
+    await Promise.race([
+        clientClosed,
+        new Promise(resolve => setTimeout(resolve, 10000)) // 10s safety timeout
+    ]);
     res.end();
 });
 
