@@ -88,6 +88,17 @@ function extractTextFromHtml(html, url) {
     return cleanHtmlFragment(text);
 }
 
+function extractUnitName(html, url) {
+    if (/https?:\/\/(www\.)?znaci\.org\//.test(url)) {
+        const h1Match = html.match(/<h1[^>]+id=['"]pojam['"][^>]*>([\s\S]*?)<\/h1>/i);
+        if (h1Match) return cleanHtmlFragment(h1Match[1]).trim();
+    }
+    // Generic: try <title> tag, strip site suffix
+    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    if (titleMatch) return cleanHtmlFragment(titleMatch[1]).replace(/\s*[|\-–].*/,'').trim();
+    return null;
+}
+
 function cleanHtmlFragment(fragment) {
     return fragment
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
@@ -361,6 +372,8 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
 
     log('Extracting text content...');
     const textContent = extractTextFromHtml(html, url);
+    const unitName    = extractUnitName(html, url);
+    if (unitName) log(`Detected unit: ${unitName}`);
 
     if (!textContent || textContent.length < 50) {
         throw new Error('Extracted text is too short — the page may not be supported or text extraction failed');
@@ -369,15 +382,16 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
 
     // Split into chunks
     const chronologyEntries = extractChronologyEntries(textContent);
+    const unitPrefix = unitName ? `Source unit: ${unitName}\n\n` : '';
     let chunkJobs;
 
     if (chronologyEntries.length > 0) {
         chunkJobs = splitEntriesIntoChunks(chronologyEntries, 1, 12000)
-            .map(chunk => ({ text: chunk.text, expectedEntries: chunk.entries.length, entries: chunk.entries }));
+            .map(chunk => ({ text: unitPrefix + chunk.text, expectedEntries: chunk.entries.length, entries: chunk.entries }));
         log(`Found ${chronologyEntries.length} ⚔️ chronology entries → ${chunkJobs.length} API request${chunkJobs.length !== 1 ? 's' : ''}`);
     } else {
         chunkJobs = splitTextIntoChunks(textContent, 24000)
-            .map(chunkText => ({ text: chunkText, expectedEntries: null, entries: [] }));
+            .map(chunkText => ({ text: unitPrefix + chunkText, expectedEntries: null, entries: [] }));
         log(`No ⚔️ markers found — processing as ${chunkJobs.length} plain text chunk${chunkJobs.length !== 1 ? 's' : ''}`);
     }
 
@@ -421,8 +435,9 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
         const movements = Array.isArray(brigadeData.movements) ? brigadeData.movements : [];
         const movementCount = movements.length;
 
-        // Warn if fewer movements than expected
-        if (Number.isInteger(chunk.expectedEntries) && movementCount < chunk.expectedEntries) {
+        // Warn if fewer movements than expected.
+        // When brigadeFilter is active, 0 movements = LLM correctly excluded the entry — do NOT fall back.
+        if (!brigadeFilter && Number.isInteger(chunk.expectedEntries) && movementCount < chunk.expectedEntries) {
             log(`Chunk ${idx + 1}: expected ${chunk.expectedEntries}, got ${movementCount} — applying fallback for ${chunk.expectedEntries - movementCount} missing`, 'warn');
             for (let mi = movementCount; mi < chunk.entries.length; mi++) {
                 movements.push(createFallbackMovementFromEntry(chunk.entries[mi]));
@@ -433,7 +448,11 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
         placed += chunkPlaced;
         unplaced += movements.length - chunkPlaced;
 
-        log(`Chunk ${idx + 1}: ${movementCount} movements extracted (${chunkPlaced} placed, ${movements.length - chunkPlaced} unplaced)`);
+        if (brigadeFilter && movementCount === 0) {
+            log(`Chunk ${idx + 1}: excluded by brigade filter`);
+        } else {
+            log(`Chunk ${idx + 1}: ${movementCount} movements extracted (${chunkPlaced} placed, ${movements.length - chunkPlaced} unplaced)`);
+        }
         allMovements = allMovements.concat(movements);
 
         // Resolve unit metadata from first successful chunk that has it
