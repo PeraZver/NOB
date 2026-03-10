@@ -190,7 +190,9 @@ function createFallbackMovementFromEntry(entryText) {
 // ── LLM prompt & API call ─────────────────────────────────────────────────────
 
 function buildPrompt(text, expectedEntries, brigadeFilter) {
-    const entryInstruction = Number.isInteger(expectedEntries)
+    // When a brigade filter is active the LLM may legitimately return 0 movements
+    // (entry excluded by filter), so never force an exact return count in that case.
+    const entryInstruction = (!brigadeFilter && Number.isInteger(expectedEntries))
         ? `\n11. The input contains exactly ${expectedEntries} chronology entr${expectedEntries === 1 ? 'y' : 'ies'}. Return exactly ${expectedEntries} item(s) in "movements", preserving input order and covering every entry.`
         : '';
 
