@@ -237,14 +237,16 @@ Extract brigade campaign and movement data from the following webpage content. R
 IMPORTANT REQUIREMENTS:
 1. Extract ALL military operations, movements, and campaigns mentioned (look for ⚔️ symbols or dated entries)
 2. For each entry, provide date in YYYY-MM-DD format (use best estimate if only partial date given)
-3. Include geographic coordinates (lat, lng) - use approximate coordinates for known locations (use null if unknown)
-4. Identify the brigade name and extract brigade_id if mentioned (e.g., "8. dalmatinska brigada" = 8th Dalmatian Brigade)
-5. Only return valid JSON, no markdown formatting or code blocks
-6. If coordinates cannot be determined, use null for the entire coordinates object
-7. Preserve division names as mentioned in the text, if the brigade was attached to a division during an operation, include that division name in the "division" field
-8. Include full context in notes for each operation
-9. Translate brigade/division/corps names to English
-10. For 'brigade_name' or 'division_name', use only the area name (e.g., '1st Dalmatian Brigade'), not the full official or honorific name.
+3. If there are events at the same location on the consequtive days, merge them into a single movement with a date of the first day and include notes about the subsequent days' events.
+4. Include geographic coordinates (lat, lng) - use approximate coordinates for known locations (use null if unknown)
+5. Identify the brigade name and extract brigade_id if mentioned (e.g., "8. dalmatinska brigada" = 8th Dalmatian Brigade)
+6. Only return valid JSON, no markdown formatting or code blocks
+7. If coordinates cannot be determined, use null for the entire coordinates object
+8. Preserve division names as mentioned in the text, if the brigade was attached to a division during an operation, include that division name in the "division" field
+9. Include full context in notes for each operation
+10. Omit those events where certain ceremonies took place like brigade receiving awards or flags, or meetngs of headquarters, unless they are directly connected to a military operation or movement. Focus on extracting actual campaign movements and operations.
+11. Translate brigade/division/corps names to English
+12. For 'brigade_name' or 'division_name', use only the area name (e.g., '1st Dalmatian Brigade'), not the full official or honorific name.
 ${expectedEntriesInstruction}
 
 Webpage Content:

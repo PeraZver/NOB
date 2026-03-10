@@ -52,6 +52,22 @@ if (typeof L !== 'undefined') {
             layerState.selectedBrigadeId = null;
         }
     });
+
+    // When the campaign list panel is shown, disable scroll-wheel zoom so that scrolling
+    // over the map won't accidentally zoom it. Re-enable once the user explicitly clicks
+    // on the map, or when the panel is hidden.
+    document.addEventListener('campaignListPanelShown', () => {
+        map.scrollWheelZoom.disable();
+    });
+    document.addEventListener('campaignListPanelHidden', () => {
+        map.scrollWheelZoom.enable();
+    });
+    map.on('mousedown', () => {
+        const panel = document.getElementById('campaignListPanel');
+        if (panel && !panel.classList.contains('hidden')) {
+            map.scrollWheelZoom.enable();
+        }
+    });
 }
 
 export function toggleSidebar(layerName, shouldRemoveLayer = true) {

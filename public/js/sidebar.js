@@ -61,6 +61,102 @@ export function hideMapInfoOverlay() {
 }
 
 /**
+ * Show the campaign list panel on the right edge of the map.
+ * @param {Array} items - Array of { dateStr, place, operation, onSelect } objects
+ * @param {string} title - Title for the panel header
+ */
+export function showCampaignListPanel(items, title) {
+    let panel = document.getElementById('campaignListPanel');
+    if (!panel) {
+        panel = createCampaignListPanel();
+    }
+
+    // Update title
+    const titleEl = panel.querySelector('.campaign-list-panel-title');
+    if (titleEl) {
+        titleEl.textContent = title || 'Campaign Movement';
+    }
+
+    // Build list
+    const body = panel.querySelector('.campaign-list-panel-body');
+    body.innerHTML = '';
+    items.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'campaign-list-item';
+        let html = '';
+        if (item.dateStr) {
+            html += `<span class="campaign-list-item-date">${item.dateStr}</span>`;
+        }
+        if (item.place) {
+            html += `<span class="campaign-list-item-place">${item.place}</span>`;
+        }
+        if (item.operation) {
+            html += ` <span class="campaign-list-item-op">– ${item.operation}</span>`;
+        }
+        el.innerHTML = html;
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (typeof item.onSelect === 'function') {
+                item.onSelect();
+            }
+        });
+        body.appendChild(el);
+    });
+
+    panel.classList.remove('hidden');
+    document.dispatchEvent(new CustomEvent('campaignListPanelShown'));
+}
+
+/**
+ * Hide and clear the campaign list panel.
+ */
+export function hideCampaignListPanel() {
+    const panel = document.getElementById('campaignListPanel');
+    if (panel) {
+        panel.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
+    }
+}
+
+/**
+ * Build and insert the campaign list panel DOM element inside the map.
+ * @returns {HTMLElement}
+ */
+function createCampaignListPanel() {
+    const panel = document.createElement('div');
+    panel.id = 'campaignListPanel';
+    panel.className = 'campaign-list-panel hidden';
+    panel.innerHTML = `
+        <div class="campaign-list-panel-header">
+            <span class="campaign-list-panel-title">Campaign Movement</span>
+            <button class="campaign-list-panel-close" title="Close">&times;</button>
+        </div>
+        <div class="campaign-list-panel-body"></div>
+    `;
+
+    const closeBtn = panel.querySelector('.campaign-list-panel-close');
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        panel.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
+    });
+
+    const mapEl = document.getElementById('map');
+    if (mapEl) {
+        mapEl.appendChild(panel);
+    } else {
+        document.body.appendChild(panel);
+    }
+
+    // Prevent wheel events on the panel from bubbling to the Leaflet map
+    if (typeof L !== 'undefined' && L.DomEvent) {
+        L.DomEvent.disableScrollPropagation(panel);
+    }
+
+    return panel;
+}
+
+/**
  * Build and insert the map info overlay DOM element.
  * @returns {HTMLElement}
  */
