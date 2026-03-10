@@ -1,0 +1,108 @@
+/**
+ * extractorRoutes.js
+ * API routes for the Campaign Extractor web tool.
+ *
+ * GET /api/extractor/stream?url=<encoded>&model=<model>&provider=<provider>
+ *   Server-Sent Events stream: emits log, chunk_result, result, error, done events.
+ *
+ * GET /api/extractor/models
+ *   Returns the list of available models and providers.
+ */
+
+const express = require('express');
+const router = express.Router();
+const { extractCampaign } = require('../utils/campaignExtractor');
+
+// ── Available model catalogue ─────────────────────────────────────────────────
+
+const AVAILABLE_MODELS = [
+    { id: 'claude-sonnet-4-5-20251015', provider: 'anthropic', label: 'Claude Sonnet 4.5' },
+    { id: 'claude-opus-4-5-20251101',   provider: 'anthropic', label: 'Claude Opus 4.5' },
+    { id: 'gpt-4o',                     provider: 'openai',    label: 'GPT-4o' },
+    { id: 'gpt-4.1',                    provider: 'openai',    label: 'GPT-4.1' },
+    { id: 'gpt-4.1-mini',               provider: 'openai',    label: 'GPT-4.1 mini' },
+];
+
+// ── GET /api/extractor/models ─────────────────────────────────────────────────
+
+router.get('/extractor/models', (req, res) => {
+    const availableKeys = {
+        openai:    !!process.env.OPENAI_API_KEY,
+        anthropic: !!process.env.ANTHROPIC_API_KEY
+    };
+    res.json({ models: AVAILABLE_MODELS, availableKeys });
+});
+
+// ── GET /api/extractor/stream ─────────────────────────────────────────────────
+// Server-Sent Events endpoint: streams extraction progress and results.
+
+router.get('/extractor/stream', async (req, res) => {
+    const { url, model, provider } = req.query;
+
+    // Validate required params
+    if (!url) {
+        return res.status(400).json({ error: 'url query parameter is required' });
+    }
+
+    // SSE headers
+    res.writeHead(200, {
+        'Content-Type':  'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection':    'keep-alive',
+        'X-Accel-Buffering': 'no'  // disable nginx buffering if behind a proxy
+    });
+
+    // Helper: write a named SSE event
+    const sendEvent = (type, data) => {
+        try {
+            res.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`);
+            // Express + Node will buffer; flush if available (e.g. compression middleware)
+            if (typeof res.flush === 'function') res.flush();
+        } catch {
+            // Client disconnected — ignore write errors
+        }
+    };
+
+    // Track whether client disconnected early
+    let closed = false;
+    req.on('close', () => { closed = true; });
+
+    try {
+        await extractCampaign({
+            url,
+            model:    model  || 'gpt-4o',
+            provider: provider || 'auto',
+
+            onLog: (message, level = 'info') => {
+                if (!closed) sendEvent('log', { message, level, ts: Date.now() });
+            },
+
+            onChunkResult: (movements) => {
+                if (!closed) sendEvent('chunk_result', { movements });
+            },
+
+            saveToFile: true
+        }).then(result => {
+            if (!closed) {
+                sendEvent('result', {
+                    brigade_name: result.brigade_name,
+                    brigade_id:   result.brigade_id,
+                    movements:    result.movements,
+                    notes:        result.notes,
+                    source:       result.source,
+                    filename:     result._filename || null
+                });
+                sendEvent('done', { total: result.movements.length });
+            }
+        });
+    } catch (err) {
+        if (!closed) {
+            sendEvent('error', { message: err.message });
+            sendEvent('done',  { total: 0 });
+        }
+    }
+
+    res.end();
+});
+
+module.exports = router;
