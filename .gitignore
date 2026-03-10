@@ -9,6 +9,7 @@ public/assets/brigades/model_test/
 public/assets/brigades/json/
 *.log
 *.json
+*.zip
 .env
 .github
 Python
