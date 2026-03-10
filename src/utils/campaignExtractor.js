@@ -484,6 +484,34 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
         const outputDir = path.resolve(__dirname, '..', '..', 'public', 'assets', 'brigades', 'model_test');
         if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
         const outputPath = path.join(outputDir, filename);
+
+        // Merge with existing file — append new movements, skip duplicates
+        if (fs.existsSync(outputPath)) {
+            let existing = null;
+            try { existing = JSON.parse(fs.readFileSync(outputPath, 'utf8')); } catch { /* corrupt — overwrite */ }
+
+            if (existing && Array.isArray(existing.movements)) {
+                const existingKeys = new Set(
+                    existing.movements.map(m => `${m.date || ''}|${(m.place || '').toLowerCase().trim()}`)
+                );
+                const newMovements = output.movements.filter(
+                    m => !existingKeys.has(`${m.date || ''}|${(m.place || '').toLowerCase().trim()}`)
+                );
+                const skipped = output.movements.length - newMovements.length;
+
+                output.movements   = [...existing.movements, ...newMovements];
+                output.brigade_id  = output.brigade_id  || existing.brigade_id;
+                output.brigade_name= output.brigade_name|| existing.brigade_name;
+                output.notes       = [existing.notes, output.notes].filter(Boolean).join(' | ');
+
+                if (newMovements.length > 0) {
+                    log(`Merged: ${newMovements.length} new movements appended, ${skipped} already present`);
+                } else {
+                    log(`No new movements to append (${skipped} already present)`);
+                }
+            }
+        }
+
         fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
         log(`Saved: public/assets/brigades/model_test/${filename}`);
         output._filename = filename;
