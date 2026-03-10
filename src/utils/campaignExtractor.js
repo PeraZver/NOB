@@ -178,10 +178,28 @@ function createFallbackMovementFromEntry(entryText) {
 
 // ── LLM prompt & API call ─────────────────────────────────────────────────────
 
-function buildPrompt(text, expectedEntries) {
+function buildPrompt(text, expectedEntries, brigadeFilter) {
     const entryInstruction = Number.isInteger(expectedEntries)
         ? `\n11. The input contains exactly ${expectedEntries} chronology entr${expectedEntries === 1 ? 'y' : 'ies'}. Return exactly ${expectedEntries} item(s) in "movements", preserving input order and covering every entry.`
         : '';
+
+    const filterInstruction = brigadeFilter ? `
+
+BRIGADE FILTER — YOU MUST APPLY THIS:
+The source document is a higher-formation chronicle (division or corps). Extract ONLY movements relevant to the "${brigadeFilter.name}".
+
+Date rule: Ignore ALL entries dated before ${brigadeFilter.fromDate}. Only process entries on or after this date.
+
+For entries on or after ${brigadeFilter.fromDate}, apply these inclusion rules:
+  INCLUDE the entry if ANY of the following is true:
+    a) The entry explicitly names "${brigadeFilter.name}"
+    b) The entry describes a general formation operation WITHOUT naming any specific brigade or regiment — assume all sub-units including "${brigadeFilter.name}" participated
+    c) The entry names multiple sub-units and "${brigadeFilter.name}" is among them
+
+  EXCLUDE the entry if:
+    The entry explicitly names ONLY other specific brigades or sub-units, and does NOT name "${brigadeFilter.name}" — this means "${brigadeFilter.name}" was not involved
+
+When outputting included entries, always set "unit_name" to "${brigadeFilter.name}".` : '';
 
     return `You are an expert military historian analyzing historical documentation about WWII Yugoslav partisan military units: brigades, divisions and corps. The content may be in Serbian/Croatian/Bosnian.
 
@@ -216,7 +234,7 @@ IMPORTANT REQUIREMENTS:
 9. Include full context in notes for each operation
 10. Omit events that are purely ceremonial or administrative: award ceremonies, receiving flags, HQ meetings, and decorations — UNLESS they are directly connected to a combat operation or movement. Focus on actual campaign movements and operations.
 11. Translate brigade/division/corps names to English
-12. For unit names, use only the area name (e.g., '1st Dalmatian Brigade'), not the full honorific name.${entryInstruction}
+12. For unit names, use only the area name (e.g., '1st Dalmatian Brigade'), not the full honorific name.${entryInstruction}${filterInstruction}
 
 Webpage Content:
 ${text}
@@ -262,8 +280,8 @@ async function callLlmApi({ provider, model, openaiClient, anthropicClient, prom
     return responseText;
 }
 
-async function extractChunkData({ provider, model, openaiClient, anthropicClient, text, expectedEntries, onLog }) {
-    const prompt = buildPrompt(text, expectedEntries);
+async function extractChunkData({ provider, model, openaiClient, anthropicClient, text, expectedEntries, brigadeFilter, onLog }) {
+    const prompt = buildPrompt(text, expectedEntries, brigadeFilter);
 
     let responseText;
     try {
@@ -300,10 +318,11 @@ async function extractChunkData({ provider, model, openaiClient, anthropicClient
  * @param {string} [options.provider]    - 'openai' | 'anthropic' | 'auto'
  * @param {function} [options.onLog]     - (message, level?) => void — called for progress updates
  * @param {function} [options.onChunkResult] - (movements[]) => void — called after each chunk
+ * @param {object} [options.brigadeFilter] - { name: string, fromDate: 'YYYY-MM-DD' } — filter higher-formation chronicles for one brigade
  * @param {boolean} [options.saveToFile] - Whether to save result JSON (default: true)
  * @returns {Promise<object>} The extracted campaign data object
  */
-async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog = console.log, onChunkResult, saveToFile = true }) {
+async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog = console.log, onChunkResult, brigadeFilter, saveToFile = true }) {
     const log = (msg, level = 'info') => onLog(msg, level);
 
     // Resolve provider + model
@@ -383,6 +402,7 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
                 anthropicClient,
                 text: chunk.text,
                 expectedEntries: chunk.expectedEntries,
+                brigadeFilter,
                 onLog: log
             });
         } catch (err) {

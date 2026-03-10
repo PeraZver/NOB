@@ -48,7 +48,7 @@ router.get('/extractor/models', (req, res) => {
 // Server-Sent Events endpoint: streams extraction progress and results.
 
 router.get('/extractor/stream', async (req, res) => {
-    const { url, model, provider } = req.query;
+    const { url, model, provider, filterBrigade, filterFromDate } = req.query;
 
     // Validate required params
     if (!url) {
@@ -92,6 +92,10 @@ router.get('/extractor/stream', async (req, res) => {
             onChunkResult: (movements) => {
                 if (!closed) sendEvent('chunk_result', { movements });
             },
+
+            brigadeFilter: (filterBrigade && filterFromDate)
+                ? { name: filterBrigade, fromDate: filterFromDate }
+                : undefined,
 
             saveToFile: true
         });

@@ -250,6 +250,90 @@
     }
     #map-center-btn:hover { color: var(--accent); }
 
+    /* ── Filter toggle button ─────────────────────────────────────────── */
+    #filter-toggle-btn {
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-size: 0.87em;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    #filter-toggle-btn:hover { color: var(--text); border-color: var(--text-dim); }
+    #filter-toggle-btn.active {
+      background: #1a3960;
+      color: var(--accent);
+      border-color: var(--accent-dim);
+    }
+
+    /* ── Filter bar (collapsible row below topbar) ────────────────────── */
+    #filter-bar {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #16202e;
+      border-bottom: 1px solid var(--accent-dim);
+      padding: 7px 16px;
+      flex-shrink: 0;
+    }
+    #filter-bar.open { display: flex; }
+    #filter-bar label {
+      font-size: 0.82em;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+    #filter-brigade {
+      flex: 1 1 200px;
+      min-width: 160px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 9px;
+      border-radius: 5px;
+      font-family: var(--sans);
+      font-size: 0.85em;
+    }
+    #filter-brigade:focus { outline: none; border-color: var(--accent); }
+    #filter-brigade::placeholder { color: var(--text-dim); }
+    #filter-date {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 5px 9px;
+      border-radius: 5px;
+      font-size: 0.85em;
+      font-family: var(--sans);
+      color-scheme: dark;
+    }
+    #filter-date:focus { outline: none; border-color: var(--accent); }
+    #filter-clear-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 0.83em;
+      cursor: pointer;
+    }
+    #filter-clear-btn:hover { color: var(--text); border-color: var(--text-dim); }
+    #filter-active-hint {
+      font-size: 0.78em;
+      color: var(--accent);
+      margin-left: auto;
+      white-space: nowrap;
+      display: none;
+    }
+    #filter-active-hint.visible { display: inline; }
+    /* Adjust content height when filter bar is open */
+    #filter-bar.open ~ #statusbar ~ #content,
+    body:has(#filter-bar.open) #content {
+      height: calc(100vh - 88px - 39px);
+    }
+
     /* Save JSON button (appears when done) */
     #save-btn {
       display: none;
@@ -297,8 +381,21 @@
     <option value="anthropic">Anthropic</option>
   </select>
 
+  <button id="filter-toggle-btn" title="Filter by brigade (for division/corps sources)">Filter</button>
   <button id="extract-btn" disabled>Extract</button>
   <button id="save-btn" title="Download extracted JSON">⬇ Save JSON</button>
+</div>
+
+<!-- ── Brigade filter bar (collapsible) ───────────────────────────────────── -->
+<div id="filter-bar">
+  <label for="filter-brigade">Brigade name</label>
+  <input id="filter-brigade" type="text"
+    placeholder="e.g. 2nd Dalmatian Brigade"
+    autocomplete="off" spellcheck="false" />
+  <label for="filter-date">Joined from</label>
+  <input id="filter-date" type="date" />
+  <button id="filter-clear-btn">Clear</button>
+  <span id="filter-active-hint">Filter active — only entries relevant to the specified brigade will be extracted</span>
 </div>
 
 <!-- ── Status bar ─────────────────────────────────────────────────────────── -->

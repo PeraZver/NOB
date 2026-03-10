@@ -1,4 +1,5 @@
 node_modules
+tmpclaude-*
 src/db/*.sql
 src/db/*.db
 src/db/data/

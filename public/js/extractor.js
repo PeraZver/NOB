@@ -224,9 +224,11 @@ document.getElementById('extract-btn').addEventListener('click', () => {
 });
 
 function startExtraction() {
-  const url      = document.getElementById('url-input').value.trim();
-  const model    = document.getElementById('model-select').value;
-  const provider = document.getElementById('provider-select').value;
+  const url            = document.getElementById('url-input').value.trim();
+  const model          = document.getElementById('model-select').value;
+  const provider       = document.getElementById('provider-select').value;
+  const filterBrigade  = document.getElementById('filter-brigade').value.trim();
+  const filterFromDate = document.getElementById('filter-date').value;
 
   if (!url) { logLine('Please enter a URL.', 'warn'); return; }
 
@@ -248,13 +250,21 @@ function startExtraction() {
   logLine(`Starting extraction…`);
   logLine(`URL: ${url}`);
   logLine(`Model: ${model} | Provider: ${provider}`);
+  if (filterBrigade && filterFromDate) {
+    logLine(`Brigade filter: "${filterBrigade}" from ${filterFromDate}`, 'warn');
+  }
   setStatus('running', 'Extracting');
 
   const btn = document.getElementById('extract-btn');
   btn.textContent = 'Stop';
   btn.classList.add('stop');
 
-  const es = new EventSource(`/api/extractor/stream?${new URLSearchParams({ url, model, provider })}`);
+  const params = { url, model, provider };
+  if (filterBrigade && filterFromDate) {
+    params.filterBrigade  = filterBrigade;
+    params.filterFromDate = filterFromDate;
+  }
+  const es = new EventSource(`/api/extractor/stream?${new URLSearchParams(params)}`);
   STATE.eventSource = es;
 
   es.addEventListener('log', e => {
@@ -356,3 +366,28 @@ document.getElementById('save-btn').addEventListener('click', () => {
 document.getElementById('url-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('extract-btn').click();
 });
+
+// ── Brigade filter bar ────────────────────────────────────────────────────────
+const filterToggleBtn = document.getElementById('filter-toggle-btn');
+const filterBar       = document.getElementById('filter-bar');
+const filterHint      = document.getElementById('filter-active-hint');
+
+filterToggleBtn.addEventListener('click', () => {
+  const open = filterBar.classList.toggle('open');
+  filterToggleBtn.classList.toggle('active', open);
+});
+
+document.getElementById('filter-clear-btn').addEventListener('click', () => {
+  document.getElementById('filter-brigade').value = '';
+  document.getElementById('filter-date').value    = '';
+  filterHint.classList.remove('visible');
+});
+
+function updateFilterHint() {
+  const hasName = !!document.getElementById('filter-brigade').value.trim();
+  const hasDate = !!document.getElementById('filter-date').value;
+  filterHint.classList.toggle('visible', hasName && hasDate);
+}
+
+document.getElementById('filter-brigade').addEventListener('input', updateFilterHint);
+document.getElementById('filter-date').addEventListener('change', updateFilterHint);
