@@ -11,7 +11,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const path = require('path');
 const fs   = require('fs');
 const { extractCampaign, OUTPUT_DIR } = require('../utils/campaignExtractor');
@@ -143,12 +143,18 @@ router.get('/extractor/open-file', (req, res) => {
     if (!fs.existsSync(filePath)) {
         return res.status(404).json({ error: `File not found: ${filePath}` });
     }
-    const cmd = process.platform === 'win32'
-        ? `start "" "${filePath}"`
-        : process.platform === 'darwin'
-            ? `open "${filePath}"`
-            : `xdg-open "${filePath}"`;
-    exec(cmd, { shell: true });
+
+    // Use execFile with explicit args to avoid shell-quoting issues on paths with spaces
+    const onErr = err => err && console.error('[open-file]', err.message);
+    if (process.platform === 'win32') {
+        // cmd /c start "" "<path>"  — opens with the default Windows handler
+        execFile('cmd', ['/c', 'start', '', filePath], onErr);
+    } else if (process.platform === 'darwin') {
+        execFile('open', [filePath], onErr);
+    } else {
+        execFile('xdg-open', [filePath], onErr);
+    }
+
     res.json({ ok: true });
 });
 
