@@ -340,6 +340,19 @@ body:has(#filter-bar.open) #content {
 }
 #save-btn:hover { background: #32a85c; }
 
+/* Open file button (statusbar, appears when done) */
+#open-file-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 0.78em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#open-file-btn:hover { color: var(--text); border-color: var(--text-dim); }
+
 /* Scrollbar styling for dark theme */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

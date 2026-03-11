@@ -243,6 +243,7 @@ function startExtraction() {
   tbody.innerHTML = '';
   document.getElementById('results-pane').style.display = 'none';
   document.getElementById('save-btn').style.display     = 'none';
+  document.getElementById('open-file-btn').style.display = 'none';
   document.getElementById('stat-file').textContent      = '';
   updateStats();
   updateLegend(null, 0, 0);
@@ -281,6 +282,13 @@ function startExtraction() {
     ).length;
     STATE.placed   += chunkPlaced;
     STATE.unplaced += movements.length - chunkPlaced;
+
+    movements.forEach(m => {
+      const note    = (m.notes || '').trim();
+      const snippet = note.length > 100 ? note.slice(0, 100) + '…' : note;
+      logLine([m.date || '?', m.place || '?', snippet].filter(Boolean).join('  ·  '));
+    });
+
     addMarkersForMovements(movements);
     drawRoute(STATE.allMovements);
     appendTableRows(movements);
@@ -314,6 +322,9 @@ function startExtraction() {
       updateLegend(STATE.finalResult.brigade_name, placed, total);
       if (STATE.finalResult.filename) {
         document.getElementById('stat-file').textContent = `Saved: ${STATE.finalResult.filename}`;
+        const openBtn = document.getElementById('open-file-btn');
+        openBtn.style.display = '';
+        openBtn.onclick = () => fetch(`/api/extractor/open-file?filename=${encodeURIComponent(STATE.finalResult.filename)}`);
       }
       document.getElementById('save-btn').style.display = '';
     }
