@@ -245,14 +245,14 @@ IMPORTANT REQUIREMENTS:
 5. Identify the brigade name and extract brigade_id if mentioned (e.g., "8. dalmatinska brigada" = 8th Dalmatian Brigade)
 6. Only return valid JSON, no markdown formatting or code blocks
 7. If coordinates cannot be determined, use null for the entire coordinates object
-8. Preserve division names as mentioned in the text; if the brigade was attached to a division during an operation, include that division name in the "division" field
+8. If the brigade was attached to a division during an operation, include that division name in the "division" field — formatted according to rule 12 (geographic area name, translated to English)
 9. Include full context in notes for each operation
 10. EXCLUDE the following — return no movement for these, even if the unit is mentioned:
     - Orders, directives, or commands issued by higher command (Supreme Commander, High Command, HQ) that merely assign or instruct the unit — extract only when the unit actually executed a physical movement or fought
     - Purely ceremonial or administrative events: award ceremonies, receiving flags, decorations, political meetings
     - HQ-level planning sessions and conferences
 11. Translate brigade/division/corps names to English
-12. For unit names, use only the area name (e.g., '1st Dalmatian Brigade'), not the full honorific name.${entryInstruction}${filterInstruction}
+12. For ALL unit names — both the unit_name field and the division field inside each movement — use the geographic area name only. Use descriptors like "Dalmatian", "Bosnian", "Herzegovinian", "Lika", etc. Do NOT use combat-type descriptors such as "Assault", "Strike", "Shock", or "Proletarian" in translated names. Examples: "9th Dalmatian Division" (not "9th Assault Division"), "2nd Dalmatian Brigade" (not "2nd Proletarian Brigade").${entryInstruction}${filterInstruction}
 
 Webpage Content:
 ${text}
@@ -405,7 +405,9 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
     // Process chunks
     let allMovements = [];
     let brigadeId = null;
-    let brigadeName = null;
+    // When a brigade filter is active, lock the brigade name immediately so division
+    // data always appends to the brigade's own file rather than a new "division" file.
+    let brigadeName = brigadeFilter ? brigadeFilter.name : null;
     const notes = [];
     let placed = 0;
     let unplaced = 0;
