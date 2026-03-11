@@ -140,9 +140,7 @@ router.get('/extractor/open-file', (req, res) => {
         return res.status(400).json({ error: 'Invalid filename' });
     }
     const filePath = path.join(OUTPUT_DIR, filename);
-    if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: `File not found: ${filePath}` });
-    }
+    console.log('[open-file] path:', filePath, '| exists:', fs.existsSync(filePath));
 
     // Use execFile with explicit args to avoid shell-quoting issues on paths with spaces
     const onErr = err => err && console.error('[open-file]', err.message);
