@@ -11,6 +11,8 @@ const path = require('path');
 const OpenAI = require('openai');
 const Anthropic = require('@anthropic-ai/sdk');
 
+const OUTPUT_DIR = path.resolve(__dirname, '..', '..', 'public', 'assets', 'brigades', 'model_test');
+
 // ── Provider / model resolution ──────────────────────────────────────────────
 
 function resolveProviderAndModel(rawModel, providerOption = 'auto') {
@@ -198,21 +200,21 @@ function buildPrompt(text, expectedEntries, brigadeFilter) {
 
     const filterInstruction = brigadeFilter ? `
 
-BRIGADE FILTER — YOU MUST APPLY THIS:
-The source document is a higher-formation chronicle (division or corps). Extract ONLY movements relevant to the "${brigadeFilter.name}".
+BRIGADE FILTER — APPLY IN THIS ORDER, NO EXCEPTIONS:
 
-Date rule: Ignore ALL entries dated before ${brigadeFilter.fromDate}. Only process entries on or after this date.
+STEP 1 — DATE CHECK (absolute priority, check this first):
+  The entry date may appear in formats like "10. 10. 1942." or "January 5, 1945" — parse it and convert to YYYY-MM-DD for comparison.
+  If the entry date is BEFORE ${brigadeFilter.fromDate}: return an EMPTY movements array immediately. Do not evaluate anything else. The date takes priority over every other rule.
+  If the entry date is ON OR AFTER ${brigadeFilter.fromDate}: continue to Step 2.
 
-For entries on or after ${brigadeFilter.fromDate}, apply these inclusion rules:
-  INCLUDE the entry if ANY of the following is true:
+STEP 2 — BRIGADE RELEVANCE CHECK (only for entries that passed Step 1):
+  INCLUDE the entry (set unit_name = "${brigadeFilter.name}") if ANY of the following:
     a) The entry explicitly names "${brigadeFilter.name}"
-    b) The entry describes a general formation operation WITHOUT naming any specific brigade or regiment — assume all sub-units including "${brigadeFilter.name}" participated
+    b) The entry describes a whole-formation operation with NO specific brigade or regiment named — assume all sub-units including "${brigadeFilter.name}" participated
     c) The entry names multiple sub-units and "${brigadeFilter.name}" is among them
 
-  EXCLUDE the entry if:
-    The entry explicitly names ONLY other specific brigades or sub-units, and does NOT name "${brigadeFilter.name}" — this means "${brigadeFilter.name}" was not involved
-
-When outputting included entries, always set "unit_name" to "${brigadeFilter.name}".` : '';
+  EXCLUDE the entry (return empty movements) if:
+    The entry names ONLY other specific brigades or sub-units, and does NOT name "${brigadeFilter.name}"` : '';
 
     return `You are an expert military historian analyzing historical documentation about WWII Yugoslav partisan military units: brigades, divisions and corps. The content may be in Serbian/Croatian/Bosnian.
 
@@ -236,7 +238,7 @@ Extract brigade campaign and movement data from the following webpage content. R
 }
 
 IMPORTANT REQUIREMENTS:
-1. Extract ALL military operations, movements, and campaigns mentioned (look for ⚔️ symbols or dated entries)
+1. Extract only events where the unit physically moved, fought, attacked, defended, was engaged in combat, or was deployed to a specific position. These are movements.
 2. For each entry, provide date in YYYY-MM-DD format (use best estimate if only partial date given)
 3. If there are events at the same location on consecutive days, merge them into a single movement with a date of the first day and include notes about the subsequent days' events
 4. Include geographic coordinates (lat, lng) - use approximate coordinates for known locations (use null if unknown)
@@ -245,7 +247,10 @@ IMPORTANT REQUIREMENTS:
 7. If coordinates cannot be determined, use null for the entire coordinates object
 8. Preserve division names as mentioned in the text; if the brigade was attached to a division during an operation, include that division name in the "division" field
 9. Include full context in notes for each operation
-10. Omit events that are purely ceremonial or administrative: award ceremonies, receiving flags, HQ meetings, and decorations — UNLESS they are directly connected to a combat operation or movement. Focus on actual campaign movements and operations.
+10. EXCLUDE the following — return no movement for these, even if the unit is mentioned:
+    - Orders, directives, or commands issued by higher command (Supreme Commander, High Command, HQ) that merely assign or instruct the unit — extract only when the unit actually executed a physical movement or fought
+    - Purely ceremonial or administrative events: award ceremonies, receiving flags, decorations, political meetings
+    - HQ-level planning sessions and conferences
 11. Translate brigade/division/corps names to English
 12. For unit names, use only the area name (e.g., '1st Dalmatian Brigade'), not the full honorific name.${entryInstruction}${filterInstruction}
 
@@ -481,9 +486,8 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
     // Save to file
     if (saveToFile) {
         const filename = brigadeNameToFilename(brigadeName, resolvedModel);
-        const outputDir = path.resolve(__dirname, '..', '..', 'public', 'assets', 'brigades', 'model_test');
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-        const outputPath = path.join(outputDir, filename);
+        if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+        const outputPath = path.join(OUTPUT_DIR, filename);
 
         // Merge with existing file — append new movements, skip duplicates
         if (fs.existsSync(outputPath)) {
@@ -520,4 +524,4 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
     return output;
 }
 
-module.exports = { extractCampaign, resolveProviderAndModel };
+module.exports = { extractCampaign, resolveProviderAndModel, OUTPUT_DIR };

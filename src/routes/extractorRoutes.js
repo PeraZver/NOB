@@ -14,7 +14,7 @@ const router = express.Router();
 const { exec } = require('child_process');
 const path = require('path');
 const fs   = require('fs');
-const { extractCampaign } = require('../utils/campaignExtractor');
+const { extractCampaign, OUTPUT_DIR } = require('../utils/campaignExtractor');
 
 // ── Available model catalogue ─────────────────────────────────────────────────
 
@@ -139,16 +139,16 @@ router.get('/extractor/open-file', (req, res) => {
     if (!filename || /[/\\]/.test(filename) || filename.includes('..')) {
         return res.status(400).json({ error: 'Invalid filename' });
     }
-    const filePath = path.resolve(__dirname, '..', '..', 'public', 'assets', 'brigades', 'model_test', filename);
+    const filePath = path.join(OUTPUT_DIR, filename);
     if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ error: 'File not found' });
+        return res.status(404).json({ error: `File not found: ${filePath}` });
     }
     const cmd = process.platform === 'win32'
         ? `start "" "${filePath}"`
         : process.platform === 'darwin'
             ? `open "${filePath}"`
             : `xdg-open "${filePath}"`;
-    exec(cmd);
+    exec(cmd, { shell: true });
     res.json({ ok: true });
 });
 
