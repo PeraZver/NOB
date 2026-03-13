@@ -245,8 +245,6 @@ function startExtraction() {
   document.getElementById('save-btn').style.display       = 'none';
   document.getElementById('open-file-btn').style.display  = 'none';
   document.getElementById('stat-file').textContent        = '';
-  document.getElementById('wiki-file-display').textContent = 'No file loaded';
-  document.getElementById('wiki-file-display').classList.remove('loaded');
   document.getElementById('wiki-check-btn').disabled      = true;
   updateStats();
   updateLegend(null, 0, 0);
@@ -328,11 +326,8 @@ function startExtraction() {
         const openBtn = document.getElementById('open-file-btn');
         openBtn.style.display = '';
         openBtn.onclick = () => fetch(`/api/extractor/open-file?filename=${encodeURIComponent(STATE.finalResult.filename)}`);
-        // Enable wiki check bar
-        const wikiFileDisplay = document.getElementById('wiki-file-display');
-        wikiFileDisplay.textContent = STATE.finalResult.filename;
-        wikiFileDisplay.classList.add('loaded');
-        document.getElementById('wiki-check-btn').disabled = false;
+        // Refresh file list and auto-select the newly extracted file
+        loadFileList(STATE.finalResult.filename);
       }
       document.getElementById('save-btn').style.display = '';
     }
@@ -418,12 +413,38 @@ const wikiBar       = document.getElementById('wiki-bar');
 wikiToggleBtn.addEventListener('click', () => {
   const open = wikiBar.classList.toggle('open');
   wikiToggleBtn.classList.toggle('active', open);
+  if (open) loadFileList();
+});
+
+async function loadFileList(autoSelect = null) {
+  const sel = document.getElementById('wiki-file-select');
+  try {
+    const { files } = await fetch('/api/extractor/list-files').then(r => r.json());
+    const prev = autoSelect || sel.value;
+    sel.innerHTML = '<option value="">— select file —</option>';
+    files.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f;
+      opt.textContent = f;
+      if (f === prev) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  } catch {
+    // silently ignore; keep existing options
+  }
+  document.getElementById('wiki-check-btn').disabled = !sel.value;
+}
+
+document.getElementById('wiki-refresh-btn').addEventListener('click', () => loadFileList());
+
+document.getElementById('wiki-file-select').addEventListener('change', e => {
+  document.getElementById('wiki-check-btn').disabled = !e.target.value;
 });
 
 document.getElementById('wiki-check-btn').addEventListener('click', () => {
   const wikiUrl  = document.getElementById('wiki-url-input').value.trim();
-  const filename = document.getElementById('wiki-file-display').textContent;
-  if (!wikiUrl || filename === 'No file loaded') return;
+  const filename = document.getElementById('wiki-file-select').value;
+  if (!wikiUrl || !filename) return;
 
   const model    = document.getElementById('model-select').value;
   const provider = document.getElementById('provider-select').value;
@@ -434,6 +455,7 @@ document.getElementById('wiki-check-btn').addEventListener('click', () => {
 
   logLine('');
   logLine('── Wikipedia Cross-Check ─────────────────────────────', 'ok');
+  logLine(`File: ${filename}`);
   logLine(`URL: ${wikiUrl}`);
 
   const params = new URLSearchParams({ wikiUrl, filename, model, provider });

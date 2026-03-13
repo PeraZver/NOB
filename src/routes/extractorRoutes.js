@@ -202,6 +202,22 @@ router.get('/extractor/wiki-check', async (req, res) => {
     res.end();
 });
 
+// ── GET /api/extractor/list-files ─────────────────────────────────────────────
+// Returns all JSON files in OUTPUT_DIR sorted newest-first.
+
+router.get('/extractor/list-files', (_req, res) => {
+    try {
+        const files = fs.readdirSync(OUTPUT_DIR)
+            .filter(f => f.endsWith('.json'))
+            .map(f => ({ name: f, mtime: fs.statSync(path.join(OUTPUT_DIR, f)).mtimeMs }))
+            .sort((a, b) => b.mtime - a.mtime)
+            .map(f => f.name);
+        res.json({ files });
+    } catch {
+        res.json({ files: [] });
+    }
+});
+
 // ── GET /api/extractor/open-file ──────────────────────────────────────────────
 // Opens the saved JSON file with the OS default text editor.
 

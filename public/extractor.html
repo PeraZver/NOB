@@ -51,7 +51,11 @@
   <input id="wiki-url-input" type="url"
     placeholder="https://en.wikipedia.org/wiki/..."
     autocomplete="off" spellcheck="false" />
-  <span id="wiki-file-display">No file loaded</span>
+  <label for="wiki-file-select">File</label>
+  <select id="wiki-file-select" title="Select an extracted JSON file to cross-check">
+    <option value="">— select file —</option>
+  </select>
+  <button id="wiki-refresh-btn" title="Refresh file list">↻</button>
   <button id="wiki-check-btn" disabled>Check</button>
 </div>
 

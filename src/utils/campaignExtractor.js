@@ -599,7 +599,15 @@ Only include in new_movements events not already in the JSON that have a clear d
 }
 
 async function wikiCheck({ url, existingMovements = [], model = 'gpt-4o', provider = 'auto', onLog = console.log }) {
-    const { resolvedProvider, resolvedModel, openaiClient, anthropicClient } = resolveProviderAndModel(provider, model);
+    let resolvedProvider, resolvedModel;
+    try {
+        ({ provider: resolvedProvider, model: resolvedModel } = resolveProviderAndModel(model, provider));
+    } catch (err) {
+        throw new Error(`Configuration error: ${err.message}`);
+    }
+
+    const openaiClient    = resolvedProvider === 'openai'    ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })       : null;
+    const anthropicClient = resolvedProvider === 'anthropic' ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
 
     onLog('Fetching Wikipedia page…');
     let html;
