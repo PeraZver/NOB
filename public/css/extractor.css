@@ -326,6 +326,83 @@ body:has(#filter-bar.open) #content {
   height: calc(100vh - 88px - 39px);
 }
 
+/* ── Wiki Check toggle button ─────────────────────────────────────── */
+#wiki-toggle-btn {
+  background: var(--surface2);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 5px;
+  font-size: 0.87em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s, border-color .15s;
+}
+#wiki-toggle-btn:hover { color: var(--text); border-color: var(--text-dim); }
+#wiki-toggle-btn.active {
+  background: #1a3830;
+  color: #4bf5a0;
+  border-color: #2a9e6a;
+}
+
+/* ── Wiki Check bar (collapsible row below filter bar) ────────────── */
+#wiki-bar {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: #16201e;
+  border-bottom: 1px solid #2a9e6a;
+  padding: 7px 16px;
+  flex-shrink: 0;
+}
+#wiki-bar.open { display: flex; }
+#wiki-bar label {
+  font-size: 0.82em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+#wiki-url-input {
+  flex: 1 1 280px;
+  min-width: 200px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-family: var(--mono);
+  font-size: 0.83em;
+}
+#wiki-url-input:focus { outline: none; border-color: #4bf5a0; }
+#wiki-url-input::placeholder { color: var(--text-dim); }
+#wiki-file-display {
+  font-size: 0.8em;
+  color: var(--text-dim);
+  white-space: nowrap;
+  font-family: var(--mono);
+}
+#wiki-file-display.loaded { color: #4bf5a0; }
+#wiki-check-btn {
+  background: #2a9e6a;
+  color: #fff;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#wiki-check-btn:hover:not(:disabled) { background: #22834f; }
+#wiki-check-btn:disabled { opacity: .5; cursor: not-allowed; }
+/* Height adjustment when wiki bar is open */
+body:has(#wiki-bar.open) #content {
+  height: calc(100vh - 88px - 39px);
+}
+body:has(#filter-bar.open):has(#wiki-bar.open) #content {
+  height: calc(100vh - 88px - 39px - 39px);
+}
+
 /* Save JSON button (appears when done) */
 #save-btn {
   display: none;

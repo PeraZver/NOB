@@ -14,7 +14,7 @@ const router = express.Router();
 const { execFile } = require('child_process');
 const path = require('path');
 const fs   = require('fs');
-const { extractCampaign, OUTPUT_DIR } = require('../utils/campaignExtractor');
+const { extractCampaign, OUTPUT_DIR, wikiCheck } = require('../utils/campaignExtractor');
 
 // ── Available model catalogue ─────────────────────────────────────────────────
 
@@ -128,6 +128,77 @@ router.get('/extractor/stream', async (req, res) => {
         clientClosed,
         new Promise(resolve => setTimeout(resolve, 10000)) // 10s safety timeout
     ]);
+    res.end();
+});
+
+// ── GET /api/extractor/wiki-check ─────────────────────────────────────────────
+// SSE: cross-checks an existing brigade JSON against a Wikipedia article.
+
+router.get('/extractor/wiki-check', async (req, res) => {
+    const { wikiUrl, filename, model, provider } = req.query;
+    if (!wikiUrl)  return res.status(400).json({ error: 'wikiUrl is required' });
+    if (!filename) return res.status(400).json({ error: 'filename is required' });
+
+    res.writeHead(200, {
+        'Content-Type':      'text/event-stream',
+        'Cache-Control':     'no-cache',
+        'Connection':        'keep-alive',
+        'X-Accel-Buffering': 'no'
+    });
+
+    const sendEvent = (type, data) => {
+        try { res.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`); if (typeof res.flush === 'function') res.flush(); } catch {}
+    };
+
+    let closed = false, resolveClose;
+    const clientClosed = new Promise(r => { resolveClose = r; });
+    req.on('close', () => { closed = true; resolveClose(); });
+
+    // Load existing movements from file
+    const filePath = path.join(OUTPUT_DIR, filename);
+    let existingMovements = [];
+    try {
+        const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        existingMovements = Array.isArray(data.movements) ? data.movements : [];
+    } catch {
+        if (!closed) sendEvent('log', { message: `Warning: could not load ${filename} — comparing against empty set`, level: 'warn' });
+    }
+
+    try {
+        const result = await wikiCheck({
+            url: wikiUrl,
+            existingMovements,
+            model:    model    || 'gpt-4o',
+            provider: provider || 'auto',
+            onLog: (message, level = 'info') => { if (!closed) sendEvent('log', { message, level }); }
+        });
+
+        // Append new movements to file
+        if (result.new_movements?.length > 0) {
+            try {
+                const existing = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                const keys = new Set((existing.movements || []).map(m => `${m.date || ''}|${(m.place || '').toLowerCase().trim()}`));
+                const toAdd = result.new_movements.filter(m => !keys.has(`${m.date || ''}|${(m.place || '').toLowerCase().trim()}`));
+                if (toAdd.length > 0) {
+                    existing.movements = [...(existing.movements || []), ...toAdd];
+                    fs.writeFileSync(filePath, JSON.stringify(existing, null, 2), 'utf8');
+                    result._appended = toAdd.length;
+                }
+            } catch { result._appended = 0; }
+        }
+
+        if (!closed) {
+            sendEvent('wiki_result', result);
+            sendEvent('done', {});
+        }
+    } catch (err) {
+        if (!closed) {
+            sendEvent('error',  { message: err.message });
+            sendEvent('done', {});
+        }
+    }
+
+    await Promise.race([clientClosed, new Promise(r => setTimeout(r, 30000))]);
     res.end();
 });
 

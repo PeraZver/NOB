@@ -238,7 +238,7 @@ Extract brigade campaign and movement data from the following webpage content. R
 }
 
 IMPORTANT REQUIREMENTS:
-1. Extract only events where the unit physically moved, fought, attacked, defended, was engaged in combat, or was deployed to a specific position. These are movements.
+1. Extract events where the unit physically moved, fought, attacked, defended, was engaged in combat, was deployed to a specific position, or was formally formed/established/reorganised. Formation of the unit is historically significant and must always be included.
 2. For each entry, provide date in YYYY-MM-DD format (use best estimate if only partial date given)
 3. If there are events at the same location on consecutive days, merge them into a single movement with a date of the first day and include notes about the subsequent days' events
 4. Include geographic coordinates (lat, lng) - use approximate coordinates for known locations (use null if unknown)
@@ -477,6 +477,27 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
 
     log(`Total: ${allMovements.length} movements | ${placed} placed | ${unplaced} unplaced`);
 
+    // Division attachment summary
+    const divisionDates = {};
+    for (const m of allMovements) {
+        const div = (m.division || '').trim();
+        if (!div) continue;
+        if (!divisionDates[div] || m.date < divisionDates[div]) {
+            divisionDates[div] = m.date || '?';
+        }
+    }
+    const divisions = Object.entries(divisionDates).sort((a, b) => a[1].localeCompare(b[1]));
+    if (divisions.length > 0) {
+        log('');
+        log('── Division attachments ──────────────────────────────', 'ok');
+        for (const [div, date] of divisions) {
+            log(`  ${div}  —  joined ${date}`, 'ok');
+        }
+        log('');
+        log('Tip: to capture movements from the division chronicle, open the filter bar,', 'warn');
+        log('enter the brigade name and join date, then paste the division source URL.', 'warn');
+    }
+
     const output = {
         brigade_id: brigadeId,
         brigade_name: brigadeName,
@@ -526,4 +547,94 @@ async function extractCampaign({ url, model = 'gpt-4o', provider = 'auto', onLog
     return output;
 }
 
-module.exports = { extractCampaign, resolveProviderAndModel, OUTPUT_DIR };
+// ── Wikipedia cross-check ──────────────────────────────────────────────────────
+
+function extractWikiText(html) {
+    // Wikipedia main article body
+    const match = html.match(/<div[^>]+class="[^"]*mw-parser-output[^"]*"[^>]*>([\s\S]*)/i);
+    const source = match ? match[1] : html;
+    // Keep paragraphs and headings; discard infoboxes, navboxes, references
+    const blocks = source.match(/<(?:p|h[1-4])[^>]*>([\s\S]*?)<\/(?:p|h[1-4])>/gi) || [];
+    return blocks.map(b => cleanHtmlFragment(b)).filter(t => t.length > 30).join('\n');
+}
+
+function buildWikiCheckPrompt(wikiText, movementsSummary) {
+    return `You are a military historian cross-checking a brigade's campaign JSON log against a Wikipedia article.
+
+WIKIPEDIA ARTICLE:
+${wikiText}
+
+EXISTING JSON MOVEMENTS (date | place | operation | notes):
+${movementsSummary}
+
+Tasks:
+1. Identify Wikipedia events that ARE covered by existing JSON movements — same approximate date and/or location.
+2. Identify Wikipedia events NOT found in the JSON.
+3. For each missing event decide whether it should be appended (formation, dissolution, major battles).
+4. Estimate overall consistency: what percentage of Wikipedia's key military events exist in the JSON.
+
+Return ONLY this JSON object, no markdown:
+{
+  "unit_name": "<brigade name from Wikipedia>",
+  "consistency_score": <0-100>,
+  "summary": "<2-3 sentence overall assessment>",
+  "matched": [
+    { "wiki_event": "<brief description>", "json_entry": "<date + place from JSON>" }
+  ],
+  "missing": [
+    { "date": "<YYYY-MM-DD or partial>", "event": "<description>", "importance": "high|medium|low" }
+  ],
+  "new_movements": [
+    {
+      "date": "<YYYY-MM-DD>",
+      "place": "<location>",
+      "coordinates": { "lat": <lat or null>, "lng": <lng or null> },
+      "operation": "<operation type>",
+      "division": "<division if known, else empty string>",
+      "notes": "<detailed notes>"
+    }
+  ]
+}
+Only include in new_movements events not already in the JSON that have a clear date and represent a real movement, battle, formation or dissolution.`;
+}
+
+async function wikiCheck({ url, existingMovements = [], model = 'gpt-4o', provider = 'auto', onLog = console.log }) {
+    const { resolvedProvider, resolvedModel, openaiClient, anthropicClient } = resolveProviderAndModel(provider, model);
+
+    onLog('Fetching Wikipedia page…');
+    let html;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        html = await response.text();
+    } catch (err) {
+        throw new Error(`Failed to fetch Wikipedia: ${err.message}`);
+    }
+
+    const wikiText = extractWikiText(html);
+    if (!wikiText || wikiText.length < 100) throw new Error('Could not extract article text from Wikipedia page');
+    onLog(`Article extracted (${wikiText.length} chars)`);
+
+    const movementsSummary = existingMovements.length > 0
+        ? existingMovements.map(m =>
+            `${m.date || '?'} | ${m.place || '?'} | ${m.operation || ''} | ${(m.notes || '').slice(0, 80)}`
+          ).join('\n')
+        : '(no existing movements)';
+
+    onLog(`Comparing ${existingMovements.length} movements against Wikipedia…`);
+    onLog(`Calling ${resolvedProvider} (${resolvedModel})…`);
+
+    const prompt = buildWikiCheckPrompt(wikiText.slice(0, 28000), movementsSummary);
+    const responseText = await callLlmApi({ provider: resolvedProvider, model: resolvedModel, openaiClient, anthropicClient, prompt });
+
+    let result;
+    try {
+        const cleaned = responseText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+        result = JSON.parse(cleaned);
+    } catch {
+        throw new Error('LLM returned non-JSON response for wiki check');
+    }
+    return result;
+}
+
+module.exports = { extractCampaign, resolveProviderAndModel, OUTPUT_DIR, wikiCheck };

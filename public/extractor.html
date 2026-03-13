@@ -28,6 +28,7 @@
   </select>
 
   <button id="filter-toggle-btn" title="Filter by brigade (for division/corps sources)">Filter</button>
+  <button id="wiki-toggle-btn" title="Cross-check extracted JSON against a Wikipedia article">Wiki Check</button>
   <button id="extract-btn" disabled>Extract</button>
   <button id="save-btn" title="Download extracted JSON">⬇ Save JSON</button>
 </div>
@@ -42,6 +43,16 @@
   <input id="filter-date" type="date" />
   <button id="filter-clear-btn">Clear</button>
   <span id="filter-active-hint">Filter active — only entries relevant to the specified brigade will be extracted</span>
+</div>
+
+<!-- ── Wikipedia cross-check bar (collapsible) ────────────────────────────── -->
+<div id="wiki-bar">
+  <label for="wiki-url-input">Wikipedia URL</label>
+  <input id="wiki-url-input" type="url"
+    placeholder="https://en.wikipedia.org/wiki/..."
+    autocomplete="off" spellcheck="false" />
+  <span id="wiki-file-display">No file loaded</span>
+  <button id="wiki-check-btn" disabled>Check</button>
 </div>
 
 <!-- ── Status bar ─────────────────────────────────────────────────────────── -->

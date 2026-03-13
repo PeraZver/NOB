@@ -241,10 +241,13 @@ function startExtraction() {
   STATE.markerLayer.clearLayers();
   STATE.routeLayer.clearLayers();
   tbody.innerHTML = '';
-  document.getElementById('results-pane').style.display = 'none';
-  document.getElementById('save-btn').style.display     = 'none';
-  document.getElementById('open-file-btn').style.display = 'none';
-  document.getElementById('stat-file').textContent      = '';
+  document.getElementById('results-pane').style.display   = 'none';
+  document.getElementById('save-btn').style.display       = 'none';
+  document.getElementById('open-file-btn').style.display  = 'none';
+  document.getElementById('stat-file').textContent        = '';
+  document.getElementById('wiki-file-display').textContent = 'No file loaded';
+  document.getElementById('wiki-file-display').classList.remove('loaded');
+  document.getElementById('wiki-check-btn').disabled      = true;
   updateStats();
   updateLegend(null, 0, 0);
 
@@ -325,6 +328,11 @@ function startExtraction() {
         const openBtn = document.getElementById('open-file-btn');
         openBtn.style.display = '';
         openBtn.onclick = () => fetch(`/api/extractor/open-file?filename=${encodeURIComponent(STATE.finalResult.filename)}`);
+        // Enable wiki check bar
+        const wikiFileDisplay = document.getElementById('wiki-file-display');
+        wikiFileDisplay.textContent = STATE.finalResult.filename;
+        wikiFileDisplay.classList.add('loaded');
+        document.getElementById('wiki-check-btn').disabled = false;
       }
       document.getElementById('save-btn').style.display = '';
     }
@@ -402,3 +410,76 @@ function updateFilterHint() {
 
 document.getElementById('filter-brigade').addEventListener('input', updateFilterHint);
 document.getElementById('filter-date').addEventListener('change', updateFilterHint);
+
+// ── Wikipedia cross-check bar ─────────────────────────────────────────────────
+const wikiToggleBtn = document.getElementById('wiki-toggle-btn');
+const wikiBar       = document.getElementById('wiki-bar');
+
+wikiToggleBtn.addEventListener('click', () => {
+  const open = wikiBar.classList.toggle('open');
+  wikiToggleBtn.classList.toggle('active', open);
+});
+
+document.getElementById('wiki-check-btn').addEventListener('click', () => {
+  const wikiUrl  = document.getElementById('wiki-url-input').value.trim();
+  const filename = document.getElementById('wiki-file-display').textContent;
+  if (!wikiUrl || filename === 'No file loaded') return;
+
+  const model    = document.getElementById('model-select').value;
+  const provider = document.getElementById('provider-select').value;
+
+  const btn = document.getElementById('wiki-check-btn');
+  btn.textContent = 'Checking…';
+  btn.disabled    = true;
+
+  logLine('');
+  logLine('── Wikipedia Cross-Check ─────────────────────────────', 'ok');
+  logLine(`URL: ${wikiUrl}`);
+
+  const params = new URLSearchParams({ wikiUrl, filename, model, provider });
+  const es = new EventSource(`/api/extractor/wiki-check?${params}`);
+
+  es.addEventListener('log', e => {
+    const { message, level } = JSON.parse(e.data);
+    logLine(message, level || 'info');
+  });
+
+  es.addEventListener('wiki_result', e => {
+    const r = JSON.parse(e.data);
+    const score  = r.consistency_score ?? '?';
+    const color  = score >= 80 ? 'ok' : score >= 50 ? 'warn' : 'error';
+
+    logLine('');
+    logLine(`Consistency score: ${score}%`, color);
+    logLine(r.summary || '', 'info');
+
+    if (r.matched?.length) {
+      logLine('');
+      logLine(`Matched (${r.matched.length}):`, 'ok');
+      r.matched.forEach(m => logLine(`  ✓  ${m.json_entry}  —  ${m.wiki_event}`));
+    }
+    if (r.missing?.length) {
+      logLine('');
+      logLine(`Missing (${r.missing.length}):`, 'warn');
+      r.missing.forEach(m => logLine(`  ✗  [${m.importance}]  ${m.date || '?'}  ${m.event}`));
+    }
+    if (r._appended > 0) {
+      logLine('');
+      logLine(`${r._appended} new movement(s) appended to ${filename}`, 'ok');
+    }
+  });
+
+  es.addEventListener('error', e => {
+    try { logLine(`Wiki check error: ${JSON.parse(e.data).message}`, 'error'); } catch { logLine('Wiki check connection lost', 'error'); }
+    es.close();
+    btn.textContent = 'Check';
+    btn.disabled    = false;
+  });
+
+  es.addEventListener('done', () => {
+    es.close();
+    btn.textContent = 'Check';
+    btn.disabled    = false;
+    logLine('─────────────────────────────────────────────────────', 'ok');
+  });
+});
