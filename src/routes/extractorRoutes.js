@@ -218,6 +218,28 @@ router.get('/extractor/list-files', (_req, res) => {
     }
 });
 
+// ── POST /api/extractor/save-file ─────────────────────────────────────────────
+// Overwrites the movements array in a file in OUTPUT_DIR (preserves metadata).
+
+router.post('/extractor/save-file', (req, res) => {
+    const { filename, movements } = req.body;
+    if (!filename || /[/\\]/.test(filename) || filename.includes('..')) {
+        return res.status(400).json({ error: 'Invalid filename' });
+    }
+    if (!Array.isArray(movements)) {
+        return res.status(400).json({ error: 'movements must be an array' });
+    }
+    const filePath = path.join(OUTPUT_DIR, filename);
+    try {
+        let existing = {};
+        try { existing = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch { /* new file */ }
+        fs.writeFileSync(filePath, JSON.stringify({ ...existing, movements }, null, 2), 'utf8');
+        res.json({ ok: true, saved: movements.length });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── GET /api/extractor/open-file ──────────────────────────────────────────────
 // Opens the saved JSON file with the OS default text editor.
 

@@ -76,29 +76,27 @@ async function importDivisions() {
             if (existingRows.length > 0) {
                 const existingDivision = existingRows[0];
 
-                // If the name matches entirely, skip the item
-                if (existingDivision.name === name) {
-                    console.log(`Division "${name}" already exists with the same name. Skipping...`);
-                    continue;
-                }
-
-                // Check and update missing data
+                // Check and update fields that differ from the JSON
                 const updates = [];
                 const updateValues = [];
 
-                if (!existingDivision.formation_site && formation_site) {
+                if (formation_site && existingDivision.formation_site !== formation_site) {
                     updates.push('formation_site = ?');
                     updateValues.push(formation_site);
                 }
-                if (!existingDivision.formation_date && formation_date) {
+                if (formation_date && existingDivision.formation_date !== formation_date) {
                     updates.push('formation_date = ?');
                     updateValues.push(formation_date);
                 }
-                if (!existingDivision.location && formation_geo) {
-                    updates.push('location = ST_GeomFromText(?)');
-                    updateValues.push(`POINT(${formation_geo.longitude} ${formation_geo.latitude})`);
+                if (formation_geo) {
+                    const newLocation = `POINT(${formation_geo.longitude} ${formation_geo.latitude})`;
+                    // Compare location if it exists in the database
+                    if (!existingDivision.location || existingDivision.location !== newLocation) {
+                        updates.push('location = ST_GeomFromText(?)');
+                        updateValues.push(newLocation);
+                    }
                 }
-                if (!existingDivision.wikipedia_url && wikipedia_url) {
+                if (wikipedia_url && existingDivision.wikipedia_url !== wikipedia_url) {
                     updates.push('wikipedia_url = ?');
                     updateValues.push(wikipedia_url);
                 }
@@ -108,9 +106,9 @@ async function importDivisions() {
                     updateValues.push(existingDivision.id);
 
                     await connection.execute(updateQuery, updateValues);
-                    console.log(`Division "${name}" updated with missing data.`);
+                    console.log(`Division "${name}" updated with new data.`);
                 } else {
-                    console.log(`Division "${name}" already exists with complete data. Skipping...`);
+                    console.log(`Division "${name}" already exists and matches the JSON data. Skipping...`);
                 }
 
                 continue;

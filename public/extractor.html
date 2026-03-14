@@ -29,6 +29,7 @@
 
   <button id="filter-toggle-btn" title="Filter by brigade (for division/corps sources)">Filter</button>
   <button id="wiki-toggle-btn" title="Cross-check extracted JSON against a Wikipedia article">Wiki Check</button>
+  <button id="review-toggle-btn" title="Load and review an extracted JSON file">Review</button>
   <button id="extract-btn" disabled>Extract</button>
   <button id="save-btn" title="Download extracted JSON">⬇ Save JSON</button>
 </div>
@@ -59,6 +60,17 @@
   <button id="wiki-check-btn" disabled>Check</button>
 </div>
 
+<!-- ── Review bar (collapsible) ────────────────────────────────────────────── -->
+<div id="review-bar">
+  <label for="review-file-select">File</label>
+  <select id="review-file-select" title="Select an extracted JSON file to review">
+    <option value="">— select file —</option>
+  </select>
+  <button id="review-refresh-btn" title="Refresh file list">↻</button>
+  <button id="review-load-btn" disabled>Load</button>
+  <span id="review-progress"></span>
+</div>
+
 <!-- ── Status bar ─────────────────────────────────────────────────────────── -->
 <div id="statusbar">
   <span id="status-pill" class="pill idle">Idle</span>
@@ -68,6 +80,8 @@
   <span>Unplaced: <strong id="stat-unplaced">—</strong></span>
   <span id="stat-file" style="color:var(--text-dim);margin-left:auto;"></span>
   <button id="open-file-btn" style="display:none" title="Open file in system text editor">Open file</button>
+  <button id="save-review-btn" style="display:none" title="Save edits back to the original JSON file">💾 Save</button>
+  <button id="export-db-btn" style="display:none" title="Download reviewed JSON (deleted entries excluded)">⬇ Export for DB</button>
 </div>
 
 <!-- ── Main content ──────────────────────────────────────────────────────── -->
@@ -98,6 +112,7 @@
               <th>Division</th>
               <th>Coords</th>
               <th>📍</th>
+              <th class="actions-col"></th>
             </tr>
           </thead>
           <tbody id="results-tbody"></tbody>
@@ -115,6 +130,43 @@
     </div>
   </div>
 
+</div>
+
+<!-- ── Edit modal ──────────────────────────────────────────────────────────── -->
+<div id="edit-modal" style="display:none">
+  <div id="edit-modal-inner">
+    <div id="edit-modal-header">
+      <strong>Edit Entry</strong>
+      <div id="edit-modal-nav">
+        <button id="edit-prev-btn" title="Previous entry">&#8592;</button>
+        <span id="edit-modal-idx"></span>
+        <button id="edit-next-btn" title="Next entry">&#8594;</button>
+      </div>
+    </div>
+    <div id="edit-modal-fields">
+      <label>Date<input id="edit-date" type="date" /></label>
+      <label>Place<input id="edit-place" type="text" /></label>
+      <div class="edit-row-2">
+        <label>Lat<input id="edit-lat" type="number" step="0.0001" /></label>
+        <label>Lng<input id="edit-lng" type="number" step="0.0001" /></label>
+      </div>
+      <label>Operation
+        <div class="edit-field-wrap">
+          <input id="edit-operation" type="text" autocomplete="off" />
+          <div id="op-dropdown" style="display:none"></div>
+        </div>
+      </label>
+      <label>Division<input id="edit-division" type="text" /></label>
+      <label>Notes<textarea id="edit-notes" rows="4"></textarea></label>
+    </div>
+    <div id="edit-modal-footer">
+      <button id="edit-delete-btn">Delete entry</button>
+      <div>
+        <button id="edit-cancel-btn">Cancel</button>
+        <button id="edit-save-btn">Save</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── Scripts ────────────────────────────────────────────────────────────── -->

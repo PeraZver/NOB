@@ -81,7 +81,7 @@ const MARKER_PLACED = '#3dba6a';
 
 function addMarkersForMovements(movements) {
   movements.forEach(item => {
-    if (!item?.coordinates || !isFinite(item.coordinates.lat) || !isFinite(item.coordinates.lng)) return;
+    if (!item?.coordinates || !Number.isFinite(item.coordinates.lat) || !Number.isFinite(item.coordinates.lng)) return;
     const { lat, lng } = item.coordinates;
     const marker = L.circleMarker([lat, lng], {
       radius:      7,
@@ -112,7 +112,7 @@ function buildPopup(item) {
 function drawRoute(movements) {
   STATE.routeLayer.clearLayers();
   const points = movements
-    .filter(m => m?.coordinates && isFinite(m.coordinates.lat) && isFinite(m.coordinates.lng))
+    .filter(m => m?.coordinates && Number.isFinite(m.coordinates.lat) && Number.isFinite(m.coordinates.lng))
     .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
     .map(m => [m.coordinates.lat, m.coordinates.lng]);
 
@@ -128,7 +128,7 @@ function drawRoute(movements) {
 
 function fitMapToMovements(movements) {
   const pts = movements
-    .filter(m => m?.coordinates && isFinite(m.coordinates.lat) && isFinite(m.coordinates.lng))
+    .filter(m => m?.coordinates && Number.isFinite(m.coordinates.lat) && Number.isFinite(m.coordinates.lng))
     .map(m => [m.coordinates.lat, m.coordinates.lng]);
   if (pts.length === 0) return;
   try {
@@ -154,7 +154,7 @@ let resultsVisible = true;
 function appendTableRows(movements) {
   movements.forEach(item => {
     const tr = document.createElement('tr');
-    const hasCoords = item?.coordinates && isFinite(item.coordinates.lat);
+    const hasCoords = item?.coordinates && Number.isFinite(item.coordinates.lat);
     const coordStr = hasCoords
       ? `${item.coordinates.lat.toFixed(3)}, ${item.coordinates.lng.toFixed(3)}`
       : '—';
@@ -165,7 +165,8 @@ function appendTableRows(movements) {
       `<td>${escHtml((item.operation || '').substring(0, 50))}</td>` +
       `<td style="color:var(--text-dim)">${escHtml(item.division || '—')}</td>` +
       `<td class="coords-cell">${escHtml(coordStr)}</td>` +
-      `<td class="${hasCoords ? 'placed' : 'unplaced'}">${hasCoords ? '✓' : '✗'}</td>`;
+      `<td class="${hasCoords ? 'placed' : 'unplaced'}">${hasCoords ? '✓' : '✗'}</td>` +
+      `<td class="actions-col"></td>`;
     tbody.appendChild(tr);
   });
   document.getElementById('results-label').textContent = `Movements (${tbody.children.length})`;
@@ -244,8 +245,11 @@ function startExtraction() {
   document.getElementById('results-pane').style.display   = 'none';
   document.getElementById('save-btn').style.display       = 'none';
   document.getElementById('open-file-btn').style.display  = 'none';
+  document.getElementById('export-db-btn').style.display  = 'none';
+  document.getElementById('save-review-btn').style.display = 'none';
   document.getElementById('stat-file').textContent        = '';
   document.getElementById('wiki-check-btn').disabled      = true;
+  document.body.classList.remove('review-active');
   updateStats();
   updateLegend(null, 0, 0);
 
@@ -279,7 +283,7 @@ function startExtraction() {
     STATE.chunksDone++;
     STATE.allMovements = STATE.allMovements.concat(movements);
     const chunkPlaced = movements.filter(
-      m => m?.coordinates && isFinite(m.coordinates.lat) && isFinite(m.coordinates.lng)
+      m => m?.coordinates && Number.isFinite(m.coordinates.lat) && Number.isFinite(m.coordinates.lng)
     ).length;
     STATE.placed   += chunkPlaced;
     STATE.unplaced += movements.length - chunkPlaced;
@@ -504,4 +508,484 @@ document.getElementById('wiki-check-btn').addEventListener('click', () => {
     btn.disabled    = false;
     logLine('─────────────────────────────────────────────────────', 'ok');
   });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ── Review mode ───────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const REVIEW_COLORS = { pending: '#f5a623', approved: '#3dba6a', deleted: '#e05252' };
+const REVIEW = { entries: [], filename: null, meta: {} };
+let _editIdx = null;
+
+// ── Helpers: per-entry marker management ──────────────────────────────────────
+
+/** Create a fresh circleMarker and attach it. Returns the marker, or null. */
+function _placeMarker(i) {
+  const entry = REVIEW.entries[i];
+  const c = entry.coordinates;
+  if (!c || !Number.isFinite(c.lat) || !Number.isFinite(c.lng)) return null;
+  const color = REVIEW_COLORS[entry._status] || REVIEW_COLORS.pending;
+  const radius = STATE.map ? _reviewMarkerRadius() : 5;
+  const m = L.circleMarker([c.lat, c.lng], {
+    radius, color, fillColor: color, fillOpacity: 0.85, weight: 2
+  });
+  // Lazy popup — always rebuilt fresh so it reflects current status
+  m.bindPopup(() => buildReviewPopup(i));
+  m.addTo(STATE.markerLayer);
+  entry._marker = m;
+  return m;
+}
+
+/** Update only the color of an existing marker (no remove/recreate). */
+function updateMarkerStyle(i) {
+  const entry = REVIEW.entries[i];
+  if (!entry._marker) return;
+  const color = REVIEW_COLORS[entry._status] || REVIEW_COLORS.pending;
+  entry._marker.setStyle({ color, fillColor: color });
+}
+
+/** Remove existing marker and create a new one (call only when coords change). */
+function replaceMarker(i) {
+  const entry = REVIEW.entries[i];
+  if (entry._marker) { STATE.markerLayer.removeLayer(entry._marker); entry._marker = null; }
+  _placeMarker(i);
+}
+
+// Adapt review marker radius on zoom so they don't stay visually large when zoomed out
+function _reviewMarkerRadius() {
+  const z = STATE.map.getZoom();
+  return z >= 12 ? 5 : z >= 9 ? 5 : z >= 6 ? 4 : 3;
+}
+STATE.map.on('zoomend', () => {
+  const r = _reviewMarkerRadius();
+  REVIEW.entries.forEach(e => { if (e._marker) e._marker.setRadius(r); });
+});
+
+// ── Review bar controls ────────────────────────────────────────────────────────
+
+const reviewToggleBtn = document.getElementById('review-toggle-btn');
+const reviewBar       = document.getElementById('review-bar');
+
+reviewToggleBtn.addEventListener('click', () => {
+  const open = reviewBar.classList.toggle('open');
+  reviewToggleBtn.classList.toggle('active', open);
+  if (open) loadReviewFileList();
+});
+
+async function loadReviewFileList(autoSelect = null) {
+  const sel = document.getElementById('review-file-select');
+  try {
+    const { files } = await fetch('/api/extractor/list-files').then(r => r.json());
+    const prev = autoSelect || sel.value;
+    sel.innerHTML = '<option value="">— select file —</option>';
+    files.forEach(f => {
+      const opt = document.createElement('option');
+      opt.value = f; opt.textContent = f;
+      if (f === prev) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  } catch { /* ignore */ }
+  document.getElementById('review-load-btn').disabled = !sel.value;
+}
+
+document.getElementById('review-refresh-btn').addEventListener('click', () => loadReviewFileList());
+document.getElementById('review-file-select').addEventListener('change', e => {
+  document.getElementById('review-load-btn').disabled = !e.target.value;
+});
+document.getElementById('review-load-btn').addEventListener('click', async () => {
+  const fn = document.getElementById('review-file-select').value;
+  if (fn) await loadForReview(fn);
+});
+
+async function loadForReview(filename) {
+  const progress = document.getElementById('review-progress');
+  const loadBtn  = document.getElementById('review-load-btn');
+  progress.textContent = 'Loading…';
+  loadBtn.disabled = true;
+  try {
+    // Cache-bust so we always get the latest saved version, not a stale browser cache
+    const data = await fetch(`/assets/brigades/model_test/${encodeURIComponent(filename)}?_=${Date.now()}`).then(r => r.json());
+    if (!Array.isArray(data.movements)) throw new Error('No movements array in file');
+    REVIEW.filename = filename;
+    REVIEW.meta     = { brigade_name: data.brigade_name || '', brigade_id: data.brigade_id || '', notes: data.notes || '' };
+    REVIEW.entries  = data.movements.map((m, i) => ({ ...m, _idx: i, _status: 'pending', _marker: null }));
+    renderReviewState();
+    updateReviewProgress();
+    logLine(`Loaded "${filename}" — ${REVIEW.entries.length} entries`, 'ok');
+    // Probe: send '..' which MUST fail filename validation → confirms route is alive
+    fetch('/api/extractor/save-file', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: '..', movements: [] })
+    }).then(r => r.json()).then(d => {
+      if (d.error === 'Invalid filename') logLine('Save route: online ✓', 'ok');
+      else logLine('⚠ Unexpected probe response — save may not work', 'warn');
+    }).catch(() => logLine('⚠ Save route not responding — restart the server!', 'warn'));
+  } catch (err) {
+    progress.textContent = `Error: ${err.message}`;
+    logLine(`Failed to load file: ${err.message}`, 'error');
+  } finally {
+    loadBtn.disabled = false;
+  }
+}
+
+function renderReviewState() {
+  STATE.markerLayer.clearLayers();
+  STATE.routeLayer.clearLayers();
+  tbody.innerHTML = '';
+  document.body.classList.add('review-active');
+
+  REVIEW.entries.forEach((_, i) => {
+    _placeMarker(i);
+    _appendReviewRow(i);
+  });
+
+  drawRoute(REVIEW.entries.filter(e => e._status !== 'deleted'));
+  fitMapToMovements(REVIEW.entries);
+
+  document.getElementById('results-pane').style.display = 'flex';
+  document.getElementById('export-db-btn').style.display = '';
+  document.getElementById('save-review-btn').style.display = '';
+  document.getElementById('results-label').textContent = `Movements (${REVIEW.entries.length})`;
+  document.getElementById('stat-file').textContent = REVIEW.filename;
+
+  const placed = REVIEW.entries.filter(e => e.coordinates && Number.isFinite(e.coordinates.lat)).length;
+  updateLegend(REVIEW.meta.brigade_name, placed, REVIEW.entries.length);
+  setStatus('idle', `Review — ${REVIEW.entries.length} entries`);
+}
+
+// ── Row helpers ────────────────────────────────────────────────────────────────
+
+function _rowHTML(i) {
+  const e = REVIEW.entries[i];
+  const hasCoords = e.coordinates && Number.isFinite(e.coordinates?.lat) && Number.isFinite(e.coordinates?.lng);
+  const coordStr  = hasCoords
+    ? `${e.coordinates.lat.toFixed(3)}, ${e.coordinates.lng.toFixed(3)}` : '—';
+  const isOk  = e._status === 'approved';
+  const isDel = e._status === 'deleted';
+  return `<td style="color:var(--text-dim)">${i + 1}</td>` +
+    `<td class="date-cell">${escHtml(e.date || '?')}</td>` +
+    `<td>${escHtml(e.place || '?')}</td>` +
+    `<td>${escHtml((e.operation || '').substring(0, 50))}</td>` +
+    `<td style="color:var(--text-dim)">${escHtml(e.division || '—')}</td>` +
+    `<td class="coords-cell">${escHtml(coordStr)}</td>` +
+    `<td class="${hasCoords ? 'placed' : 'unplaced'}">${hasCoords ? '✓' : '✗'}</td>` +
+    `<td class="actions-col" style="white-space:nowrap;padding:2px 6px">` +
+      `<button class="review-btn${isOk  ? ' active-approve' : ''}" onclick="setEntryStatus(${i},'approved')" title="Approve">✓</button>` +
+      `<button class="review-btn${isDel ? ' active-delete'  : ''}" onclick="setEntryStatus(${i},'deleted')"  title="Delete">✗</button>` +
+      `<button class="review-btn" onclick="openEditModal(${i})" title="Edit">✎</button>` +
+    `</td>`;
+}
+
+function _rowClass(i) {
+  const s = REVIEW.entries[i]._status;
+  return s === 'approved' ? 'row-ok' : s === 'deleted' ? 'row-deleted' : '';
+}
+
+function _appendReviewRow(i) {
+  const tr = document.createElement('tr');
+  tr.setAttribute('data-review-idx', i);
+  tr.className   = _rowClass(i);
+  tr.innerHTML   = _rowHTML(i);
+  tbody.appendChild(tr);
+}
+
+function _refreshReviewRow(i) {
+  const old = tbody.querySelector(`[data-review-idx="${i}"]`);
+  if (!old) return;
+  const tr = document.createElement('tr');
+  tr.setAttribute('data-review-idx', i);
+  tr.className = _rowClass(i);
+  tr.innerHTML = _rowHTML(i);
+  old.replaceWith(tr);
+}
+
+// ── Entry status + progress ────────────────────────────────────────────────────
+
+function setEntryStatus(i, status) {
+  const entry = REVIEW.entries[i];
+  entry._status = entry._status === status ? 'pending' : status;
+  // Only update color — don't remove/recreate the marker
+  updateMarkerStyle(i);
+  _refreshReviewRow(i);
+  updateReviewProgress();
+  drawRoute(REVIEW.entries.filter(e => e._status !== 'deleted'));
+}
+
+function updateReviewProgress() {
+  const total    = REVIEW.entries.length;
+  const approved = REVIEW.entries.filter(e => e._status === 'approved').length;
+  const deleted  = REVIEW.entries.filter(e => e._status === 'deleted').length;
+  const pending  = total - approved - deleted;
+  document.getElementById('review-progress').textContent =
+    `${total} entries · ${approved} approved · ${deleted} deleted · ${pending} pending`;
+}
+
+// ── Popup ──────────────────────────────────────────────────────────────────────
+
+function buildReviewPopup(i) {
+  const e = REVIEW.entries[i];
+  const c = e.coordinates;
+  const coords = (c && Number.isFinite(c.lat) && Number.isFinite(c.lng))
+    ? `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}` : 'n/a';
+  const isOk  = e._status === 'approved';
+  const isDel = e._status === 'deleted';
+  return `<div style="font-family:Calibri,Arial,sans-serif;min-width:200px;max-width:320px;">
+    <strong style="font-size:1.05em">${escHtml(e.place || '?')}</strong>
+    <div style="color:#666;font-size:.9em;margin:2px 0">${escHtml(e.date || '?')}</div>
+    <div style="margin:4px 0 2px"><em>${escHtml(e.operation || '')}</em></div>
+    ${e.division ? `<div style="font-size:.88em;color:#555">Division: ${escHtml(e.division)}</div>` : ''}
+    ${e.notes    ? `<div style="font-size:.85em;margin-top:5px;color:#333">${escHtml(e.notes.substring(0, 260))}${e.notes.length > 260 ? '…' : ''}</div>` : ''}
+    <div style="font-size:.75em;color:#aaa;margin-top:6px">📍 ${coords}</div>
+    <div style="margin-top:10px;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;">
+      <button onclick="setEntryStatus(${i},'approved')"
+        style="padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.85em;border:1px solid ${isOk ? '#3dba6a' : '#666'};background:${isOk ? '#1e5c34' : 'none'};color:${isOk ? '#3dba6a' : '#ccc'}">
+        ${isOk ? '✓ Approved' : '✓ Approve'}
+      </button>
+      <button onclick="setEntryStatus(${i},'deleted')"
+        style="padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.85em;border:1px solid ${isDel ? '#e05252' : '#666'};background:${isDel ? '#5c1f1f' : 'none'};color:${isDel ? '#e05252' : '#ccc'}">
+        ${isDel ? '✗ Deleted' : '✗ Delete'}
+      </button>
+      <button onclick="openEditModal(${i})"
+        style="padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.85em;border:1px solid #666;background:none;color:#ccc">
+        ✎ Edit
+      </button>
+    </div>
+  </div>`;
+}
+
+// ── Edit modal ─────────────────────────────────────────────────────────────────
+
+function openEditModal(i) {
+  _editIdx = i;
+  const e = REVIEW.entries[i];
+  document.getElementById('edit-date').value      = e.date              || '';
+  document.getElementById('edit-place').value     = e.place             || '';
+  document.getElementById('edit-lat').value       = e.coordinates?.lat  ?? '';
+  document.getElementById('edit-lng').value       = e.coordinates?.lng  ?? '';
+  document.getElementById('edit-operation').value = e.operation         || '';
+  document.getElementById('edit-division').value  = e.division          || '';
+  document.getElementById('edit-notes').value     = e.notes             || '';
+  document.getElementById('edit-modal-idx').textContent = `#${i + 1} of ${REVIEW.entries.length}`;
+  document.getElementById('edit-prev-btn').disabled = (i === 0);
+  document.getElementById('edit-next-btn').disabled = (i === REVIEW.entries.length - 1);
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+/** Apply current modal field values to REVIEW.entries[_editIdx] and update map/table.
+ *  Returns the index that was edited, or null on failure. */
+function _applyModalEdits() {
+  if (_editIdx === null) return null;
+  const i = _editIdx;
+  const e = REVIEW.entries[i];
+  if (!e) return null;
+
+  const oldLat = e.coordinates?.lat;
+  const oldLng = e.coordinates?.lng;
+
+  const dateVal = document.getElementById('edit-date').value;
+  const placVal = document.getElementById('edit-place').value;
+  if (dateVal) e.date = dateVal;
+  if (placVal) e.place = placVal;
+  e.operation = document.getElementById('edit-operation').value;
+  e.division  = document.getElementById('edit-division').value;
+  e.notes     = document.getElementById('edit-notes').value;
+
+  const lat = parseFloat(document.getElementById('edit-lat').value);
+  const lng = parseFloat(document.getElementById('edit-lng').value);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    e.coordinates = { lat, lng };
+  }
+
+  const coordsChanged = (e.coordinates?.lat !== oldLat) || (e.coordinates?.lng !== oldLng);
+  if (coordsChanged) { replaceMarker(i); } else { updateMarkerStyle(i); }
+  _refreshReviewRow(i);
+  drawRoute(REVIEW.entries.filter(e2 => e2._status !== 'deleted'));
+  return i;
+}
+
+// Expose to Leaflet popup onclick
+window.setEntryStatus = setEntryStatus;
+window.openEditModal  = openEditModal;
+
+document.getElementById('edit-cancel-btn').addEventListener('click', () => {
+  document.getElementById('edit-modal').style.display = 'none';
+  _editIdx = null;
+});
+
+document.getElementById('edit-delete-btn').addEventListener('click', () => {
+  if (_editIdx === null) return;
+  setEntryStatus(_editIdx, 'deleted');
+  document.getElementById('edit-modal').style.display = 'none';
+  _editIdx = null;
+});
+
+document.getElementById('edit-save-btn').addEventListener('click', () => {
+  if (_editIdx === null) return;
+  try { _applyModalEdits(); } catch (err) {
+    console.error('[edit-save]', err);
+    logLine(`Edit error: ${err.message}`, 'error');
+  }
+  document.getElementById('edit-modal').style.display = 'none';
+  _editIdx = null;
+  saveReviewToDisk();
+});
+
+document.getElementById('edit-prev-btn').addEventListener('click', () => _navigateModal(-1));
+document.getElementById('edit-next-btn').addEventListener('click', () => _navigateModal(+1));
+
+function _navigateModal(delta) {
+  if (_editIdx === null) return;
+  try { _applyModalEdits(); } catch (err) {
+    console.error('[edit-nav]', err);
+    logLine(`Edit error: ${err.message}`, 'error');
+  }
+  const next = _editIdx + delta;
+  if (next < 0 || next >= REVIEW.entries.length) return;
+  saveReviewToDisk(true); // silent save before moving on
+  openEditModal(next);
+}
+
+// Close on backdrop click
+document.getElementById('edit-modal').addEventListener('click', ev => {
+  if (ev.target === ev.currentTarget) {
+    ev.currentTarget.style.display = 'none';
+    _editIdx = null;
+  }
+});
+
+// ── Save review to original file ──────────────────────────────────────────────
+
+async function saveReviewToDisk(silent = false) {
+  if (!REVIEW.filename) { console.warn('[save] REVIEW.filename is null — nothing to save'); return; }
+  const btn = document.getElementById('save-review-btn');
+  btn.textContent = '💾 Saving…';
+  btn.disabled = true;
+
+  // Include ALL entries (pending + approved); exclude only deleted
+  const movements = REVIEW.entries
+    .filter(e => e._status !== 'deleted')
+    .map(({ _idx, _status, _marker, ...rest }) => rest);
+
+  console.log(`[save] Saving ${movements.length} movements to ${REVIEW.filename}`);
+
+  try {
+    const resp = await fetch('/api/extractor/save-file', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: REVIEW.filename, movements })
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${data.error || resp.statusText}`);
+    console.log(`[save] OK — ${data.saved} entries saved`);
+    if (!silent) logLine(`✓ Saved ${data.saved} entries to ${REVIEW.filename}`, 'ok');
+    btn.textContent = '✓ Saved';
+    setTimeout(() => { btn.textContent = '💾 Save'; }, 2000);
+  } catch (err) {
+    console.error('[save] Failed:', err);
+    // Fallback: offer browser download so no work is lost
+    const blob = new Blob([JSON.stringify({ ...REVIEW.meta, movements }, null, 2)], { type: 'application/json' });
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob), download: REVIEW.filename
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+    logLine(`⚠ Server save failed: ${err.message}`, 'error');
+    logLine(`  → File downloaded as fallback. Open the browser console (F12) for details.`, 'error');
+    btn.textContent = '⚠ Downloaded';
+    setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('save-review-btn').addEventListener('click', saveReviewToDisk);
+
+// ── Export for DB ──────────────────────────────────────────────────────────────
+
+document.getElementById('export-db-btn').addEventListener('click', () => {
+  const cleaned = REVIEW.entries
+    .filter(e => e._status !== 'deleted')
+    .map(({ _idx, _status, _marker, ...rest }) => rest);
+  const blob = new Blob([JSON.stringify({ ...REVIEW.meta, movements: cleaned }, null, 2)], { type: 'application/json' });
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: (REVIEW.filename || 'export').replace(/\.json$/i, '') + '_reviewed.json'
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  logLine(`Exported ${cleaned.length} entries (${REVIEW.entries.length - cleaned.length} deleted)`, 'ok');
+});
+
+// ── Operations autocomplete ───────────────────────────────────────────────────
+
+let _operations = null;
+let _opFocusIdx = -1;
+let _opMatches  = [];
+
+async function loadOperations() {
+  if (_operations) return _operations;
+  try { _operations = await fetch('/assets/battles/operations.json').then(r => r.json()); }
+  catch { _operations = []; }
+  return _operations;
+}
+
+document.getElementById('edit-operation').addEventListener('focus', loadOperations, { once: true });
+
+document.getElementById('edit-operation').addEventListener('input', async () => {
+  const input    = document.getElementById('edit-operation');
+  const query    = input.value.trim().toLowerCase();
+  const dropdown = document.getElementById('op-dropdown');
+
+  if (!query) { dropdown.style.display = 'none'; _opMatches = []; return; }
+
+  const ops  = await loadOperations();
+  _opMatches = ops.filter(o => o.name.toLowerCase().includes(query)).slice(0, 10);
+  _opFocusIdx = -1;
+  if (!_opMatches.length) { dropdown.style.display = 'none'; return; }
+
+  dropdown.innerHTML = _opMatches.map((o, idx) => {
+    const meta = [
+      o.start ? o.start + (o.end && o.end !== o.start ? ' – ' + o.end : '') : null,
+      o.region || null
+    ].filter(Boolean).join('  ·  ');
+    return `<div class="op-item" data-idx="${idx}">
+      <div class="op-item-name">${escHtml(o.name)}</div>
+      ${meta ? `<div class="op-item-meta">${escHtml(meta)}</div>` : ''}
+    </div>`;
+  }).join('');
+  dropdown.style.display = '';
+
+  dropdown.querySelectorAll('.op-item').forEach(el => {
+    el.addEventListener('mousedown', ev => {
+      ev.preventDefault();
+      input.value = _opMatches[+el.dataset.idx].name;
+      dropdown.style.display = 'none';
+    });
+  });
+});
+
+document.getElementById('edit-operation').addEventListener('keydown', e => {
+  const dropdown = document.getElementById('op-dropdown');
+  if (dropdown.style.display === 'none') return;
+  const items = dropdown.querySelectorAll('.op-item');
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _opFocusIdx = Math.min(_opFocusIdx + 1, items.length - 1);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _opFocusIdx = Math.max(_opFocusIdx - 1, 0);
+  } else if (e.key === 'Enter' && _opFocusIdx >= 0) {
+    e.preventDefault();
+    document.getElementById('edit-operation').value = _opMatches[_opFocusIdx].name;
+    dropdown.style.display = 'none';
+    return;
+  } else if (e.key === 'Escape') {
+    dropdown.style.display = 'none'; _opFocusIdx = -1; return;
+  }
+  items.forEach((el, i) => el.classList.toggle('focused', i === _opFocusIdx));
+  if (_opFocusIdx >= 0) items[_opFocusIdx].scrollIntoView({ block: 'nearest' });
+});
+
+document.getElementById('edit-operation').addEventListener('blur', () => {
+  setTimeout(() => { document.getElementById('op-dropdown').style.display = 'none'; }, 150);
 });
