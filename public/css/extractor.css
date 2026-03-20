@@ -643,6 +643,8 @@ tr.row-deleted { background: rgba(224,82,82,  0.08); opacity: 0.55; }
 #edit-modal-fields textarea { min-height: 150px; resize: vertical; }
 #edit-modal-fields input:focus,
 #edit-modal-fields textarea:focus { outline: none; border-color: var(--accent); }
+#edit-coords-paste.coords-ok { border-color: #3dba6a; color: #3dba6a; }
+#edit-coords-paste.coords-err { border-color: var(--err); }
 .edit-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

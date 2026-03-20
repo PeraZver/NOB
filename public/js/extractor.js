@@ -247,6 +247,7 @@ function startExtraction() {
   document.getElementById('open-file-btn').style.display  = 'none';
   document.getElementById('export-db-btn').style.display  = 'none';
   document.getElementById('save-review-btn').style.display = 'none';
+  document.getElementById('add-entry-btn').style.display   = 'none';
   document.getElementById('stat-file').textContent        = '';
   document.getElementById('wiki-check-btn').disabled      = true;
   document.body.classList.remove('review-active');
@@ -646,6 +647,7 @@ function renderReviewState() {
   document.getElementById('results-pane').style.display = 'flex';
   document.getElementById('export-db-btn').style.display = '';
   document.getElementById('save-review-btn').style.display = '';
+  document.getElementById('add-entry-btn').style.display = '';
   document.getElementById('results-label').textContent = `Movements (${REVIEW.entries.length})`;
   document.getElementById('stat-file').textContent = REVIEW.filename;
 
@@ -769,8 +771,43 @@ function openEditModal(i) {
   document.getElementById('edit-modal-idx').textContent = `#${i + 1} of ${REVIEW.entries.length}`;
   document.getElementById('edit-prev-btn').disabled = (i === 0);
   document.getElementById('edit-next-btn').disabled = (i === REVIEW.entries.length - 1);
+  const pasteEl = document.getElementById('edit-coords-paste');
+  pasteEl.value = '';
+  pasteEl.className = '';
   document.getElementById('edit-modal').style.display = 'flex';
 }
+
+// ── Google Maps coordinate paste helper ───────────────────────────────────────
+
+function _parseGoogleCoords(text) {
+  text = text.trim();
+  if (!text) return null;
+  // Google Maps URL with @ marker: /@lat,lng,zoom
+  const atMatch = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (atMatch) return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+  // ?q=lat,lng or ?ll=lat,lng (plain /maps?q= links)
+  const qMatch = text.match(/[?&](?:q|ll)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (qMatch) return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+  // Plain decimal pair: "43.5081, 16.4402" or "43.5081,16.4402"
+  const pairMatch = text.match(/^(-?\d+\.?\d+)[,\s]+(-?\d+\.?\d+)$/);
+  if (pairMatch) return { lat: parseFloat(pairMatch[1]), lng: parseFloat(pairMatch[2]) };
+  return null;
+}
+
+document.getElementById('edit-coords-paste').addEventListener('input', () => {
+  const el  = document.getElementById('edit-coords-paste');
+  const res = _parseGoogleCoords(el.value);
+  if (res && Number.isFinite(res.lat) && Number.isFinite(res.lng)
+      && Math.abs(res.lat) <= 90 && Math.abs(res.lng) <= 180) {
+    document.getElementById('edit-lat').value = res.lat;
+    document.getElementById('edit-lng').value = res.lng;
+    el.className = 'coords-ok';
+  } else if (el.value.trim()) {
+    el.className = 'coords-err';
+  } else {
+    el.className = '';
+  }
+});
 
 /** Apply current modal field values to REVIEW.entries[_editIdx] and update map/table.
  *  Returns the index that was edited, or null on failure. */
@@ -913,6 +950,19 @@ document.getElementById('export-db-btn').addEventListener('click', () => {
   });
   a.click(); URL.revokeObjectURL(a.href);
   logLine(`Exported ${cleaned.length} entries (${REVIEW.entries.length - cleaned.length} deleted)`, 'ok');
+});
+
+document.getElementById('add-entry-btn').addEventListener('click', () => {
+  if (!REVIEW.filename) return;
+  const i = REVIEW.entries.length;
+  REVIEW.entries.push({
+    date: '', place: '', operation: '', division: '', notes: '',
+    coordinates: null, _idx: i, _status: 'pending', _marker: null
+  });
+  _appendReviewRow(i);
+  document.getElementById('results-label').textContent = `Movements (${REVIEW.entries.length})`;
+  updateReviewProgress();
+  openEditModal(i);
 });
 
 // ── Operations autocomplete ───────────────────────────────────────────────────

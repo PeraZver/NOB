@@ -81,7 +81,8 @@
   <span id="stat-file" style="color:var(--text-dim);margin-left:auto;"></span>
   <button id="open-file-btn" style="display:none" title="Open file in system text editor">Open file</button>
   <button id="save-review-btn" style="display:none" title="Save edits back to the original JSON file">💾 Save</button>
-  <button id="export-db-btn" style="display:none" title="Download reviewed JSON (deleted entries excluded)">⬇ Export for DB</button>
+  <button id="add-entry-btn"  style="display:none" title="Add a new entry manually">＋ Add entry</button>
+  <button id="export-db-btn"  style="display:none" title="Download reviewed JSON (deleted entries excluded)">⬇ Export for DB</button>
 </div>
 
 <!-- ── Main content ──────────────────────────────────────────────────────── -->
@@ -146,6 +147,10 @@
     <div id="edit-modal-fields">
       <label>Date<input id="edit-date" type="date" /></label>
       <label>Place<input id="edit-place" type="text" /></label>
+      <label>Google Maps
+        <input id="edit-coords-paste" type="text" autocomplete="off" spellcheck="false"
+          placeholder='Paste "43.5081, 16.4402"  or a Google Maps URL' />
+      </label>
       <div class="edit-row-2">
         <label>Lat<input id="edit-lat" type="number" step="0.0001" /></label>
         <label>Lng<input id="edit-lng" type="number" step="0.0001" /></label>
