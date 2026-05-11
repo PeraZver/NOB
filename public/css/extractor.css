@@ -561,6 +561,11 @@ body:has(#filter-bar.open):has(#wiki-bar.open):has(#review-bar.open) #content {
 body.review-active .actions-col { display: table-cell; white-space: nowrap; }
 tr.row-ok      { background: rgba(61,186,106, 0.10); }
 tr.row-deleted { background: rgba(224,82,82,  0.08); opacity: 0.55; }
+tr.row-selected {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+  background: rgba(75,156,245, 0.14) !important;
+}
 .review-btn {
   padding: 1px 6px;
   border-radius: 3px;

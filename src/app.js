@@ -15,7 +15,8 @@ const app = express();
 const port = config.server.port;
 
 // Middleware to parse JSON
-app.use(express.json());
+// Review saves can include large movement arrays, so allow larger payloads.
+app.use(express.json({ limit: '10mb' }));
 
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(config.paths.public));

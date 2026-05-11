@@ -516,8 +516,14 @@ document.getElementById('wiki-check-btn').addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const REVIEW_COLORS = { pending: '#f5a623', approved: '#3dba6a', deleted: '#e05252' };
+const FIRST_REVIEW_MARKER_COLOR = '#00b8ff';
 const REVIEW = { entries: [], filename: null, meta: {} };
 let _editIdx = null;
+let _selectedReviewIdx = null;
+const AUTO_SAVE_DELAY_MS = 650;
+let _autoSaveTimer = null;
+let _saveInFlight = false;
+let _saveQueuedWhileBusy = false;
 
 // ── Helpers: per-entry marker management ──────────────────────────────────────
 
@@ -526,13 +532,19 @@ function _placeMarker(i) {
   const entry = REVIEW.entries[i];
   const c = entry.coordinates;
   if (!c || !Number.isFinite(c.lat) || !Number.isFinite(c.lng)) return null;
-  const color = REVIEW_COLORS[entry._status] || REVIEW_COLORS.pending;
-  const radius = STATE.map ? _reviewMarkerRadius() : 5;
+  const markerStyle = _reviewMarkerStyle(i, entry._status);
   const m = L.circleMarker([c.lat, c.lng], {
-    radius, color, fillColor: color, fillOpacity: 0.85, weight: 2
+    radius: markerStyle.radius,
+    color: markerStyle.color,
+    fillColor: markerStyle.color,
+    fillOpacity: markerStyle.fillOpacity,
+    weight: markerStyle.weight
   });
   // Lazy popup — always rebuilt fresh so it reflects current status
   m.bindPopup(() => buildReviewPopup(i));
+  m.on('popupopen', () => {
+    selectReviewEntry(i, { openPopup: false, pan: false, scroll: true });
+  });
   m.addTo(STATE.markerLayer);
   entry._marker = m;
   return m;
@@ -542,8 +554,14 @@ function _placeMarker(i) {
 function updateMarkerStyle(i) {
   const entry = REVIEW.entries[i];
   if (!entry._marker) return;
-  const color = REVIEW_COLORS[entry._status] || REVIEW_COLORS.pending;
-  entry._marker.setStyle({ color, fillColor: color });
+  const markerStyle = _reviewMarkerStyle(i, entry._status);
+  entry._marker.setStyle({
+    color: markerStyle.color,
+    fillColor: markerStyle.color,
+    fillOpacity: markerStyle.fillOpacity,
+    weight: markerStyle.weight
+  });
+  entry._marker.setRadius(markerStyle.radius);
 }
 
 /** Remove existing marker and create a new one (call only when coords change). */
@@ -558,9 +576,26 @@ function _reviewMarkerRadius() {
   const z = STATE.map.getZoom();
   return z >= 12 ? 5 : z >= 9 ? 5 : z >= 6 ? 4 : 3;
 }
+
+function _reviewMarkerStyle(i, status) {
+  const baseRadius = STATE.map ? _reviewMarkerRadius() : 5;
+  const isFirst = i === 0;
+  const statusColor = REVIEW_COLORS[status] || REVIEW_COLORS.pending;
+  const color = isFirst && status !== 'deleted' ? FIRST_REVIEW_MARKER_COLOR : statusColor;
+  return {
+    color,
+    radius: isFirst ? baseRadius + 2 : baseRadius,
+    weight: isFirst ? 3 : 2,
+    fillOpacity: isFirst ? 0.95 : 0.85
+  };
+}
+
 STATE.map.on('zoomend', () => {
-  const r = _reviewMarkerRadius();
-  REVIEW.entries.forEach(e => { if (e._marker) e._marker.setRadius(r); });
+  REVIEW.entries.forEach((e, i) => {
+    if (!e._marker) return;
+    const markerStyle = _reviewMarkerStyle(i, e._status);
+    e._marker.setRadius(markerStyle.radius);
+  });
 });
 
 // ── Review bar controls ────────────────────────────────────────────────────────
@@ -602,6 +637,8 @@ document.getElementById('review-load-btn').addEventListener('click', async () =>
 async function loadForReview(filename) {
   const progress = document.getElementById('review-progress');
   const loadBtn  = document.getElementById('review-load-btn');
+  if (_autoSaveTimer) { clearTimeout(_autoSaveTimer); _autoSaveTimer = null; }
+  _saveQueuedWhileBusy = false;
   progress.textContent = 'Loading…';
   loadBtn.disabled = true;
   try {
@@ -634,6 +671,7 @@ function renderReviewState() {
   STATE.markerLayer.clearLayers();
   STATE.routeLayer.clearLayers();
   tbody.innerHTML = '';
+  _selectedReviewIdx = null;
   document.body.classList.add('review-active');
 
   REVIEW.entries.forEach((_, i) => {
@@ -689,6 +727,7 @@ function _appendReviewRow(i) {
   tr.setAttribute('data-review-idx', i);
   tr.className   = _rowClass(i);
   tr.innerHTML   = _rowHTML(i);
+  tr.addEventListener('click', () => selectReviewEntry(i, { openPopup: true, pan: true, scroll: false }));
   tbody.appendChild(tr);
 }
 
@@ -699,7 +738,43 @@ function _refreshReviewRow(i) {
   tr.setAttribute('data-review-idx', i);
   tr.className = _rowClass(i);
   tr.innerHTML = _rowHTML(i);
+  tr.addEventListener('click', () => selectReviewEntry(i, { openPopup: true, pan: true, scroll: false }));
+  if (_selectedReviewIdx === i) tr.classList.add('row-selected');
   old.replaceWith(tr);
+}
+
+function selectReviewEntry(i, opts = {}) {
+  if (i < 0 || i >= REVIEW.entries.length) return;
+  const { openPopup = true, pan = true, scroll = true } = opts;
+
+  const prevSel = tbody.querySelector('tr.row-selected');
+  if (prevSel) prevSel.classList.remove('row-selected');
+
+  _selectedReviewIdx = i;
+  const row = tbody.querySelector(`[data-review-idx="${i}"]`);
+  if (row) {
+    row.classList.add('row-selected');
+    if (scroll) row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  const entry = REVIEW.entries[i];
+  const hasCoords = entry?.coordinates
+    && Number.isFinite(entry.coordinates.lat)
+    && Number.isFinite(entry.coordinates.lng);
+
+  if (pan && hasCoords) {
+    STATE.map.panTo([entry.coordinates.lat, entry.coordinates.lng], { animate: true, duration: 0.35 });
+  }
+
+  if (openPopup && entry?._marker) {
+    entry._marker.openPopup();
+  }
+}
+
+function goToReviewSibling(i, delta) {
+  const next = i + delta;
+  if (next < 0 || next >= REVIEW.entries.length) return;
+  selectReviewEntry(next, { openPopup: true, pan: true, scroll: true });
 }
 
 // ── Entry status + progress ────────────────────────────────────────────────────
@@ -712,6 +787,7 @@ function setEntryStatus(i, status) {
   _refreshReviewRow(i);
   updateReviewProgress();
   drawRoute(REVIEW.entries.filter(e => e._status !== 'deleted'));
+  queueAutoSave();
 }
 
 function updateReviewProgress() {
@@ -732,7 +808,16 @@ function buildReviewPopup(i) {
     ? `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}` : 'n/a';
   const isOk  = e._status === 'approved';
   const isDel = e._status === 'deleted';
+  const hasPrev = i > 0;
+  const hasNext = i < REVIEW.entries.length - 1;
   return `<div style="font-family:Calibri,Arial,sans-serif;min-width:200px;max-width:320px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <button onclick="goToReviewSibling(${i},-1)" ${hasPrev ? '' : 'disabled'}
+        style="padding:1px 8px;border-radius:4px;cursor:${hasPrev ? 'pointer' : 'default'};font-size:.95em;border:1px solid ${hasPrev ? '#666' : '#444'};background:none;color:${hasPrev ? '#ccc' : '#666'}">←</button>
+      <span style="font-size:.8em;color:#888">${i + 1}/${REVIEW.entries.length}</span>
+      <button onclick="goToReviewSibling(${i},1)" ${hasNext ? '' : 'disabled'}
+        style="padding:1px 8px;border-radius:4px;cursor:${hasNext ? 'pointer' : 'default'};font-size:.95em;border:1px solid ${hasNext ? '#666' : '#444'};background:none;color:${hasNext ? '#ccc' : '#666'}">→</button>
+    </div>
     <strong style="font-size:1.05em">${escHtml(e.place || '?')}</strong>
     <div style="color:#666;font-size:.9em;margin:2px 0">${escHtml(e.date || '?')}</div>
     <div style="margin:4px 0 2px"><em>${escHtml(e.operation || '')}</em></div>
@@ -844,17 +929,19 @@ function _applyModalEdits() {
 // Expose to Leaflet popup onclick
 window.setEntryStatus = setEntryStatus;
 window.openEditModal  = openEditModal;
+window.goToReviewSibling = goToReviewSibling;
 
 document.getElementById('edit-cancel-btn').addEventListener('click', () => {
   document.getElementById('edit-modal').style.display = 'none';
   _editIdx = null;
 });
 
-document.getElementById('edit-delete-btn').addEventListener('click', () => {
+document.getElementById('edit-delete-btn').addEventListener('click', async () => {
   if (_editIdx === null) return;
   setEntryStatus(_editIdx, 'deleted');
   document.getElementById('edit-modal').style.display = 'none';
   _editIdx = null;
+  await saveReviewToDisk(true);
 });
 
 document.getElementById('edit-save-btn').addEventListener('click', () => {
@@ -865,7 +952,7 @@ document.getElementById('edit-save-btn').addEventListener('click', () => {
   }
   document.getElementById('edit-modal').style.display = 'none';
   _editIdx = null;
-  saveReviewToDisk();
+  queueAutoSave();
 });
 
 document.getElementById('edit-prev-btn').addEventListener('click', () => _navigateModal(-1));
@@ -879,7 +966,7 @@ function _navigateModal(delta) {
   }
   const next = _editIdx + delta;
   if (next < 0 || next >= REVIEW.entries.length) return;
-  saveReviewToDisk(true); // silent save before moving on
+  queueAutoSave();
   openEditModal(next);
 }
 
@@ -893,10 +980,26 @@ document.getElementById('edit-modal').addEventListener('click', ev => {
 
 // ── Save review to original file ──────────────────────────────────────────────
 
+function queueAutoSave() {
+  if (!REVIEW.filename) return;
+  if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(() => {
+    _autoSaveTimer = null;
+    saveReviewToDisk(true);
+  }, AUTO_SAVE_DELAY_MS);
+}
+
 async function saveReviewToDisk(silent = false) {
   if (!REVIEW.filename) { console.warn('[save] REVIEW.filename is null — nothing to save'); return; }
+  if (_autoSaveTimer) { clearTimeout(_autoSaveTimer); _autoSaveTimer = null; }
+  if (_saveInFlight) {
+    _saveQueuedWhileBusy = true;
+    return;
+  }
+
+  _saveInFlight = true;
   const btn = document.getElementById('save-review-btn');
-  btn.textContent = '💾 Saving…';
+  btn.textContent = silent ? '⟳ Auto-saving…' : '💾 Saving…';
   btn.disabled = true;
 
   // Include ALL entries (pending + approved); exclude only deleted
@@ -915,22 +1018,37 @@ async function saveReviewToDisk(silent = false) {
     const data = await resp.json().catch(() => ({}));
     if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${data.error || resp.statusText}`);
     console.log(`[save] OK — ${data.saved} entries saved`);
-    if (!silent) logLine(`✓ Saved ${data.saved} entries to ${REVIEW.filename}`, 'ok');
-    btn.textContent = '✓ Saved';
+    if (!silent) {
+      logLine(`✓ Saved ${data.saved} entries to ${REVIEW.filename}`, 'ok');
+      btn.textContent = '✓ Saved';
+    } else {
+      btn.textContent = '✓ Auto-saved';
+    }
     setTimeout(() => { btn.textContent = '💾 Save'; }, 2000);
   } catch (err) {
     console.error('[save] Failed:', err);
-    // Fallback: offer browser download so no work is lost
-    const blob = new Blob([JSON.stringify({ ...REVIEW.meta, movements }, null, 2)], { type: 'application/json' });
-    const a = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(blob), download: REVIEW.filename
-    });
-    a.click(); URL.revokeObjectURL(a.href);
-    logLine(`⚠ Server save failed: ${err.message}`, 'error');
-    logLine(`  → File downloaded as fallback. Open the browser console (F12) for details.`, 'error');
-    btn.textContent = '⚠ Downloaded';
-    setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
+    if (silent) {
+      logLine(`⚠ Auto-save failed: ${err.message}`, 'warn');
+      btn.textContent = '⚠ Auto-save failed';
+      setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
+    } else {
+      // Fallback: offer browser download so no work is lost
+      const blob = new Blob([JSON.stringify({ ...REVIEW.meta, movements }, null, 2)], { type: 'application/json' });
+      const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(blob), download: REVIEW.filename
+      });
+      a.click(); URL.revokeObjectURL(a.href);
+      logLine(`⚠ Server save failed: ${err.message}`, 'error');
+      logLine(`  → File downloaded as fallback. Open the browser console (F12) for details.`, 'error');
+      btn.textContent = '⚠ Downloaded';
+      setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
+    }
   } finally {
+    _saveInFlight = false;
+    if (_saveQueuedWhileBusy) {
+      _saveQueuedWhileBusy = false;
+      queueAutoSave();
+    }
     btn.disabled = false;
   }
 }
@@ -962,6 +1080,7 @@ document.getElementById('add-entry-btn').addEventListener('click', () => {
   _appendReviewRow(i);
   document.getElementById('results-label').textContent = `Movements (${REVIEW.entries.length})`;
   updateReviewProgress();
+  queueAutoSave();
   openEditModal(i);
 });
 
