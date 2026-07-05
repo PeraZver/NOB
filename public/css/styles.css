@@ -726,16 +726,31 @@ body {
     text-align: left !important;
 }
 
-/* Campaign list panel - right-edge overlay on the map */
-.campaign-list-panel {
+/* Campaign list panel container - right-edge overlay on the map */
+.campaign-list-container {
     position: absolute;
     top: 30px;
     right: 10px;
     z-index: 1002;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    max-width: calc(100% - 20px);
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.campaign-list-container.hidden {
+    display: none;
+}
+
+/* Campaign list panel - rendered as cards inside the container */
+.campaign-list-panel {
     background: rgba(255, 255, 255, 0.92);
     border-radius: 6px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    max-width: 260px;
+    width: 260px;
+    min-width: 240px;
     max-height: calc(100% - 60px);
     display: flex;
     flex-direction: column;
@@ -747,12 +762,13 @@ body {
 }
 
 .campaign-list-panel-header {
+    --campaign-panel-color: #e74c3c;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 8px 10px;
-    background: rgba(231, 76, 60, 0.12);
-    border-bottom: 1px solid rgba(231, 76, 60, 0.3);
+    background: color-mix(in srgb, var(--campaign-panel-color) 14%, white);
+    border-bottom: 1px solid color-mix(in srgb, var(--campaign-panel-color) 40%, transparent);
     flex-shrink: 0;
 }
 
@@ -804,12 +820,12 @@ body {
 
 .campaign-list-item:hover {
     background: rgba(231, 76, 60, 0.08);
-    border-left-color: #e74c3c;
+    border-left-color: var(--campaign-panel-color, #e74c3c);
 }
 
 .campaign-list-item-date {
     font-weight: bold;
-    color: #c0392b;
+    color: var(--campaign-panel-color, #c0392b);
     display: block;
     margin-bottom: 2px;
 }
@@ -821,6 +837,76 @@ body {
 .campaign-list-item-op {
     color: #666;
     font-style: italic;
+}
+
+/* Top-center legend for currently visible campaign movement lines */
+.campaign-movement-legend {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    transform: none;
+    z-index: 1003;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 8px 10px;
+    min-width: 280px;
+    max-width: min(80vw, 920px);
+}
+
+.campaign-movement-legend.hidden {
+    display: none;
+}
+
+.campaign-movement-legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.campaign-movement-legend-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #222;
+}
+
+.campaign-movement-legend-close {
+    border: none;
+    background: none;
+    color: #444;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+}
+
+.campaign-movement-legend-close:hover {
+    color: #000;
+}
+
+.campaign-movement-legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campaign-movement-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #222;
+}
+
+.campaign-movement-legend-swatch {
+    width: 22px;
+    height: 0;
+    border-top: 3px dashed #e74c3c;
+    border-radius: 2px;
 }
 
 /* Search Box */

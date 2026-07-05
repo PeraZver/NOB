@@ -26,6 +26,9 @@ const layerState = {
     isCrimesLayerVisible: false,
     campaignsLayer: null,
     isCampaignsLayerVisible: false,
+    visibleCampaignBrigades: {}, // Active campaign overlays keyed by brigade ID
+    campaignColorByBrigade: {}, // Stable color assignment per brigade ID
+    campaignColorIndex: 0,
     currentLayerName: null,
     selectedYear: null, // Track selected year filter (for backward compatibility)
     selectedMonth: null, // Track selected month filter (1-12) (for backward compatibility)

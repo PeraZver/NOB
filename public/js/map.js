@@ -63,8 +63,8 @@ if (typeof L !== 'undefined') {
         map.scrollWheelZoom.enable();
     });
     map.on('mousedown', () => {
-        const panel = document.getElementById('campaignListPanel');
-        if (panel && !panel.classList.contains('hidden')) {
+        const panelContainer = document.getElementById('campaignListContainer');
+        if (panelContainer && !panelContainer.classList.contains('hidden')) {
             map.scrollWheelZoom.enable();
         }
     });

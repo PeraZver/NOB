@@ -20,6 +20,154 @@ import { catmullRomSpline } from './utils/splineUtils.js';
 import { icons, OCCUPIED_TERRITORY_CONFIG, LAYER_MAPPING, API_ENDPOINTS } from './config.js';
 import { updateLegend } from './legend.js';
 
+const CAMPAIGN_LINE_COLORS = [
+    '#e74c3c', '#2980b9', '#27ae60', '#f39c12', '#8e44ad', '#16a085', '#d35400', '#2c3e50'
+];
+
+let campaignPanelCloseListenerBound = false;
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function ensureCampaignRootLayer() {
+    if (!layerState.campaignsLayer) {
+        layerState.campaignsLayer = L.layerGroup().addTo(map);
+    }
+    return layerState.campaignsLayer;
+}
+
+function getCampaignColor(brigadeId, preferredColor = null) {
+    const key = String(brigadeId);
+    if (preferredColor) {
+        layerState.campaignColorByBrigade[key] = preferredColor;
+        return preferredColor;
+    }
+    if (layerState.campaignColorByBrigade[key]) {
+        return layerState.campaignColorByBrigade[key];
+    }
+    const color = CAMPAIGN_LINE_COLORS[layerState.campaignColorIndex % CAMPAIGN_LINE_COLORS.length];
+    layerState.campaignColorIndex += 1;
+    layerState.campaignColorByBrigade[key] = color;
+    return color;
+}
+
+function ensureCampaignPanelCloseListener() {
+    if (campaignPanelCloseListenerBound) {
+        return;
+    }
+    document.addEventListener('campaignListPanelCloseRequested', (event) => {
+        const brigadeId = event?.detail?.brigadeId;
+        if (brigadeId == null) {
+            return;
+        }
+        removeCampaignForBrigade(brigadeId);
+    });
+    campaignPanelCloseListenerBound = true;
+}
+
+function ensureCampaignMovementLegend() {
+    let legend = document.getElementById('campaignMovementLegend');
+    if (legend) {
+        return legend;
+    }
+
+    const mapEl = document.getElementById('map');
+    if (!mapEl) {
+        return null;
+    }
+
+    legend = document.createElement('div');
+    legend.id = 'campaignMovementLegend';
+    legend.className = 'campaign-movement-legend hidden';
+    legend.innerHTML = `
+        <div class="campaign-movement-legend-header">
+            <span class="campaign-movement-legend-title">Visible Brigade Movements</span>
+            <button class="campaign-movement-legend-close" title="Clear all visible movement lines">x</button>
+        </div>
+        <div class="campaign-movement-legend-items"></div>
+    `;
+
+    const closeBtn = legend.querySelector('.campaign-movement-legend-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            clearAllCampaignMovements();
+        });
+    }
+
+    mapEl.appendChild(legend);
+    return legend;
+}
+
+function updateCampaignMovementLegend() {
+    const legend = ensureCampaignMovementLegend();
+    if (!legend) {
+        return;
+    }
+
+    const entries = Object.values(layerState.visibleCampaignBrigades || {});
+    if (entries.length === 0) {
+        legend.classList.add('hidden');
+        return;
+    }
+
+    const itemsEl = legend.querySelector('.campaign-movement-legend-items');
+    itemsEl.innerHTML = entries.map(entry => {
+        const safeName = escapeHtml(entry.brigadeName || `Brigade ${entry.brigadeId}`);
+        const safeColor = escapeHtml(entry.color || '#e74c3c');
+        return `
+            <div class="campaign-movement-legend-item">
+                <span class="campaign-movement-legend-swatch" style="border-top-color:${safeColor}"></span>
+                <span>${safeName}</span>
+            </div>
+        `;
+    }).join('');
+
+    legend.classList.remove('hidden');
+}
+
+function removeCampaignForBrigade(brigadeId) {
+    const key = String(brigadeId);
+    const active = layerState.visibleCampaignBrigades[key];
+    if (!active) {
+        return;
+    }
+
+    if (layerState.campaignsLayer && active.layer) {
+        layerState.campaignsLayer.removeLayer(active.layer);
+    }
+
+    hideCampaignListPanel(key);
+    delete layerState.visibleCampaignBrigades[key];
+
+    if (Object.keys(layerState.visibleCampaignBrigades).length === 0) {
+        if (layerState.campaignsLayer) {
+            map.removeLayer(layerState.campaignsLayer);
+        }
+        layerState.campaignsLayer = null;
+        layerState.isCampaignsLayerVisible = false;
+    }
+
+    updateCampaignMovementLegend();
+}
+
+function clearAllCampaignMovements() {
+    if (layerState.campaignsLayer) {
+        map.removeLayer(layerState.campaignsLayer);
+    }
+    layerState.campaignsLayer = null;
+    layerState.isCampaignsLayerVisible = false;
+    layerState.visibleCampaignBrigades = {};
+    hideCampaignListPanel();
+    updateCampaignMovementLegend();
+}
+
 // Function to show/hide occupied territories on the map
 export function showOccupiedTerritory() {
     if (layerState.isOccupiedTerritoryVisible) {
@@ -98,16 +246,28 @@ export function showLayerFromAPI(apiEndpoint, layerName, markdownFile = null, gr
 
 // Function to refresh all visible layers with year filter
 export function refreshAllVisibleLayers() {
-    // Handle campaigns separately since they're stored per brigade
-    if (layerState.isCampaignsLayerVisible && layerState.selectedBrigadeId) {
-        const brigadeId = layerState.selectedBrigadeId;
-        if (layerState.allLayerData.campaigns && layerState.allLayerData.campaigns[brigadeId]) {
-            // Remove existing campaign layer
+    // Handle campaigns separately since they're stored per brigade and can be visible simultaneously
+    if (layerState.isCampaignsLayerVisible) {
+        const activeCampaigns = Object.values(layerState.visibleCampaignBrigades || {});
+        if (activeCampaigns.length > 0) {
             if (layerState.campaignsLayer) {
                 map.removeLayer(layerState.campaignsLayer);
             }
-            // Re-render campaigns with current filter
-            renderCampaigns(layerState.allLayerData.campaigns[brigadeId], brigadeId);
+            layerState.campaignsLayer = null;
+            hideCampaignListPanel();
+
+            const nextActive = [...activeCampaigns];
+            layerState.visibleCampaignBrigades = {};
+
+            nextActive.forEach(entry => {
+                const data = layerState.allLayerData.campaigns?.[entry.brigadeId];
+                if (data && data.length > 0) {
+                    renderCampaigns(data, entry.brigadeId, entry.brigadeName, { color: entry.color });
+                }
+            });
+
+            layerState.isCampaignsLayerVisible = Object.keys(layerState.visibleCampaignBrigades).length > 0;
+            updateCampaignMovementLegend();
         }
     }
     
@@ -296,6 +456,7 @@ export function showBrigadesWithCampaigns() {
         map.removeLayer(layerState.brigadesLayer);
         layerState.brigadesLayer = null;
         layerState.isBrigadesLayerVisible = false;
+        clearAllCampaignMovements();
         updateLegend();
         
         // Hide sidebar
@@ -380,12 +541,7 @@ export function removeLayer(layerName) {
                 if (campaignButton) {
                     campaignButton.style.display = 'none';
                 }
-                if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
-                    map.removeLayer(layerState.campaignsLayer);
-                    layerState.campaignsLayer = null;
-                    layerState.isCampaignsLayerVisible = false;
-                    hideCampaignListPanel();
-                }
+                clearAllCampaignMovements();
                 layerState.selectedBrigadeId = null;
                 updateLegend();
             }
@@ -493,17 +649,9 @@ export function handleBrigadeMarkerClick(marker, item) {
         }
     }
     
-    // Remove campaign layer if visible before (re-)loading the new one
-    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
-        map.removeLayer(layerState.campaignsLayer);
-        layerState.campaignsLayer = null;
-        layerState.isCampaignsLayerVisible = false;
-        hideCampaignListPanel();
-    }
-
-    // If this brigade has campaign data, load the trail + list immediately
+    // If this brigade has campaign data, add its trail + list without clearing existing brigades.
     if (item.has_campaigns) {
-        showCampaigns();
+        showCampaigns({ toggleIfVisible: false, brigadeName: item.name });
     }
 
     // Show popup and update sidebar (same as handleMarkerClick but without hiding the button)
@@ -575,27 +723,30 @@ export function handleCrimeMarkerClick(marker, item) {
 
 
 // Function to show campaign markers for the selected brigade
-export function showCampaigns() {
+export function showCampaigns(options = {}) {
+    const { toggleIfVisible = true, brigadeName = null } = options;
     const brigadeId = layerState.selectedBrigadeId;
+    const brigadeKey = String(brigadeId);
     
     if (!brigadeId) {
         console.warn('No brigade selected');
         return;
     }
-    
-    // If campaigns are already visible, hide them
-    if (layerState.isCampaignsLayerVisible && layerState.campaignsLayer) {
-        map.removeLayer(layerState.campaignsLayer);
-        layerState.campaignsLayer = null;
-        layerState.isCampaignsLayerVisible = false;
-        hideCampaignListPanel();
+
+    ensureCampaignPanelCloseListener();
+
+    // Toggle only the selected brigade's campaigns, leaving other brigades visible.
+    if (layerState.visibleCampaignBrigades[brigadeKey]) {
+        if (toggleIfVisible) {
+            removeCampaignForBrigade(brigadeKey);
+        }
         return;
     }
     
     // Check if we have stored campaign data for this brigade
     if (layerState.allLayerData.campaigns && layerState.allLayerData.campaigns[brigadeId]) {
         // Use stored data and apply filtering
-        renderCampaigns(layerState.allLayerData.campaigns[brigadeId], brigadeId);
+        renderCampaigns(layerState.allLayerData.campaigns[brigadeId], brigadeId, brigadeName);
         return;
     }
     
@@ -615,7 +766,7 @@ export function showCampaigns() {
             layerState.allLayerData.campaigns[brigadeId] = data;
             
             // Render the campaigns with filtering
-            renderCampaigns(data, brigadeId);
+            renderCampaigns(data, brigadeId, brigadeName);
         })
         .catch(error => {
             console.error('Error fetching campaigns:', error);
@@ -624,11 +775,18 @@ export function showCampaigns() {
 }
 
 /**
- * Render campaign markers and path on the map (with optional date filtering)
+ * Render campaign markers and path on the map (with optional date filtering).
+ * Supports multiple brigades visible at the same time.
  * @param {Array} data - Campaign data
- * @param {number} brigadeId - Brigade ID
+ * @param {number|string} brigadeId - Brigade ID
+ * @param {string|null} brigadeName - Brigade display name
+ * @param {Object} options - Optional rendering settings
  */
-function renderCampaigns(data, brigadeId) {
+function renderCampaigns(data, brigadeId, brigadeName = null, options = {}) {
+    const brigadeKey = String(brigadeId);
+    const color = getCampaignColor(brigadeKey, options.color || null);
+    const resolvedBrigadeName = brigadeName || layerState.visibleCampaignBrigades[brigadeKey]?.brigadeName || `Brigade ${brigadeId}`;
+
     // Apply date filter if selected
     const filteredData = filterCampaignsByDate(
         data, 
@@ -641,12 +799,13 @@ function renderCampaigns(data, brigadeId) {
     );
     
     if (filteredData.length === 0) {
-        hideCampaignListPanel();
-        updateSidebar('<p>No campaign data available for the selected time period.</p>');
+        removeCampaignForBrigade(brigadeKey);
+        updateSidebar(`<p>No campaign data available for ${resolvedBrigadeName} in the selected time period.</p>`);
         return;
     }
     
-    const newLayer = L.layerGroup().addTo(map);
+    const rootLayer = ensureCampaignRootLayer();
+    const brigadeLayer = L.layerGroup();
     
     // Create chronological line connecting campaign markers
     // Extract coordinates from campaigns with valid locations (data is already sorted by date ASC)
@@ -666,16 +825,16 @@ function renderCampaigns(data, brigadeId) {
         const smoothedCoords = catmullRomSpline(pathCoords, 0.85, 5);
         
         const campaignPath = L.polyline(smoothedCoords, {
-            color: '#e74c3c',
+            color,
             weight: 4,
-            opacity: 0.6,
+            opacity: 0.75,
             dashArray: '5, 10',
             lineJoin: 'round',
             lineCap: 'round'
         });
         
         // Add the line to the layer first (so markers appear on top)
-        newLayer.addLayer(campaignPath);
+        brigadeLayer.addLayer(campaignPath);
         
         // Add arrow decorators to show direction of movement
         const decorator = L.polylineDecorator(campaignPath, {
@@ -689,7 +848,7 @@ function renderCampaigns(data, brigadeId) {
                         pathOptions: {
                             stroke: true,
                             weight: 3,
-                            color: '#c0392b',
+                            color,
                             opacity: 0.8
                         }
                     })
@@ -697,7 +856,7 @@ function renderCampaigns(data, brigadeId) {
             ]
         });
         
-        newLayer.addLayer(decorator);
+        brigadeLayer.addLayer(decorator);
     }
     
     // Track if first marker has been added (formation site)
@@ -721,25 +880,23 @@ function renderCampaigns(data, brigadeId) {
         
         let marker;
         
-        // First marker (formation site) - use red star icon
+        // First marker (formation site) is slightly larger for readability.
         if (!firstMarkerAdded) {
-            // Create an icon marker using red-star.png
-            const starIcon = L.icon({
-                iconUrl: 'assets/icons/red-star.png',
-                iconSize: [24, 24],
-                iconAnchor: [12, 12],
-                popupAnchor: [0, -12]
-            });
-            marker = L.marker([coords.lat, coords.lng], {
-                icon: starIcon
+            marker = L.circleMarker([coords.lat, coords.lng], {
+                radius: 8,
+                fillColor: color,
+                color: '#ffffff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.95
             });
             firstMarkerAdded = true;
         } else {
-            // Regular campaign markers - use circle
+            // Regular campaign markers.
             marker = L.circleMarker([coords.lat, coords.lng], {
                 radius: 6,
-                fillColor: '#e74c3c',
-                color: '#c0392b',
+                fillColor: color,
+                color,
                 weight: 2,
                 opacity: 1,
                 fillOpacity: 0.8
@@ -793,7 +950,7 @@ function renderCampaigns(data, brigadeId) {
             }
         });
         
-        newLayer.addLayer(marker);
+        brigadeLayer.addLayer(marker);
 
         // Collect item for the right-side campaign list panel
         const itemCoords = [coords.lat, coords.lng];
@@ -812,18 +969,29 @@ function renderCampaigns(data, brigadeId) {
         });
     });
     
-    layerState.campaignsLayer = newLayer;
+    rootLayer.addLayer(brigadeLayer);
+    layerState.visibleCampaignBrigades[brigadeKey] = {
+        brigadeId: brigadeKey,
+        brigadeName: resolvedBrigadeName,
+        color,
+        layer: brigadeLayer
+    };
     layerState.isCampaignsLayerVisible = true;
     
-    // Build panel title with optional date filter note
-    let panelTitle = 'Campaign Movement';
+    // Build panel title with optional date filter note.
+    let panelTitle = resolvedBrigadeName;
     if (layerState.selectedYear) {
         panelTitle += ` · up to ${layerState.selectedMonth ?
             `${getMonthName(layerState.selectedMonth)} ` : ''}${layerState.selectedYear}`;
     }
 
-    // Show the campaign list panel on the right edge of the map
-    showCampaignListPanel(campaignListItems, panelTitle);
+    // Show one panel per brigade on the right edge of the map.
+    showCampaignListPanel(campaignListItems, panelTitle, {
+        brigadeId: brigadeKey,
+        color
+    });
+
+    updateCampaignMovementLegend();
 }
 
 /**

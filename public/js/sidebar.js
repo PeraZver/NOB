@@ -61,20 +61,34 @@ export function hideMapInfoOverlay() {
 }
 
 /**
- * Show the campaign list panel on the right edge of the map.
+ * Show or update a campaign list panel for a brigade on the right edge of the map.
  * @param {Array} items - Array of { dateStr, place, operation, onSelect } objects
  * @param {string} title - Title for the panel header
+ * @param {Object} options
+ * @param {string|number} options.brigadeId - Unique ID for the brigade panel
+ * @param {string} options.color - Hex/RGB color used for header accent
  */
-export function showCampaignListPanel(items, title) {
-    let panel = document.getElementById('campaignListPanel');
+export function showCampaignListPanel(items, title, options = {}) {
+    const container = ensureCampaignListContainer();
+    const panelKey = options.brigadeId != null ? String(options.brigadeId) : 'default';
+    const panelId = `campaignListPanel-${panelKey}`;
+    let panel = document.getElementById(panelId);
+    const existingVisibleCount = container.querySelectorAll('.campaign-list-panel').length;
+
     if (!panel) {
-        panel = createCampaignListPanel();
+        panel = createCampaignListPanel(panelId, panelKey);
+        container.appendChild(panel);
     }
 
     // Update title
     const titleEl = panel.querySelector('.campaign-list-panel-title');
     if (titleEl) {
         titleEl.textContent = title || 'Campaign Movement';
+    }
+
+    // Update color accent
+    if (options.color) {
+        panel.style.setProperty('--campaign-panel-color', options.color);
     }
 
     // Build list
@@ -91,7 +105,7 @@ export function showCampaignListPanel(items, title) {
             html += `<span class="campaign-list-item-place">${item.place}</span>`;
         }
         if (item.operation) {
-            html += ` <span class="campaign-list-item-op">– ${item.operation}</span>`;
+            html += ` <span class="campaign-list-item-op">- ${item.operation}</span>`;
         }
         el.innerHTML = html;
         el.addEventListener('click', (e) => {
@@ -104,16 +118,37 @@ export function showCampaignListPanel(items, title) {
     });
 
     panel.classList.remove('hidden');
-    document.dispatchEvent(new CustomEvent('campaignListPanelShown'));
+    if (existingVisibleCount === 0) {
+        document.dispatchEvent(new CustomEvent('campaignListPanelShown'));
+    }
 }
 
 /**
- * Hide and clear the campaign list panel.
+ * Hide one brigade campaign panel, or all panels when no brigadeId is provided.
+ * @param {string|number|null} brigadeId
  */
-export function hideCampaignListPanel() {
-    const panel = document.getElementById('campaignListPanel');
+export function hideCampaignListPanel(brigadeId = null) {
+    const container = document.getElementById('campaignListContainer');
+    if (!container) {
+        return;
+    }
+
+    if (brigadeId == null) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
+        return;
+    }
+
+    const panelId = `campaignListPanel-${String(brigadeId)}`;
+    const panel = document.getElementById(panelId);
     if (panel) {
-        panel.classList.add('hidden');
+        panel.remove();
+    }
+
+    const remaining = container.querySelectorAll('.campaign-list-panel').length;
+    if (remaining === 0) {
+        container.classList.add('hidden');
         document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
     }
 }
@@ -122,9 +157,10 @@ export function hideCampaignListPanel() {
  * Build and insert the campaign list panel DOM element inside the map.
  * @returns {HTMLElement}
  */
-function createCampaignListPanel() {
+function createCampaignListPanel(panelId, panelKey) {
     const panel = document.createElement('div');
-    panel.id = 'campaignListPanel';
+    panel.id = panelId;
+    panel.dataset.brigadeId = panelKey;
     panel.className = 'campaign-list-panel hidden';
     panel.innerHTML = `
         <div class="campaign-list-panel-header">
@@ -137,23 +173,39 @@ function createCampaignListPanel() {
     const closeBtn = panel.querySelector('.campaign-list-panel-close');
     closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        panel.classList.add('hidden');
-        document.dispatchEvent(new CustomEvent('campaignListPanelHidden'));
+        const brigadeId = panel.dataset.brigadeId;
+        document.dispatchEvent(new CustomEvent('campaignListPanelCloseRequested', {
+            detail: { brigadeId }
+        }));
     });
+
+    return panel;
+}
+
+function ensureCampaignListContainer() {
+    let container = document.getElementById('campaignListContainer');
+    if (container) {
+        container.classList.remove('hidden');
+        return container;
+    }
+
+    container = document.createElement('div');
+    container.id = 'campaignListContainer';
+    container.className = 'campaign-list-container';
 
     const mapEl = document.getElementById('map');
     if (mapEl) {
-        mapEl.appendChild(panel);
+        mapEl.appendChild(container);
     } else {
-        document.body.appendChild(panel);
+        document.body.appendChild(container);
     }
 
-    // Prevent wheel events on the panel from bubbling to the Leaflet map
+    // Prevent wheel events on the panel container from bubbling to the Leaflet map
     if (typeof L !== 'undefined' && L.DomEvent) {
-        L.DomEvent.disableScrollPropagation(panel);
+        L.DomEvent.disableScrollPropagation(container);
     }
 
-    return panel;
+    return container;
 }
 
 /**
