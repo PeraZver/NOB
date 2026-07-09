@@ -502,7 +502,7 @@ body:has(#filter-bar.open):has(#wiki-bar.open) #content {
 }
 #review-bar.open { display: flex; }
 #review-bar label { font-size: 0.82em; color: #f5a623; white-space: nowrap; }
-#review-file-select {
+#review-choose-btn {
   background: #3d2800;
   border: 1px solid #c07d00;
   color: var(--text);
@@ -510,23 +510,21 @@ body:has(#filter-bar.open):has(#wiki-bar.open) #content {
   border-radius: 5px;
   font-family: var(--mono);
   font-size: 0.83em;
-  min-width: 180px;
-  max-width: 300px;
   cursor: pointer;
 }
-#review-file-select:focus { outline: none; border-color: #f5a623; }
-#review-file-select option { background: #3d2800; }
-#review-refresh-btn {
-  background: none;
-  border: 1px solid #c07d00;
-  color: #f5a623;
-  border-radius: 4px;
-  padding: 3px 8px;
-  font-size: 1em;
-  cursor: pointer;
-  line-height: 1;
+#review-choose-btn:hover { border-color: #f5a623; }
+#review-choose-btn:focus { outline: none; border-color: #f5a623; }
+
+#review-selected-file {
+  min-width: 220px;
+  max-width: 460px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.8em;
+  color: #f0d39a;
 }
-#review-refresh-btn:hover { border-color: #f5a623; }
 #review-load-btn {
   background: #c07d00;
   color: #fff;

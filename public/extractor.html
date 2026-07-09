@@ -62,11 +62,10 @@
 
 <!-- ── Review bar (collapsible) ────────────────────────────────────────────── -->
 <div id="review-bar">
-  <label for="review-file-select">File</label>
-  <select id="review-file-select" title="Select an extracted JSON file to review">
-    <option value="">— select file —</option>
-  </select>
-  <button id="review-refresh-btn" title="Refresh file list">↻</button>
+  <label for="review-file-input">File</label>
+  <input id="review-file-input" type="file" accept="application/json,.json" style="display:none" />
+  <button id="review-choose-btn" title="Choose a JSON file from your computer">Browse…</button>
+  <span id="review-selected-file">No file selected</span>
   <button id="review-load-btn" disabled>Load</button>
   <span id="review-progress"></span>
 </div>

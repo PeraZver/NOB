@@ -517,13 +517,15 @@ document.getElementById('wiki-check-btn').addEventListener('click', () => {
 
 const REVIEW_COLORS = { pending: '#f5a623', approved: '#3dba6a', deleted: '#e05252' };
 const FIRST_REVIEW_MARKER_COLOR = '#00b8ff';
-const REVIEW = { entries: [], filename: null, meta: {} };
+const REVIEW = { entries: [], filename: null, meta: {}, source: null, fileHandle: null };
 let _editIdx = null;
 let _selectedReviewIdx = null;
 const AUTO_SAVE_DELAY_MS = 650;
 let _autoSaveTimer = null;
 let _saveInFlight = false;
 let _saveQueuedWhileBusy = false;
+let _pendingReviewFile = null;
+let _pendingReviewHandle = null;
 
 // ── Helpers: per-entry marker management ──────────────────────────────────────
 
@@ -602,39 +604,58 @@ STATE.map.on('zoomend', () => {
 
 const reviewToggleBtn = document.getElementById('review-toggle-btn');
 const reviewBar       = document.getElementById('review-bar');
+const reviewFileInput = document.getElementById('review-file-input');
+const reviewChooseBtn = document.getElementById('review-choose-btn');
+const reviewSelectedFile = document.getElementById('review-selected-file');
 
 reviewToggleBtn.addEventListener('click', () => {
   const open = reviewBar.classList.toggle('open');
   reviewToggleBtn.classList.toggle('active', open);
-  if (open) loadReviewFileList();
 });
 
-async function loadReviewFileList(autoSelect = null) {
-  const sel = document.getElementById('review-file-select');
+reviewChooseBtn.addEventListener('click', () => chooseReviewFile());
+
+reviewFileInput.addEventListener('change', () => {
+  const file = reviewFileInput.files?.[0] || null;
+  _pendingReviewFile = file;
+  _pendingReviewHandle = null;
+  reviewSelectedFile.textContent = file ? file.name : 'No file selected';
+  document.getElementById('review-load-btn').disabled = !file;
+});
+
+document.getElementById('review-load-btn').addEventListener('click', async () => {
+  if (_pendingReviewFile) {
+    await loadForReviewFile(_pendingReviewFile, _pendingReviewHandle);
+  }
+});
+
+async function chooseReviewFile() {
   try {
-    const { files } = await fetch('/api/extractor/list-files').then(r => r.json());
-    const prev = autoSelect || sel.value;
-    sel.innerHTML = '<option value="">— select file —</option>';
-    files.forEach(f => {
-      const opt = document.createElement('option');
-      opt.value = f; opt.textContent = f;
-      if (f === prev) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  } catch { /* ignore */ }
-  document.getElementById('review-load-btn').disabled = !sel.value;
+    if (window.showOpenFilePicker) {
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{
+          description: 'JSON files',
+          accept: { 'application/json': ['.json'] }
+        }]
+      });
+      const file = await handle.getFile();
+      _pendingReviewFile = file;
+      _pendingReviewHandle = handle;
+      reviewSelectedFile.textContent = file.name;
+      document.getElementById('review-load-btn').disabled = false;
+      return;
+    }
+  } catch (err) {
+    // Ignore picker cancellation and fall back to input click.
+    if (err && err.name !== 'AbortError') {
+      logLine(`File picker unavailable: ${err.message}`, 'warn');
+    }
+  }
+  reviewFileInput.click();
 }
 
-document.getElementById('review-refresh-btn').addEventListener('click', () => loadReviewFileList());
-document.getElementById('review-file-select').addEventListener('change', e => {
-  document.getElementById('review-load-btn').disabled = !e.target.value;
-});
-document.getElementById('review-load-btn').addEventListener('click', async () => {
-  const fn = document.getElementById('review-file-select').value;
-  if (fn) await loadForReview(fn);
-});
-
-async function loadForReview(filename) {
+async function loadForReviewFile(file, fileHandle = null) {
   const progress = document.getElementById('review-progress');
   const loadBtn  = document.getElementById('review-load-btn');
   if (_autoSaveTimer) { clearTimeout(_autoSaveTimer); _autoSaveTimer = null; }
@@ -642,23 +663,20 @@ async function loadForReview(filename) {
   progress.textContent = 'Loading…';
   loadBtn.disabled = true;
   try {
-    // Cache-bust so we always get the latest saved version, not a stale browser cache
-    const data = await fetch(`/assets/brigades/model_test/${encodeURIComponent(filename)}?_=${Date.now()}`).then(r => r.json());
+    const raw = await file.text();
+    const data = JSON.parse(raw);
     if (!Array.isArray(data.movements)) throw new Error('No movements array in file');
-    REVIEW.filename = filename;
+    REVIEW.filename = file.name || 'review.json';
+    REVIEW.source = 'local';
+    REVIEW.fileHandle = fileHandle;
     REVIEW.meta     = { brigade_name: data.brigade_name || '', brigade_id: data.brigade_id || '', notes: data.notes || '' };
     REVIEW.entries  = data.movements.map((m, i) => ({ ...m, _idx: i, _status: 'pending', _marker: null }));
     renderReviewState();
     updateReviewProgress();
-    logLine(`Loaded "${filename}" — ${REVIEW.entries.length} entries`, 'ok');
-    // Probe: send '..' which MUST fail filename validation → confirms route is alive
-    fetch('/api/extractor/save-file', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename: '..', movements: [] })
-    }).then(r => r.json()).then(d => {
-      if (d.error === 'Invalid filename') logLine('Save route: online ✓', 'ok');
-      else logLine('⚠ Unexpected probe response — save may not work', 'warn');
-    }).catch(() => logLine('⚠ Save route not responding — restart the server!', 'warn'));
+    logLine(`Loaded "${REVIEW.filename}" — ${REVIEW.entries.length} entries`, 'ok');
+    if (!REVIEW.fileHandle) {
+      logLine('Tip: browser fallback mode loaded the file. Use Save to download updated JSON.', 'warn');
+    }
   } catch (err) {
     progress.textContent = `Error: ${err.message}`;
     logLine(`Failed to load file: ${err.message}`, 'error');
@@ -982,6 +1000,7 @@ document.getElementById('edit-modal').addEventListener('click', ev => {
 
 function queueAutoSave() {
   if (!REVIEW.filename) return;
+  if (REVIEW.source === 'local' && !REVIEW.fileHandle) return;
   if (_autoSaveTimer) clearTimeout(_autoSaveTimer);
   _autoSaveTimer = setTimeout(() => {
     _autoSaveTimer = null;
@@ -1007,19 +1026,26 @@ async function saveReviewToDisk(silent = false) {
     .filter(e => e._status !== 'deleted')
     .map(({ _idx, _status, _marker, ...rest }) => rest);
 
+  const payload = { ...REVIEW.meta, movements };
+  const payloadText = JSON.stringify(payload, null, 2);
   console.log(`[save] Saving ${movements.length} movements to ${REVIEW.filename}`);
 
   try {
-    const resp = await fetch('/api/extractor/save-file', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ filename: REVIEW.filename, movements })
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${data.error || resp.statusText}`);
-    console.log(`[save] OK — ${data.saved} entries saved`);
+    if (REVIEW.fileHandle?.createWritable) {
+      const writable = await REVIEW.fileHandle.createWritable();
+      await writable.write(payloadText);
+      await writable.close();
+    } else {
+      // If direct write access is unavailable, fall back to downloading the updated JSON.
+      const blob = new Blob([payloadText], { type: 'application/json' });
+      const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(blob), download: REVIEW.filename
+      });
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    console.log(`[save] OK — ${movements.length} entries saved`);
     if (!silent) {
-      logLine(`✓ Saved ${data.saved} entries to ${REVIEW.filename}`, 'ok');
+      logLine(`✓ Saved ${movements.length} entries to ${REVIEW.filename}`, 'ok');
       btn.textContent = '✓ Saved';
     } else {
       btn.textContent = '✓ Auto-saved';
@@ -1033,12 +1059,12 @@ async function saveReviewToDisk(silent = false) {
       setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
     } else {
       // Fallback: offer browser download so no work is lost
-      const blob = new Blob([JSON.stringify({ ...REVIEW.meta, movements }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([payloadText], { type: 'application/json' });
       const a = Object.assign(document.createElement('a'), {
         href: URL.createObjectURL(blob), download: REVIEW.filename
       });
       a.click(); URL.revokeObjectURL(a.href);
-      logLine(`⚠ Server save failed: ${err.message}`, 'error');
+      logLine(`⚠ Save failed: ${err.message}`, 'error');
       logLine(`  → File downloaded as fallback. Open the browser console (F12) for details.`, 'error');
       btn.textContent = '⚠ Downloaded';
       setTimeout(() => { btn.textContent = '💾 Save'; }, 3000);
