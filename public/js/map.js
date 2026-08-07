@@ -165,6 +165,10 @@ document.getElementById('toggleFreeTerritories').addEventListener('click', () =>
     // TODO: Implement free territories layer showing liberated territories over time
 });
 
+document.getElementById('toggleOverlayHelper').addEventListener('click', () => {
+    window.open('/overlay-helper.html', '_blank');
+});
+
 // Formations submenu handlers
 document.getElementById('toggleDetachments').addEventListener('click', () => {
     toggleSidebar('Detachments');
