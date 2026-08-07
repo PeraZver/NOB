@@ -24,6 +24,8 @@ const CAMPAIGN_LINE_COLORS = [
     '#e74c3c', '#2980b9', '#27ae60', '#f39c12', '#8e44ad', '#16a085', '#d35400', '#2c3e50'
 ];
 
+const BATTLE_OVERLAYS_PATH = 'assets/battles/overlays.json';
+
 let campaignPanelCloseListenerBound = false;
 
 function escapeHtml(value) {
@@ -166,6 +168,98 @@ function clearAllCampaignMovements() {
     layerState.visibleCampaignBrigades = {};
     hideCampaignListPanel();
     updateCampaignMovementLegend();
+}
+
+function clearActiveBattleOverlay() {
+    if (layerState.activeBattleOverlayLayer) {
+        map.removeLayer(layerState.activeBattleOverlayLayer);
+        layerState.activeBattleOverlayLayer = null;
+    }
+    layerState.activeBattleOverlayBattleId = null;
+}
+
+async function ensureBattleOverlayConfigIndex() {
+    if (layerState.battleOverlayConfigIndex) {
+        return layerState.battleOverlayConfigIndex;
+    }
+
+    if (layerState.battleOverlayConfigLoadAttempted) {
+        return null;
+    }
+
+    layerState.battleOverlayConfigLoadAttempted = true;
+
+    try {
+        const response = await fetch(BATTLE_OVERLAYS_PATH);
+        if (!response.ok) {
+            console.warn(`Could not load battle overlays config from ${BATTLE_OVERLAYS_PATH}.`);
+            return null;
+        }
+
+        const payload = await response.json();
+        const overlayList = Array.isArray(payload) ? payload : payload.overlays;
+        if (!Array.isArray(overlayList)) {
+            console.warn('Battle overlays config has invalid format. Expected array or { overlays: [] }.');
+            return null;
+        }
+
+        const index = {};
+        overlayList.forEach((entry) => {
+            if (!entry || entry.battleId == null || !entry.imageUrl || !Array.isArray(entry.imageBounds)) {
+                return;
+            }
+            index[String(entry.battleId)] = entry;
+        });
+
+        layerState.battleOverlayConfigIndex = index;
+        return index;
+    } catch (error) {
+        console.error('Failed to load battle overlays config:', error);
+        return null;
+    }
+}
+
+function applyBattleOverlayFilter(overlay, contrast = 1) {
+    const normalizedContrast = Number.isFinite(Number(contrast)) ? Number(contrast) : 1;
+
+    const applyToElement = () => {
+        const imageElement = overlay.getElement();
+        if (imageElement) {
+            imageElement.style.filter = `contrast(${normalizedContrast.toFixed(2)})`;
+        }
+    };
+
+    applyToElement();
+    overlay.on('load', applyToElement);
+}
+
+async function showBattleOverlayForItem(item) {
+    clearActiveBattleOverlay();
+
+    if (!item || item.id == null) {
+        return;
+    }
+
+    const overlayIndex = await ensureBattleOverlayConfigIndex();
+    if (!overlayIndex) {
+        return;
+    }
+
+    const config = overlayIndex[String(item.id)];
+    if (!config) {
+        return;
+    }
+
+    const overlay = L.imageOverlay(config.imageUrl, config.imageBounds, {
+        opacity: Number(config.opacity ?? 0.75),
+        interactive: false,
+        zIndex: Number(config.zIndex ?? 220)
+    }).addTo(map);
+
+    applyBattleOverlayFilter(overlay, config.contrast ?? 1);
+
+    layerState.activeBattleOverlayLayer = overlay;
+    layerState.activeBattleOverlayBattleId = item.id;
 }
 
 // Function to show/hide occupied territories on the map
@@ -354,6 +448,7 @@ export function showBattles() {
         map.removeLayer(layerState.battlesLayer);
         layerState.battlesLayer = null;
         layerState.isBattlesLayerVisible = false;
+        clearActiveBattleOverlay();
         updateLegend();
     } else {
         fetch(API_ENDPOINTS.battles)
@@ -582,6 +677,7 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.battlesLayer);
                 layerState.isBattlesLayerVisible = false;
                 layerState.battlesLayer = null;
+                clearActiveBattleOverlay();
                 updateLegend();
             }
             break;
@@ -601,6 +697,7 @@ export function removeLayer(layerName) {
 // Function to handle marker clicks
 export function handleMarkerClick(marker, item) {
     console.log('Marker in handleMarkerClick:', marker);
+    clearActiveBattleOverlay();
     
     // Only hide Campaign button and remove campaign layer if campaign markers are NOT visible
     if (!layerState.isCampaignsLayerVisible) {
@@ -635,6 +732,7 @@ export function handleMarkerClick(marker, item) {
 // Function to handle brigade marker clicks
 export function handleBrigadeMarkerClick(marker, item) {
     console.log('Brigade marker clicked:', marker, item);
+    clearActiveBattleOverlay();
     
     // Store the selected brigade ID
     layerState.selectedBrigadeId = item.id;
@@ -678,6 +776,7 @@ export function handleBrigadeMarkerClick(marker, item) {
 // Function to handle battle marker clicks
 export function handleBattleMarkerClick(marker, item) {
     console.log('Battle marker clicked:', marker);
+    showBattleOverlayForItem(item);
     const popupContent = generateBattlePopupContent({
         name: item.name,
         place: item.place,
@@ -701,6 +800,7 @@ export function handleBattleMarkerClick(marker, item) {
 // Handle crime marker click
 export function handleCrimeMarkerClick(marker, item) {
     console.log('Crime marker clicked:', marker);
+    clearActiveBattleOverlay();
     const popupContent = generateCrimePopupContent({
         site: item.site,
         start_date: item.start_date,
