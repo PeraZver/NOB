@@ -369,6 +369,21 @@ function applyBattleOverlayFilter(overlay, contrast = 1) {
     overlay.on('load', applyToElement);
 }
 
+function getBattleOverlayFromItem(item) {
+    const overlay = item?.overlay;
+    if (!overlay || !overlay.imageUrl || !Array.isArray(overlay.imageBounds)) {
+        return null;
+    }
+
+    return {
+        imageUrl: overlay.imageUrl,
+        imageBounds: overlay.imageBounds,
+        opacity: overlay.opacity,
+        contrast: overlay.contrast,
+        zIndex: overlay.zIndex
+    };
+}
+
 async function showBattleOverlayForItem(item) {
     clearActiveBattleOverlay();
 
@@ -376,14 +391,18 @@ async function showBattleOverlayForItem(item) {
         return;
     }
 
-    const overlayIndex = await ensureBattleOverlayConfigIndex();
-    if (!overlayIndex) {
-        return;
-    }
+    let config = getBattleOverlayFromItem(item);
 
-    const config = overlayIndex[String(item.id)];
     if (!config) {
-        return;
+        const overlayIndex = await ensureBattleOverlayConfigIndex();
+        if (!overlayIndex) {
+            return;
+        }
+
+        config = overlayIndex[String(item.id)];
+        if (!config) {
+            return;
+        }
     }
 
     const overlay = L.imageOverlay(config.imageUrl, config.imageBounds, {
