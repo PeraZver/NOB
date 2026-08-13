@@ -25,6 +25,7 @@ const CAMPAIGN_LINE_COLORS = [
 ];
 
 const BATTLE_OVERLAYS_PATH = 'assets/battles/overlays.json';
+const FREE_TERRITORIES_PATH = 'assets/territory/free-territories.json';
 
 let campaignPanelCloseListenerBound = false;
 
@@ -178,6 +179,13 @@ function clearActiveBattleOverlay() {
     layerState.activeBattleOverlayBattleId = null;
 }
 
+function clearActiveFreeTerritories() {
+    if (layerState.freeTerritoryLayer) {
+        map.removeLayer(layerState.freeTerritoryLayer);
+        layerState.freeTerritoryLayer = null;
+    }
+}
+
 async function ensureBattleOverlayConfigIndex() {
     if (layerState.battleOverlayConfigIndex) {
         return layerState.battleOverlayConfigIndex;
@@ -217,6 +225,134 @@ async function ensureBattleOverlayConfigIndex() {
         console.error('Failed to load battle overlays config:', error);
         return null;
     }
+}
+
+async function ensureFreeTerritoryOverlayConfigIndex() {
+    if (layerState.freeTerritoryOverlayConfigIndex) {
+        return layerState.freeTerritoryOverlayConfigIndex;
+    }
+
+    if (layerState.freeTerritoryOverlayConfigLoadAttempted) {
+        return null;
+    }
+
+    layerState.freeTerritoryOverlayConfigLoadAttempted = true;
+
+    try {
+        const response = await fetch(FREE_TERRITORIES_PATH);
+        if (!response.ok) {
+            console.warn(`Could not load free territories config from ${FREE_TERRITORIES_PATH}.`);
+            return null;
+        }
+
+        const payload = await response.json();
+        const overlayList = Array.isArray(payload) ? payload : payload.overlays;
+        if (!Array.isArray(overlayList)) {
+            console.warn('Free territories config has invalid format. Expected array or { overlays: [] }.');
+            return null;
+        }
+
+        const index = {};
+        overlayList.forEach((entry) => {
+            if (!entry || !entry.imageUrl || !Array.isArray(entry.imageBounds)) {
+                return;
+            }
+            index[String(entry.id || entry.name || entry.imageUrl)] = entry;
+        });
+
+        layerState.freeTerritoryOverlayConfigIndex = index;
+        return index;
+    } catch (error) {
+        console.error('Failed to load free territories config:', error);
+        return null;
+    }
+}
+
+function compareYearMonth(left, right) {
+    if (!left || !right) {
+        return 0;
+    }
+
+    if (left.year !== right.year) {
+        return left.year - right.year;
+    }
+
+    return left.month - right.month;
+}
+
+function isWithinTimelineWindow(target, start, end) {
+    return compareYearMonth(target, start) >= 0 && compareYearMonth(target, end) <= 0;
+}
+
+function getCurrentTimelineEnd() {
+    if (layerState.selectedYearEnd == null || layerState.selectedMonthEnd == null) {
+        return null;
+    }
+
+    return {
+        year: layerState.selectedYearEnd,
+        month: layerState.selectedMonthEnd
+    };
+}
+
+function applyFreeTerritoryOverlayFilter(overlay, contrast = 1) {
+    const normalizedContrast = Number.isFinite(Number(contrast)) ? Number(contrast) : 1;
+
+    const applyToElement = () => {
+        const imageElement = overlay.getElement();
+        if (imageElement) {
+            imageElement.style.filter = `contrast(${normalizedContrast.toFixed(2)})`;
+        }
+    };
+
+    applyToElement();
+    overlay.on('load', applyToElement);
+}
+
+export async function refreshFreeTerritoryOverlays() {
+    clearActiveFreeTerritories();
+
+    if (!layerState.isFreeTerritoriesLayerVisible) {
+        return;
+    }
+
+    const timelineEnd = getCurrentTimelineEnd();
+    if (!timelineEnd) {
+        return;
+    }
+
+    const overlayIndex = await ensureFreeTerritoryOverlayConfigIndex();
+    if (!overlayIndex) {
+        return;
+    }
+
+    const activeOverlays = Object.values(overlayIndex).filter((entry) => {
+        const start = entry.visibleFrom || entry.displayFrom || entry.start;
+        const end = entry.visibleTo || entry.displayTo || entry.end;
+
+        if (!start || !end) {
+            return true;
+        }
+
+        return isWithinTimelineWindow(timelineEnd, start, end);
+    });
+
+    if (activeOverlays.length === 0) {
+        return;
+    }
+
+    layerState.freeTerritoryLayer = L.layerGroup().addTo(map);
+
+    activeOverlays.forEach((config) => {
+        const overlay = L.imageOverlay(config.imageUrl, config.imageBounds, {
+            opacity: Number(config.opacity ?? 0.5),
+            interactive: false,
+            zIndex: Number(config.zIndex ?? 10)
+        });
+
+        applyFreeTerritoryOverlayFilter(overlay, config.contrast ?? 1);
+        layerState.freeTerritoryLayer.addLayer(overlay);
+    });
 }
 
 function applyBattleOverlayFilter(overlay, contrast = 1) {
@@ -282,6 +418,18 @@ export function showOccupiedTerritory() {
         layerState.isOccupiedTerritoryLayerVisible = true;
         loadDefaultText('assets/territory/occupied-territory.md');
     }
+}
+
+export function showFreeTerritories() {
+    if (layerState.isFreeTerritoriesLayerVisible) {
+        clearActiveFreeTerritories();
+        layerState.isFreeTerritoriesLayerVisible = false;
+        return;
+    }
+
+    layerState.isFreeTerritoriesLayerVisible = true;
+    loadDefaultText('assets/territory/free-territories.md');
+    refreshFreeTerritoryOverlays();
 }
 
 // Generic function to fetch and display data for a layer
@@ -670,6 +818,12 @@ export function removeLayer(layerName) {
                 map.removeLayer(layerState.occupiedTerritoryLayer);
                 layerState.isOccupiedTerritoryLayerVisible = false;
                 layerState.occupiedTerritoryLayer = null;
+            }
+            break;
+        case 'Free Territories':
+            if (layerState.isFreeTerritoriesLayerVisible) {
+                clearActiveFreeTerritories();
+                layerState.isFreeTerritoriesLayerVisible = false;
             }
             break;
         case 'Battles':

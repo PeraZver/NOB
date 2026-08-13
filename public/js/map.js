@@ -9,7 +9,7 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showFreeTerritories, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
 import { updateSidebar, hideMapInfoOverlay } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
@@ -111,6 +111,9 @@ function showLayerByName(layerName) {
         case 'Occupied Territory':
             showOccupiedTerritory();
             break;
+        case 'Free Territories':
+            showFreeTerritories();
+            break;
         case 'Detachments':
             showLayerFromAPI(API_ENDPOINTS.detachments, 'detachmentLayer', 'assets/detachments/detachments.md', 'detachments');
             break;
@@ -160,9 +163,7 @@ document.getElementById('toggleOccupation').addEventListener('click', () => {
 });
 
 document.getElementById('toggleFreeTerritories').addEventListener('click', () => {
-    // Placeholder for future Free territories functionality
-    console.log('Free territories feature coming soon');
-    // TODO: Implement free territories layer showing liberated territories over time
+    toggleSidebar('Free Territories');
 });
 
 document.getElementById('toggleOverlayHelper').addEventListener('click', () => {

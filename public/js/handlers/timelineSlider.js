@@ -10,7 +10,7 @@
  */
 
 import layerState from '../layerState.js';
-import { refreshAllVisibleLayers } from '../map_layers.js';
+import { refreshAllVisibleLayers, refreshFreeTerritoryOverlays } from '../map_layers.js';
 
 // Timeline data structure: April 1941 to May 1945 (50 months)
 const TIMELINE_DATA = [];
@@ -146,17 +146,6 @@ function handleSliderChange(event, sliderType) {
     // Show tooltip when slider is being dragged (with auto-hide timeout)
     showTooltip(sliderValue, sliderType, true);
     
-    // Check if any unit layer is currently visible
-    const hasActiveLayer = layerState.isBrigadesLayerVisible || 
-                           layerState.isDetachmentLayerVisible || 
-                           layerState.isDivisionLayerVisible || 
-                           layerState.isCorpsLayerVisible ||
-                           layerState.isBattlesLayerVisible;
-    
-    if (!hasActiveLayer) {
-        return; // Do nothing if no unit layer is visible
-    }
-    
     // Get the corresponding year and month from both slider values
     const afterData = TIMELINE_DATA[parseInt(sliderAfter.value)];
     const beforeData = TIMELINE_DATA[parseInt(sliderBefore.value)];
@@ -172,8 +161,18 @@ function handleSliderChange(event, sliderType) {
         layerState.selectedYear = beforeData.year;
         layerState.selectedMonth = beforeData.month;
         
-        // Refresh all visible layers with the new filter
-        refreshAllVisibleLayers();
+        // Refresh timeline-driven overlays first, then refresh visible data layers when needed
+        refreshFreeTerritoryOverlays();
+
+        const hasActiveLayer = layerState.isBrigadesLayerVisible || 
+                               layerState.isDetachmentLayerVisible || 
+                               layerState.isDivisionLayerVisible || 
+                               layerState.isCorpsLayerVisible ||
+                               layerState.isBattlesLayerVisible;
+
+        if (hasActiveLayer) {
+            refreshAllVisibleLayers();
+        }
     }
 }
 
@@ -333,6 +332,8 @@ export function resetTimeline() {
     layerState.selectedMonthEnd = null;
     layerState.selectedYear = null;
     layerState.selectedMonth = null;
+
+    refreshFreeTerritoryOverlays();
 }
 
 /**

@@ -73,7 +73,7 @@ export const icons = typeof L !== 'undefined' ? {
 
 // Occupied territory overlay configuration
 export const OCCUPIED_TERRITORY_CONFIG = {
-    imageUrl: '../img/NDHOccupationZonesLocatorMap.png',
+    imageUrl: '../img/territories/NDHOccupationZonesLocatorMap.png',
     imageBounds: [[42.14, 14.15], [46.75, 20.682]],
     opacity: 0.7,
     zIndex: 10
@@ -82,6 +82,7 @@ export const OCCUPIED_TERRITORY_CONFIG = {
 // Layer names
 export const LAYER_NAMES = {
     OCCUPIED_TERRITORY: 'Occupied Territory',
+    FREE_TERRITORIES: 'Free Territories',
     DETACHMENTS: 'Detachments',
     BRIGADES: 'Brigades',
     DIVISIONS: 'Divisions',
@@ -93,6 +94,7 @@ export const LAYER_NAMES = {
 // Markdown file paths
 export const MARKDOWN_PATHS = {
     'Occupied Territory': 'assets/territory/occupied-territory.md',
+    'Free Territories': 'assets/territory/free-territories.md',
     'Detachments': 'assets/detachments.md',
     'Brigades': 'assets/brigades.md',
     'Divisions': 'assets/divizije.md',
