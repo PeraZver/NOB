@@ -17,7 +17,8 @@ router.get('/battles', async (req, res) => {
         const battles = await getBattles();
         res.json(battles);
     } catch (error) {
-        res.status(500).send('Error fetching battles');
+        console.error('Error fetching battles route:', error);
+        res.status(500).json({ error: 'Error fetching battles', details: error.message });
     }
 });
 

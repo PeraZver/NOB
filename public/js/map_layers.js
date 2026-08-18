@@ -619,7 +619,13 @@ export function showBattles() {
         updateLegend();
     } else {
         fetch(API_ENDPOINTS.battles)
-            .then(response => response.json()) // Await the JSON parsing
+            .then(async (response) => {
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 // Store all data for filtering
                 layerState.allLayerData['battlesLayer'] = data;

@@ -10,9 +10,11 @@
 
 const express = require('express');
 const config = require('./config/config');
+const { getGitVersionInfo } = require('./utils/gitVersion');
 
 const app = express();
 const port = config.server.port;
+app.locals.version = getGitVersionInfo();
 
 // Middleware to parse JSON
 // Review saves can include large movement arrays, so allow larger payloads.
@@ -20,6 +22,10 @@ app.use(express.json({ limit: '10mb' }));
 
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(config.paths.public));
+
+app.get('/api/version', (req, res) => {
+    res.json({ version: app.locals.version || 'unknown' });
+});
 
 // Import routes
 const militaryUnitsRoutes = require('./routes/militaryUnitsRoutes');
