@@ -1,8 +1,6 @@
 # Free Territories
 
-This layer shows liberated territory overlays that change over time.
-
-Use the timeline slider to control which free-territory image is visible.
+USE THE TIMELINE SLIDER TO OVERLAY THE FREE TERRITORY
 
 Example behavior:
 - The sample liberated territory overlay appears only when the right-hand timeline slider lands between October 1942 and January 1943.

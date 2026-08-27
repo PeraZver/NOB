@@ -105,6 +105,17 @@ button.secondary {
   background: #57656b;
 }
 
+button.save-to-source {
+  margin-top: 14px;
+  background: var(--accent-2);
+}
+
+button.save-to-source:disabled {
+  background: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .btn-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

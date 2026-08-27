@@ -10,9 +10,11 @@
 
 const express = require('express');
 const config = require('./config/config');
+const { getGitVersionInfo } = require('./utils/gitVersion');
 
 const app = express();
 const port = config.server.port;
+app.locals.version = getGitVersionInfo();
 
 // Middleware to parse JSON
 // Review saves can include large movement arrays, so allow larger payloads.
@@ -21,6 +23,10 @@ app.use(express.json({ limit: '10mb' }));
 // Serve static files (HTML, CSS, JS)
 app.use(express.static(config.paths.public));
 
+app.get('/api/version', (req, res) => {
+    res.json({ version: app.locals.version || 'unknown' });
+});
+
 // Import routes
 const militaryUnitsRoutes = require('./routes/militaryUnitsRoutes');
 const searchRoutes = require('./routes/searchRoutes');
@@ -28,6 +34,7 @@ const battlesRoutes = require('./routes/battlesRoutes');
 const campaignsRoutes = require('./routes/campaignsRoutes');
 const crimesRoutes = require('./routes/crimesRoutes');
 const extractorRoutes = require('./routes/extractorRoutes');
+const overlaysRoutes = require('./routes/overlaysRoutes');
 
 // Register routes
 app.use('/api', militaryUnitsRoutes);
@@ -36,6 +43,7 @@ app.use('/api', battlesRoutes);
 app.use('/api', campaignsRoutes);
 app.use('/api', crimesRoutes);
 app.use('/api', extractorRoutes);
+app.use('/api/overlays', overlaysRoutes);
 
 // Start server
 app.listen(port, () => {

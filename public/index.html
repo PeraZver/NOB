@@ -13,6 +13,7 @@
 </head>
 
 <body>
+	<div id="app-version-badge" class="app-version-badge" aria-live="polite">loading version...</div>
 	<div class="title">
 		<div class="main-title">N O B</div>
 		<div class="subtitle">
@@ -110,6 +111,21 @@
 		</div>
 		<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.min.js"></script>
+		<script>
+			(async () => {
+				const badge = document.getElementById('app-version-badge');
+				try {
+					const response = await fetch('/api/version');
+					if (!response.ok) {
+						throw new Error('version endpoint failed');
+					}
+					const data = await response.json();
+					badge.textContent = data.version || 'unknown';
+				} catch (error) {
+					badge.textContent = 'unknown';
+				}
+			})();
+		</script>
 		<script type="module" src="js/menu.js"></script>
 		<script type="module" src="js/map.js"></script>
 		<script type="module" src="js/search.js"></script>

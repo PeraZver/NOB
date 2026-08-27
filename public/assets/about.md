@@ -7,7 +7,7 @@ The NOB (Narodnooslobodilački rat - People's Liberation War) Map Project is an 
 ### Interactive Map Layers
 - **Military Formations**: View the locations and formation dates of Detachments, Brigades, Divisions, and Corps
 - **Campaign Movements**: Trace the movement paths of brigades throughout the war
-- **Battles**: Explore major battles and military engagements
+- **Battles**: Explore major battles and military engagements with map overlays
 - **War Crimes**: Document locations of war crimes during the conflict
 - **Occupied and Free Territories**: Visualize the territorial control during the occupation
 

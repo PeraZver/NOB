@@ -99,7 +99,7 @@ export const MARKDOWN_PATHS = {
     'Brigades': 'assets/brigades.md',
     'Divisions': 'assets/divizije.md',
     'Corps': 'assets/korpusi.md',
-    'Battles': 'assets/battles.md',
+    'Battles': 'assets/battles/battles.md',
     'Crimes': 'assets/crimes/crimes.md'
 };
 
