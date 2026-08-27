@@ -34,6 +34,7 @@ const battlesRoutes = require('./routes/battlesRoutes');
 const campaignsRoutes = require('./routes/campaignsRoutes');
 const crimesRoutes = require('./routes/crimesRoutes');
 const extractorRoutes = require('./routes/extractorRoutes');
+const overlaysRoutes = require('./routes/overlaysRoutes');
 
 // Register routes
 app.use('/api', militaryUnitsRoutes);
@@ -42,6 +43,7 @@ app.use('/api', battlesRoutes);
 app.use('/api', campaignsRoutes);
 app.use('/api', crimesRoutes);
 app.use('/api', extractorRoutes);
+app.use('/api/overlays', overlaysRoutes);
 
 // Start server
 app.listen(port, () => {

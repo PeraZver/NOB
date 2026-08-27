@@ -37,6 +37,7 @@ const els = {
     configSnippet: document.getElementById('configSnippet'),
     copySnippetBtn: document.getElementById('copySnippetBtn'),
     downloadPresetsBtn: document.getElementById('downloadPresetsBtn'),
+    saveToSourceBtn: document.getElementById('saveToSourceBtn'),
     statusText: document.getElementById('statusText')
 };
 
@@ -52,12 +53,16 @@ const state = {
     autoSaveTimer: null,
     overlayDragActive: false,
     overlayDragLastLatLng: null,
-    overlayElement: null
+    overlayElement: null,
+    activeManifestRef: null
 };
 
 const presets = readPresets();
 refreshPresetSelect();
 hydrateFromTerritoryConfig();
+hydrateFromBattleOverlays();
+hydrateFromFreeTerritories();
+updateSaveToSourceButton();
 
 bindEvents();
 
@@ -74,6 +79,7 @@ function bindEvents() {
     els.loadPresetBtn.addEventListener('click', loadSelectedPreset);
     els.copySnippetBtn.addEventListener('click', copySnippet);
     els.downloadPresetsBtn.addEventListener('click', downloadPresetsJson);
+    els.saveToSourceBtn.addEventListener('click', saveActiveOverlayToSourceFile);
 }
 
 function hydrateFromTerritoryConfig() {
@@ -82,6 +88,7 @@ function hydrateFromTerritoryConfig() {
     if (!presets[territoryPresetId]) {
         presets[territoryPresetId] = {
             id: territoryPresetId,
+            group: 'Occupied Territory',
             name: 'Occupied Territory (from config)',
             imageId: territoryPresetId,
             imageUrlForConfig: OCCUPIED_TERRITORY_CONFIG.imageUrl,
@@ -102,6 +109,93 @@ function hydrateFromTerritoryConfig() {
         OCCUPIED_TERRITORY_CONFIG.opacity,
         OCCUPIED_TERRITORY_CONFIG.zIndex
     );
+}
+
+// Mirrors the battle overlays manifest so calibrated battle maps show up as presets too
+async function hydrateFromBattleOverlays() {
+    try {
+        const response = await fetch('assets/battles/overlays.json');
+        if (!response.ok) {
+            return;
+        }
+
+        const payload = await response.json();
+        const overlayList = Array.isArray(payload) ? payload : payload.overlays;
+        if (!Array.isArray(overlayList)) {
+            return;
+        }
+
+        overlayList.forEach((entry) => {
+            if (!entry || entry.battleId == null || !entry.imageUrl || !Array.isArray(entry.imageBounds)) {
+                return;
+            }
+
+            const id = `battle:${entry.battleId}`;
+            presets[id] = {
+                id,
+                group: 'Battles',
+                name: `Battle: ${entry.name || entry.battleId}`,
+                imageId: id,
+                imageUrlForConfig: entry.imageUrl,
+                imageSource: entry.imageUrl,
+                imageBounds: entry.imageBounds,
+                opacity: entry.opacity ?? 0.5,
+                contrast: entry.contrast ?? 1,
+                zIndex: entry.zIndex ?? 10,
+                manifestRef: { manifest: 'battles', battleId: entry.battleId },
+                updatedAt: presets[id]?.updatedAt || new Date().toISOString()
+            };
+        });
+
+        persistPresets();
+        refreshPresetSelect();
+    } catch (error) {
+        console.warn('Failed to load battle overlays for presets:', error);
+    }
+}
+
+// Mirrors the free territories manifest so timeline-driven overlays show up as presets too
+async function hydrateFromFreeTerritories() {
+    try {
+        const response = await fetch('assets/territory/free-territories.json');
+        if (!response.ok) {
+            return;
+        }
+
+        const payload = await response.json();
+        const overlayList = Array.isArray(payload) ? payload : payload.overlays;
+        if (!Array.isArray(overlayList)) {
+            return;
+        }
+
+        overlayList.forEach((entry) => {
+            if (!entry || !entry.imageUrl || !Array.isArray(entry.imageBounds)) {
+                return;
+            }
+
+            const key = entry.id || entry.name || entry.imageUrl;
+            const id = `freeTerritory:${key}`;
+            presets[id] = {
+                id,
+                group: 'Free Territories',
+                name: `Free Territory: ${entry.name || key}`,
+                imageId: id,
+                imageUrlForConfig: entry.imageUrl,
+                imageSource: entry.imageUrl,
+                imageBounds: entry.imageBounds,
+                opacity: entry.opacity ?? 0.5,
+                contrast: entry.contrast ?? 1,
+                zIndex: entry.zIndex ?? 10,
+                manifestRef: { manifest: 'free-territories', id: key },
+                updatedAt: presets[id]?.updatedAt || new Date().toISOString()
+            };
+        });
+
+        persistPresets();
+        refreshPresetSelect();
+    } catch (error) {
+        console.warn('Failed to load free territories for presets:', error);
+    }
 }
 
 function onLoadImage() {
@@ -138,6 +232,9 @@ function onLoadImage() {
     state.currentImageUrlForConfig = configImageUrl;
 
     const preset = presets[imageId];
+    state.activeManifestRef = preset?.manifestRef || null;
+    updateSaveToSourceButton();
+
     const bounds = preset?.imageBounds || getDefaultOverlayBounds();
     const opacity = preset?.opacity ?? Number(els.opacityRange.value);
     const contrast = preset?.contrast ?? Number(els.contrastRange.value);
@@ -409,6 +506,8 @@ function clearOverlay(showMessage = true) {
     state.currentBounds = null;
     updateBoundsDisplay(null);
     els.configSnippet.value = '';
+    state.activeManifestRef = null;
+    updateSaveToSourceButton();
 
     if (showMessage) {
         setStatus('Overlay cleared.');
@@ -483,6 +582,8 @@ function loadSelectedPreset() {
     state.currentImageId = preset.imageId;
     state.currentImageSource = preset.imageSource;
     state.currentImageUrlForConfig = preset.imageUrlForConfig || preset.imageSource;
+    state.activeManifestRef = preset.manifestRef || null;
+    updateSaveToSourceButton();
 
     els.presetName.value = preset.name || '';
     els.opacityRange.value = String(preset.opacity ?? 0.7);
@@ -635,11 +736,33 @@ function refreshPresetSelect(selectedId = '') {
         return;
     }
 
+    const groupOrder = ['Occupied Territory', 'Battles', 'Free Territories', 'Custom'];
+    const groups = new Map(groupOrder.map((name) => [name, []]));
+
     ids.forEach((id) => {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = presets[id].name || id;
-        els.presetSelect.append(option);
+        const groupName = presets[id].group || 'Custom';
+        if (!groups.has(groupName)) {
+            groups.set(groupName, []);
+        }
+        groups.get(groupName).push(id);
+    });
+
+    groups.forEach((groupIds, groupName) => {
+        if (groupIds.length === 0) {
+            return;
+        }
+
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = groupName;
+
+        groupIds.forEach((id) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = presets[id].name || id;
+            optgroup.append(option);
+        });
+
+        els.presetSelect.append(optgroup);
     });
 
     if (selectedId && presets[selectedId]) {
@@ -741,6 +864,75 @@ function getCenter(bounds) {
 function setStatus(message, isError = false) {
     els.statusText.textContent = message;
     els.statusText.style.color = isError ? '#a22626' : '#9a3412';
+}
+
+function updateSaveToSourceButton() {
+    const ref = state.activeManifestRef;
+    if (!ref) {
+        els.saveToSourceBtn.disabled = true;
+        els.saveToSourceBtn.textContent = 'Update Source JSON';
+        return;
+    }
+
+    els.saveToSourceBtn.disabled = false;
+    els.saveToSourceBtn.textContent = ref.manifest === 'battles'
+        ? 'Update overlays.json'
+        : 'Update free-territories.json';
+}
+
+async function saveActiveOverlayToSourceFile() {
+    const ref = state.activeManifestRef;
+    if (!ref || !state.currentBounds) {
+        setStatus('Load a Battle or Free Territory preset before updating its source file.', true);
+        return;
+    }
+
+    const payload = {
+        imageUrl: state.currentImageUrlForConfig,
+        imageBounds: state.currentBounds,
+        opacity: Number(els.opacityRange.value),
+        contrast: Number(els.contrastRange.value),
+        zIndex: Number(els.zIndexInput.value)
+    };
+
+    const endpoint = ref.manifest === 'battles' ? '/api/overlays/battles' : '/api/overlays/free-territories';
+    if (ref.manifest === 'battles') {
+        payload.battleId = ref.battleId;
+    } else {
+        payload.id = ref.id;
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || 'Server rejected the update.');
+        }
+
+        if (state.currentImageId && presets[state.currentImageId]) {
+            presets[state.currentImageId] = {
+                ...presets[state.currentImageId],
+                imageBounds: state.currentBounds,
+                opacity: payload.opacity,
+                contrast: payload.contrast,
+                zIndex: payload.zIndex,
+                updatedAt: new Date().toISOString()
+            };
+            persistPresets();
+            refreshPresetSelect(state.currentImageId);
+        }
+
+        const targetFile = ref.manifest === 'battles' ? 'overlays.json' : 'free-territories.json';
+        setStatus(`Saved calibrated bounds to ${targetFile}.`);
+    } catch (error) {
+        console.error('Failed to save overlay to source file:', error);
+        setStatus(`Failed to update source file: ${error.message}`, true);
+    }
 }
 
 function applyOverlayVisuals() {
