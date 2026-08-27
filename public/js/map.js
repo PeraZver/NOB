@@ -9,7 +9,7 @@
  */
 
 import layerState from './layerState.js';
-import { showLayerFromAPI, showOccupiedTerritory, showFreeTerritories, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns } from './map_layers.js';
+import { showLayerFromAPI, showOccupiedTerritory, showFreeTerritories, showBattles, showCrimes, removeLayer, refreshAllVisibleLayers, handleBrigadeMarkerClick, showCampaigns, initTestMode, showBrigadesWithCampaigns, clearActiveBattleOverlayIfOutside } from './map_layers.js';
 import { updateSidebar, hideMapInfoOverlay } from './sidebar.js';
 import { handleCalendarToggle, clearYearFilter, initializeFilterHandlers } from './handlers/filterHandlers.js';
 import { MAP_CONFIG, MARKDOWN_PATHS, API_ENDPOINTS } from './config.js';
@@ -37,7 +37,10 @@ if (typeof L !== 'undefined') {
 
     // Map click: restore state that may have been changed by marker/campaign clicks,
     // but do NOT open the sidebar – that only happens via marker clicks or menu buttons.
-    map.on('click', function () {
+    map.on('click', function (e) {
+        // Hide the battle overlay image if the click landed outside its bounds
+        clearActiveBattleOverlayIfOutside(e.latlng);
+
         // Restore brigade markers if they were temporarily hidden by campaign marker click
         if (layerState.brigadesLayerTemporarilyHidden && layerState.brigadesLayer) {
             map.addLayer(layerState.brigadesLayer);

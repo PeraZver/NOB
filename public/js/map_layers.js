@@ -179,6 +179,18 @@ function clearActiveBattleOverlay() {
     layerState.activeBattleOverlayBattleId = null;
 }
 
+// Clears the active battle overlay if the given latlng falls outside its image bounds
+export function clearActiveBattleOverlayIfOutside(latlng) {
+    const overlay = layerState.activeBattleOverlayLayer;
+    if (!overlay) {
+        return;
+    }
+
+    if (!latlng || !overlay.getBounds().contains(latlng)) {
+        clearActiveBattleOverlay();
+    }
+}
+
 function clearActiveFreeTerritories() {
     if (layerState.freeTerritoryLayer) {
         map.removeLayer(layerState.freeTerritoryLayer);
